@@ -1,0 +1,73 @@
+.date-input-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid #e0d9d0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 15px;
+  color: #5a534e;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.date-input-wrapper:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #a69c97;
+}
+
+.date-input-wrapper:focus-visible {
+  outline: 2px solid #a69c97;
+  outline-offset: 2px;
+}
+
+.date-input-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date-input-text.placeholder {
+  color: #a69c97;
+}
+
+.date-input-icon {
+  margin-left: 10px;
+  color: #a69c97;
+  font-size: 16px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.date-input-native {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+/* Minimal theme */
+body.minimal-theme .date-input-wrapper {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .date-input-wrapper:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+body.minimal-theme .date-input-text.placeholder {
+  color: #bbb;
+}
+
+body.minimal-theme .date-input-icon {
+  color: #999;
+}

@@ -1,0 +1,156 @@
+/* ── Toast Container ── */
+
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* ── Toast Item ── */
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Noto Serif SC', 'Georgia', serif;
+  font-size: 14px;
+  color: #4a433e;
+  pointer-events: auto;
+  animation: toast-enter 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  max-width: 380px;
+  min-width: 240px;
+}
+
+.toast--exit {
+  animation: toast-exit 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Type Variants ── */
+
+.toast--success {
+  border-left: 3px solid #8fae8b;
+}
+
+.toast--success .toast-icon {
+  color: #7a9e7e;
+}
+
+.toast--error {
+  border-left: 3px solid #c4887a;
+}
+
+.toast--error .toast-icon {
+  color: #b8786a;
+}
+
+.toast--info {
+  border-left: 3px solid #8aa5b5;
+}
+
+.toast--info .toast-icon {
+  color: #7a9eb0;
+}
+
+/* ── Icon ── */
+
+.toast-icon {
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+/* ── Message ── */
+
+.toast-message {
+  flex: 1;
+  line-height: 1.5;
+}
+
+/* ── Close Button ── */
+
+.toast-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #8a817c;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.toast-close:hover {
+  color: #5a534e;
+}
+
+/* ── Animations ── */
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+}
+
+/* ── Minimal Theme ── */
+
+body.minimal-theme .toast {
+  background: #ffffff;
+  backdrop-filter: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+body.minimal-theme .toast--success {
+  border-left-color: #6a9e6e;
+}
+
+body.minimal-theme .toast--error {
+  border-left-color: #c4786a;
+}
+
+body.minimal-theme .toast--info {
+  border-left-color: #6a9eb0;
+}
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .toast-container {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+  }
+
+  .toast {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
