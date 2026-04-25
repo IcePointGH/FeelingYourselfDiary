@@ -20,22 +20,10 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Use Spring Boot layered jars for faster startup
+# Copy the jar file
 COPY --from=builder /app/target/*.jar app.jar
-
-# Extract layers for optimal Docker caching
-RUN java -Djarmode=layertools -jar app.jar extract && \
-    rm -rf app.jar
-
-# Copy extracted layers
-COPY --from=builder /app/dependencies/ ./
-COPY --from=builder /app/spring-boot-loader/ ./
-COPY --from=builder /app/snapshot-dependencies/ ./
-COPY --from=builder /app/application/ ./
-
-ENV SPRING_BOOT_PRODUCT_NAME=application
 
 EXPOSE 8080
 
-# Use layered jar startup
-ENTRYPOINT ["java", "-Djarmode=layertools", "org.springframework.boot.loader.launch.JarLauncher"]
+# Run directly - no layered extraction needed
+ENTRYPOINT ["java", "-jar", "app.jar"]
