@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
 public class AvatarController {
 
     private static final Logger log = LoggerFactory.getLogger(AvatarController.class);

@@ -37,6 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await res.json();
       if (result.code === 200) {
         const authData: AuthResponse = result.data;
+        // ===== 生产部署前注意 =====todo
+        // Token 当前存储在 localStorage（XSS 可访问），生产环境建议改用 httpOnly Cookie
+        // 同时需要后端配合：JWT 通过 Set-Cookie 返回，设置 httpOnly + Secure + SameSite=Strict
         localStorage.setItem('token', authData.token);
         localStorage.setItem('user', JSON.stringify(authData.user));
         setToken(authData.token);
@@ -60,6 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const result = await res.json();
       if (result.code === 200) {
         const authData: AuthResponse = result.data;
+        // ===== 生产部署前注意 =====todo
+        // Token 当前存储在 localStorage（XSS 可访问），生产环境建议改用 httpOnly Cookie
+        // 同时需要后端配合：JWT 通过 Set-Cookie 返回，设置 httpOnly + Secure + SameSite=Strict
         localStorage.setItem('token', authData.token);
         localStorage.setItem('user', JSON.stringify(authData.user));
         setToken(authData.token);

@@ -3,22 +3,6 @@
   margin: 0 auto;
 }
 
-.analysis-page .card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(15px);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
-}
-
-.analysis-page .card h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #5a534e;
-  font-size: 22px;
-}
-
 .tab-bar {
   display: flex;
   gap: 8px;
@@ -100,28 +84,6 @@
   display: flex;
   gap: 16px;
   margin-bottom: 30px;
-}
-
-.stat-card {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(15px);
-  padding: 24px 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #5a534e;
-  margin-bottom: 6px;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #8a817c;
 }
 
 .chart-container {
@@ -264,12 +226,36 @@
   font-size: 14px;
 }
 
-/* Minimal theme */
-body.minimal-theme .analysis-page .card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+.error-message {
+  background-color: #f5ecec;
+  color: #a86363;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+  animation: fadeIn 0.3s ease;
+  border-left: 4px solid #c97b7b;
 }
 
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8a817c;
+}
+
+.empty-state p {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #a69c97;
+}
+
+.empty-state span {
+  font-size: 14px;
+}
+
+/* Minimal theme */
 body.minimal-theme .tab-bar {
   background: #f0f0f0;
 }
@@ -291,15 +277,6 @@ body.minimal-theme .analyze-btn {
 
 body.minimal-theme .analyze-btn:hover {
   background: #333;
-}
-
-body.minimal-theme .stat-card {
-  background: #fafafa;
-  border: 1px solid #e8e8e8;
-}
-
-body.minimal-theme .stat-value {
-  color: #333;
 }
 
 body.minimal-theme .chart-container .recharts-line .recharts-line-curve {
@@ -366,8 +343,6 @@ body.minimal-theme .details-empty {
   color: #999;
 }
 
-
-
 @media (max-width: 768px) {
   .stats-row {
     flex-direction: column;
@@ -389,33 +364,4 @@ body.minimal-theme .details-empty {
   .detail-time {
     font-size: 12px;
   }
-}
-
-.error-message {
-  background-color: #f5ecec;
-  color: #a86363;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-size: 14px;
-  animation: fadeIn 0.3s ease;
-  border-left: 4px solid #c97b7b;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #8a817c;
-}
-
-.empty-state p {
-  font-size: 18px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: #a69c97;
-}
-
-.empty-state span {
-  font-size: 14px;
 }

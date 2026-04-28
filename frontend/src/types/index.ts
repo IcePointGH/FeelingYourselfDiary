@@ -71,6 +71,14 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;
@@ -85,4 +93,18 @@ export interface RegisterRequest {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface CalendarDay {
+  date: number;
+  fullDate: string;
+  isCurrentMonth: boolean;
+}
+
+export interface AnalysisData {
+  totalFeeling: number;
+  itemCount: number;
+  averageFeeling: number;
+  dailyTotals?: Record<string, number>;
+  items?: ScheduleItem[];
 }

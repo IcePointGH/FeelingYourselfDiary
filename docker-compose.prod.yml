@@ -54,6 +54,12 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      # ===== 生产部署前注意 =====
+      #TODO
+      # CORS_ORIGINS: 当前默认值为 *（允许所有来源），生产环境应设置为具体前端域名
+      # 示例: CORS_ORIGINS: ${CORS_ORIGINS:-https://your-frontend-domain.com}
+      # JWT_SECRET: 当前使用占位符，生产环境必须替换为强随机密钥
+      # DB_PASSWORD / MINIO 密钥: 当前使用占位符，生产环境必须替换
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USERNAME}

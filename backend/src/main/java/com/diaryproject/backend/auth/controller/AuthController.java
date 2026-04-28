@@ -6,12 +6,15 @@ import com.diaryproject.backend.common.security.JwtUtil;
 import com.diaryproject.backend.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
     private final JwtUtil jwtUtil;
@@ -23,11 +26,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<AuthDTO.AuthResponse> login(@Valid @RequestBody AuthDTO.LoginRequest request) {
+        log.info("REST 登录请求");
         return ApiResponse.success(authService.login(request));
     }
 
     @PostMapping("/register")
     public ApiResponse<AuthDTO.AuthResponse> register(@Valid @RequestBody AuthDTO.RegisterRequest request) {
+        log.info("REST 注册请求");
         return ApiResponse.success(authService.register(request));
     }
 

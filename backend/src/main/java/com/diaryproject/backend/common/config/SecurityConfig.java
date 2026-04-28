@@ -76,6 +76,10 @@ public class SecurityConfig {
     }
 
     @Bean
+    // ===== 生产部署前注意 =====TODO
+    // CORS: 当前允许所有来源(allowedOriginPatterns="*")，生产环境应限制为具体域名
+    // BCrypt: 当前使用默认强度 10，生产环境可考虑提升至 12
+    // CSRF: 已禁用（适用于无状态 JWT API），确认不移除该配置
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         if ("*".equals(corsAllowedOrigins)) {

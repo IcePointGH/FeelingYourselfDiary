@@ -10,7 +10,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "diaries")
+@Table(name = "diaries", indexes = {
+        @Index(name = "idx_diaries_user_date", columnList = "user_id, date"),
+        @Index(name = "idx_diaries_user_id", columnList = "user_id")
+    })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,6 +47,10 @@ public class Diary {
     /** 更新时间 */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @PrePersist
     protected void onCreate() {

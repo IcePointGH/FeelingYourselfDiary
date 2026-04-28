@@ -44,21 +44,6 @@
   outline: none;
 }
 
-/* Minimal theme */
-body.minimal-theme .year-select,
-body.minimal-theme .month-select {
-  background: #ffffff;
-  border-color: #e0e0e0;
-}
-
-body.minimal-theme .year-select:hover,
-body.minimal-theme .month-select:hover,
-body.minimal-theme .year-select:focus,
-body.minimal-theme .month-select:focus {
-  background: #f5f5f5;
-  border-color: #ccc;
-}
-
 .icon-btn {
   background: none;
   border: none;
@@ -135,99 +120,19 @@ body.minimal-theme .month-select:focus {
   font-size: 22px;
 }
 
-/* Reuse common card & list styles */
-.card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(15px);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  margin-bottom: 30px;
-}
-
-.empty-text {
-  text-align: center;
-  color: #a69c97;
-  padding: 30px;
-  font-size: 15px;
-}
-
-.schedule-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.schedule-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 20px;
-  background: rgba(255,255,255,0.6);
-  border-radius: 8px;
-  border: 1px solid rgba(224, 217, 208, 0.5);
-  transition: all 0.3s ease;
-}
-
-.schedule-item:hover {
-  background: rgba(255,255,255,0.9);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-.schedule-info {
-  flex: 1;
-}
-
-.schedule-title {
-  font-weight: 600;
-  font-size: 17px;
-  color: #4a433e;
-  margin-bottom: 6px;
-}
-
-.schedule-desc {
-  font-size: 14px;
-  color: #8a817c;
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-
-.schedule-meta {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  font-size: 13px;
-  color: #a69c97;
-}
-
-.feeling-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.feeling-badge.negative {
-  background-color: #f5ecec;
-  color: #a86363;
-}
-
-.feeling-badge.positive {
-  background-color: #f0f3e8;
-  color: #7a8a4b;
-}
-
-.feeling-badge.neutral {
-  background-color: #f9f5ed;
-  color: #b89a5e;
-}
-
 /* Minimal theme */
-body.minimal-theme .card {
+body.minimal-theme .year-select,
+body.minimal-theme .month-select {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .year-select:hover,
+body.minimal-theme .month-select:hover,
+body.minimal-theme .year-select:focus,
+body.minimal-theme .month-select:focus {
+  background: #f5f5f5;
+  border-color: #ccc;
 }
 
 body.minimal-theme .icon-btn:hover {
@@ -255,11 +160,6 @@ body.minimal-theme .calendar-day.selected {
 body.minimal-theme .calendar-day.other-month {
   color: #bbb;
   background: transparent;
-}
-
-body.minimal-theme .schedule-item {
-  background: #fafafa;
-  border-color: #e8e8e8;
 }
 
 @media (max-width: 768px) {

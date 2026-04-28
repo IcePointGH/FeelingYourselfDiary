@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
-import { useEmotionLabels } from '../../contexts/EmotionLabelsContext';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
+import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
+import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import { SCHEDULE_API } from '../../services/api';
 import type { ScheduleItem } from '../../types';
 import './Schedule.css';
@@ -21,25 +23,18 @@ export default function SchedulePage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
   const [feeling, setFeeling] = useState<number>(0);
-  const [items, setItems] = useState<ScheduleItem[]>([]);
   const [quote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
   const { apiFetch } = useApi();
-  const { emotionLabels } = useEmotionLabels();
   const { addToast } = useToast();
 
-  const loadItems = useCallback(async () => {
-    try {
-      const data = await apiFetch(SCHEDULE_API.byDate(date));
-      setItems(data || []);
-    } catch {
-      // ignore
-    }
-  }, [apiFetch, date]);
+  const { data: items, error, refetch } = useFetch<ScheduleItem[]>(
+    () => apiFetch(SCHEDULE_API.byDate(date)),
+    [apiFetch, date]
+  );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadItems();
-  }, [loadItems]);
+    if (error) addToast(error, 'error');
+  }, [error, addToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +46,7 @@ export default function SchedulePage() {
       setTitle('');
       setDescription('');
       setFeeling(0);
-      loadItems();
+      refetch();
     } catch (err) {
       addToast(err instanceof Error ? err.message : '添加日程失败', 'error');
     }
@@ -61,17 +56,13 @@ export default function SchedulePage() {
     if (!confirm('确定要删除这条记录吗？')) return;
     try {
       await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
-      loadItems();
+      refetch();
     } catch (err) {
       addToast(err instanceof Error ? err.message : '删除失败', 'error');
     }
   };
 
-  const getFeelingClass = (val: number) => {
-    if (val < 0) return 'negative';
-    if (val > 0) return 'positive';
-    return 'neutral';
-  };
+  const scheduleList = items ?? [];
 
   return (
     <div className="schedule-page">
@@ -106,57 +97,23 @@ export default function SchedulePage() {
               <input type="time" value={time} onChange={e => setTime(e.target.value)} />
             </div>
           </div>
-          <div className="form-group">
-            <label>感受值</label>
-            <div className="feeling-selector">
-              {[-3, -2, -1, 0, 1, 2, 3].map(val => (
-                <button
-                  key={val}
-                  type="button"
-                  className={`feeling-btn ${getFeelingClass(val)} ${feeling === val ? 'selected' : ''}`}
-                  onClick={() => setFeeling(val)}
-                  title={emotionLabels[String(val)] ?? String(val)}
-                >
-                  {val > 0 ? `+${val}` : val}
-                </button>
-              ))}
-            </div>
-            <div className="feeling-label">
-              {emotionLabels[String(feeling)] ?? String(feeling)}
-            </div>
-          </div>
+          <FeelingSelector value={feeling} onChange={setFeeling} />
           <button type="submit" className="btn submit-btn">添加日程</button>
         </form>
       </div>
 
       <div className="card list-card">
         <h2>当日记录</h2>
-        {items.length === 0 ? (
+        {scheduleList.length === 0 ? (
           <p className="empty-text">今天还没有记录，添加第一条吧～</p>
         ) : (
           <div className="schedule-list">
-            {items.map(item => (
-              <div key={item.id} className="schedule-item">
-                <div className="schedule-info">
-                  <div className="schedule-title">{item.title}</div>
-                  {item.description && (
-                    <div className="schedule-desc">{item.description}</div>
-                  )}
-                  <div className="schedule-meta">
-                    <span>{item.date} {item.time}</span>
-                    <span className={`feeling-badge ${getFeelingClass(item.feeling)}`}>
-                      {item.feeling > 0 ? `+${item.feeling}` : item.feeling}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  className="delete-btn-small"
-                  onClick={() => handleDelete(item.id)}
-                  title="删除"
-                >
-                  <i className="fas fa-trash" />
-                </button>
-              </div>
+            {scheduleList.map(item => (
+              <ScheduleItemCard
+                key={item.id}
+                item={item}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}

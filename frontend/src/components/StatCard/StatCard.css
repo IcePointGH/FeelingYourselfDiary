@@ -1,0 +1,39 @@
+.stat-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(15px);
+  padding: 24px 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border-top: 3px solid transparent;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #5a534e;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #8a817c;
+}
+
+.stat-subtitle {
+  font-size: 12px;
+  color: #a69c97;
+  margin-top: 4px;
+}
+
+/* Minimal theme */
+body.minimal-theme .stat-card {
+  background: #fafafa;
+  border: 1px solid #e8e8e8;
+  border-top: 3px solid transparent;
+}
+
+body.minimal-theme .stat-value {
+  color: #333;
+}

@@ -1,0 +1,150 @@
+/* ============================================
+   Shared Styles — extracted from duplicated page CSS
+   Loaded globally via main.tsx
+   ============================================ */
+
+/* ── Card ── */
+.card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(15px);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.card h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #5a534e;
+  font-size: 22px;
+}
+
+/* ── Form group ── */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #6c6360;
+  font-size: 15px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0d9d0;
+  border-radius: 8px;
+  font-size: 15px;
+  background-color: #fcfbf9;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+  color: #5a534e;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #c7b8a9;
+  box-shadow: 0 0 0 3px rgba(199, 184, 169, 0.1);
+}
+
+/* ── Submit / Save button ── */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #a69c97;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.submit-btn:hover {
+  background-color: #968c87;
+}
+
+/* ── Empty text ── */
+.empty-text {
+  text-align: center;
+  color: #a69c97;
+  padding: 30px;
+  font-size: 15px;
+}
+
+/* ── Feeling badge ── */
+.feeling-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.feeling-badge.negative {
+  background-color: #f5ecec;
+  color: #a86363;
+}
+
+.feeling-badge.positive {
+  background-color: #f0f3e8;
+  color: #7a8a4b;
+}
+
+.feeling-badge.neutral {
+  background-color: #f9f5ed;
+  color: #b89a5e;
+}
+
+/* ── Delete button small ── */
+.delete-btn-small {
+  background: none;
+  border: none;
+  color: #c9a9a9;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.delete-btn-small:hover {
+  color: #b87373;
+  background: #f5ecec;
+}
+
+/* ── Schedule list container ── */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Minimal theme overrides for shared patterns ── */
+body.minimal-theme .card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+body.minimal-theme .form-group input,
+body.minimal-theme .form-group textarea {
+  background: #fff;
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .submit-btn {
+  background: #666;
+}
+
+body.minimal-theme .submit-btn:hover {
+  background: #333;
+}

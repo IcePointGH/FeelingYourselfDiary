@@ -10,11 +10,13 @@ export const AUTH_API = {
 export const SCHEDULE_API = {
   base: `${API_BASE_URL}/schedules`,
   byDate: (date: string) => `${API_BASE_URL}/schedules/date/${date}`,
+  list: (page: number = 1, size: number = 20) => `${API_BASE_URL}/schedules?page=${page - 1}&size=${size}`,
 };
 
 export const DIARY_API = {
   base: `${API_BASE_URL}/diaries`,
   byDate: (date: string) => `${API_BASE_URL}/diaries/date/${date}`,
+  list: (page: number = 1, size: number = 20) => `${API_BASE_URL}/diaries?page=${page - 1}&size=${size}`,
 };
 
 export const ANALYSIS_API = {

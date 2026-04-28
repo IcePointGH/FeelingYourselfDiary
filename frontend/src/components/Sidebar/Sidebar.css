@@ -253,6 +253,6 @@ body.minimal-theme .user-info h3 {
     height: 100vh;
   }
   .sidebar.collapsed {
-    transform: translateX(-190px);
+    /* Collapsed sidebar stays at 70px wide on the left edge, still visible */
   }
 }

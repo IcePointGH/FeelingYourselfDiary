@@ -3,7 +3,10 @@ package com.diaryproject.backend.settings.service;
 import com.diaryproject.backend.settings.dto.UserSettingsDTO;
 import com.diaryproject.backend.settings.entity.UserSettings;
 import com.diaryproject.backend.settings.repository.UserSettingsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -15,6 +18,8 @@ import java.util.Map;
 @Service
 public class UserSettingsService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserSettingsService.class);
+
     private final UserSettingsRepository userSettingsRepository;
 
     public UserSettingsService(UserSettingsRepository userSettingsRepository) {
@@ -22,6 +27,7 @@ public class UserSettingsService {
     }
 
     /** 获取用户设置，不存在则创建默认设置 */
+    @Transactional(readOnly = true)
     public UserSettingsDTO.Response getSettings(Long userId) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
                 .orElseGet(() -> createDefaultSettings(userId));
@@ -29,6 +35,7 @@ public class UserSettingsService {
     }
 
     /** 更新用户设置，只更新非空字段，不存在则创建 */
+    @Transactional(rollbackFor = Exception.class)
     public UserSettingsDTO.Response updateSettings(Long userId, UserSettingsDTO.UpdateRequest request) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
                 .orElseGet(() -> createDefaultSettings(userId));
@@ -44,6 +51,7 @@ public class UserSettingsService {
         }
 
         UserSettings updated = userSettingsRepository.save(settings);
+        log.info("用户 {} 更新设置", userId);
         return mapToResponse(updated);
     }
 
@@ -60,10 +68,13 @@ public class UserSettingsService {
     }
 
     /** 清空用户设置数据 */
+    @Transactional(rollbackFor = Exception.class)
     public void clearData(Long userId) {
         userSettingsRepository.findByUserId(userId).ifPresent(userSettingsRepository::delete);
+        log.warn("用户 {} 请求清除所有数据", userId);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     private UserSettings createDefaultSettings(Long userId) {
         UserSettings settings = new UserSettings();
         settings.setUserId(userId);

@@ -73,3 +73,4 @@ HELP.md
 .env.local
 .env.*.local
 application-local.properties
+/docs/plan/

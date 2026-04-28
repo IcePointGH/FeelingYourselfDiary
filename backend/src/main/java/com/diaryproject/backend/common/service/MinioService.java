@@ -1,6 +1,7 @@
 package com.diaryproject.backend.common.service;
 
 import com.diaryproject.backend.common.config.MinioConfig;
+import com.diaryproject.backend.common.exception.BadRequestException;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
@@ -66,7 +67,7 @@ public class MinioService {
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
             log.error("头像上传到 MinIO 失败，bucket: {}, objectName: {}", bucketName, objectName, e);
-            throw new RuntimeException("头像上传失败", e);
+            throw new BadRequestException("头像上传失败: " + e.getMessage());
         }
     }
 }

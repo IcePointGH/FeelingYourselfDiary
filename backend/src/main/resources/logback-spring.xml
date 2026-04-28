@@ -1,6 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- 自定义 DB_SQL logger -->
+    <!-- Console appender with human-readable format for all profiles -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) [%X{traceId:-}] [%X{userId:-}] %cyan(%logger{36}) - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Production profile: console + JSON rolling file -->
+    <springProfile name="default,prod">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>logs/feeling-diary.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>logs/feeling-diary.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>10MB</maxFileSize>
+                <maxHistory>30</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <includeMdcKeyName>traceId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+    </springProfile>
+
+    <!-- Development profile: console only with DEBUG level -->
+    <springProfile name="dev,local">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- Custom DB_SQL logger for structured SQL logging -->
     <logger name="DB_SQL" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
@@ -8,13 +45,8 @@
     <!-- Hibernate SQL 日志关闭，使用 DB_SQL logger 输出结构化日志 -->
     <logger name="org.hibernate.SQL" level="OFF" additivity="false"/>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+    <!-- Reduce noisy framework logging -->
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
 </configuration>

@@ -1,20 +1,15 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useApi } from '../../hooks/useApi';
+import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
+import StatCard from '../../components/StatCard/StatCard';
+import MoodTrendChart from './MoodTrendChart';
+import MoodSummary from './MoodSummary';
 import { ANALYSIS_API } from '../../services/api';
-import type { DailyAnalysis, WeeklyAnalysis, MonthlyAnalysis, ScheduleItem } from '../../types';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { DailyAnalysis, WeeklyAnalysis, MonthlyAnalysis, AnalysisData } from '../../types';
 import './Analysis.css';
 
 type TabType = 'daily' | 'weekly' | 'monthly';
-
-interface AnalysisData {
-  totalFeeling: number;
-  itemCount: number;
-  averageFeeling: number;
-  dailyTotals?: Record<string, number>;
-  items?: ScheduleItem[];
-}
 
 function getWeekNumber(date: Date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -44,6 +39,7 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { apiFetch } = useApi();
+  const { addToast } = useToast();
 
   const getWeekString = (d: Date) => {
     const year = d.getFullYear();
@@ -76,7 +72,9 @@ export default function AnalysisPage() {
         setData({ totalFeeling: m.totalFeeling, itemCount: m.itemCount, averageFeeling: m.averageFeeling, dailyTotals: m.dailyTotals, items: m.items });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : '分析失败');
+      const msg = err instanceof Error ? err.message : '分析失败, 请重试';
+      setError(msg);
+      addToast(msg, 'error');
     } finally {
       setLoading(false);
     }
@@ -91,36 +89,10 @@ export default function AnalysisPage() {
     else setMonth(d.toISOString().slice(0, 7));
   }, [tab]);
 
-  const formatFeelingValue = (value: number): string => {
-    if (value === 0) return '0';
-    if (value > 0) return `+${value}`;
-    return `${value}`;
-  };
-
   const chartData = useMemo(() => {
     if (!data?.dailyTotals) return [];
     return Object.entries(data.dailyTotals).map(([date, value]) => ({ date, value }));
   }, [data?.dailyTotals]);
-
-  const formatXAxisDate = (dateStr: string): string => {
-    if (tab === 'monthly') {
-      const day = dateStr.split('-')[2];
-      return day.startsWith('0') ? day.slice(1) : day;
-    }
-    const parts = dateStr.split('-');
-    return `${parts[1]}-${parts[2]}`;
-  };
-
-  const groupedItems = (() => {
-    if (!data?.items || data.items.length === 0) return null;
-    if (tab === 'daily') return { '': data.items };
-    const groups: Record<string, ScheduleItem[]> = {};
-    for (const item of data.items) {
-      if (!groups[item.date]) groups[item.date] = [];
-      groups[item.date].push(item);
-    }
-    return groups;
-  })();
 
   return (
     <div className="analysis-page">
@@ -168,103 +140,21 @@ export default function AnalysisPage() {
             </div>
           )}
           <div className="stats-row">
-            <div className="stat-card">
-              <div className="stat-value">{data.totalFeeling > 0 ? '+' : ''}{data.totalFeeling}</div>
-              <div className="stat-label">情绪总和</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{data.itemCount}</div>
-              <div className="stat-label">事项数量</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{data.averageFeeling > 0 ? '+' : ''}{data.averageFeeling.toFixed(1)}</div>
-              <div className="stat-label">平均情绪</div>
-            </div>
+            <StatCard title="情绪总和" value={data.totalFeeling > 0 ? `+${data.totalFeeling}` : String(data.totalFeeling)} />
+            <StatCard title="事项数量" value={data.itemCount} />
+            <StatCard title="平均情绪" value={data.averageFeeling > 0 ? `+${data.averageFeeling.toFixed(1)}` : data.averageFeeling.toFixed(1)} />
           </div>
 
           {data.dailyTotals && data.itemCount > 0 && (
-            <div className="card">
-              <h2>情绪波动</h2>
-              {tab === 'monthly' && (
-                <div className="chart-month-title">
-                  {`${month.split('-')[0]}年${parseInt(month.split('-')[1], 10)}月`}
-                </div>
-              )}
-              <div className={tab === 'monthly' ? 'chart-scroll-wrapper' : undefined}>
-                <div className={`chart-container${tab === 'monthly' ? ' monthly' : ''}`}>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e0d9d0" />
-                      <XAxis
-                        dataKey="date"
-                        tickFormatter={formatXAxisDate}
-                        tick={{ fontSize: 11, fill: '#a69c97' }}
-                        axisLine={{ stroke: '#e0d9d0' }}
-                        tickLine={{ stroke: '#e0d9d0' }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 11, fill: '#a69c97' }}
-                        axisLine={{ stroke: '#e0d9d0' }}
-                        tickLine={{ stroke: '#e0d9d0' }}
-                        domain={['dataMin - 1', 'dataMax + 1']}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: 'rgba(255,255,255,0.95)',
-                          border: '1px solid #e0d9d0',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          color: '#5a534e',
-                        }}
-                        formatter={(value) => [formatFeelingValue(Number(value)), '情绪值']}
-                        labelFormatter={(label) => formatXAxisDate(String(label))}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke="#a69c97"
-                        strokeWidth={2}
-                        dot={{ r: 3, fill: '#a69c97' }}
-                        activeDot={{ r: 5 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
+            <MoodTrendChart
+              tab={tab}
+              chartData={chartData}
+              month={tab === 'monthly' ? month : undefined}
+            />
           )}
 
-          {data.itemCount > 0 && data.items && data.items.length > 0 && (
-            <div className="card details-section">
-              <h2>事项详情</h2>
-              {groupedItems && Object.entries(groupedItems).map(([dateKey, items]) => (
-                <div key={dateKey || 'daily'} className="details-group">
-                  {dateKey && <div className="details-date-title">{dateKey}</div>}
-                  <div className="details-list">
-                    {items.map(item => (
-                      <div key={item.id} className="detail-item">
-                        <div className="detail-info">
-                          <div className="detail-title">{item.title}</div>
-                          <div className="detail-time">
-                            {item.date}{item.time ? ` ${item.time}` : ''}
-                          </div>
-                        </div>
-                        <div className={`detail-feeling ${item.feeling > 0 ? 'positive' : item.feeling < 0 ? 'negative' : 'neutral'}`}>
-                          {formatFeelingValue(item.feeling)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {data.itemCount > 0 && (!data.items || data.items.length === 0) && (
-            <div className="card details-section">
-              <h2>事项详情</h2>
-              <div className="details-empty">暂无事项记录</div>
-            </div>
+          {data.itemCount > 0 && (
+            <MoodSummary tab={tab} items={data.items} />
           )}
         </>
       )}

@@ -11,7 +11,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "schedules")
+@Table(name = "schedules", indexes = {
+        @Index(name = "idx_schedules_user_date", columnList = "user_id, date"),
+        @Index(name = "idx_schedules_user_id", columnList = "user_id")
+    })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -52,6 +55,10 @@ public class Schedule {
     /** 更新时间 */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @PrePersist
     protected void onCreate() {

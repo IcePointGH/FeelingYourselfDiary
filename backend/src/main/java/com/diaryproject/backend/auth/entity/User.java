@@ -37,13 +37,13 @@ public class User {
     /** 个人签名 */
     private String signature;
 
-    /** 主题配色方案，默认 morandi */
-    @Column(nullable = false)
-    private String theme = "morandi";
-
     /** 账户创建时间 */
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 
     @PrePersist
     protected void onCreate() {

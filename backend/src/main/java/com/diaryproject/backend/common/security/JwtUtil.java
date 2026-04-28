@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -67,5 +68,15 @@ public class JwtUtil {
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 校验 JWT 密钥最小长度，确保环境变量配置正确
+     */
+    @PostConstruct
+    public void validateSecret() {
+        if (jwtSecret == null || jwtSecret.length() < 32) {
+            throw new IllegalStateException("JWT 密钥长度不足（需要 ≥32 字符），请检查 JWT_SECRET 环境变量");
+        }
     }
 }

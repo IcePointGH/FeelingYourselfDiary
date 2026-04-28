@@ -1,0 +1,77 @@
+.feeling-selector {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.feeling-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e0d9d0;
+  background: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feeling-btn:hover {
+  transform: scale(1.1);
+}
+
+.feeling-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.feeling-btn.negative {
+  color: #b87373;
+}
+
+.feeling-btn.neutral {
+  color: #c9a96e;
+}
+
+.feeling-btn.positive {
+  color: #8a9a5b;
+}
+
+.feeling-btn.selected {
+  background: #f0ebe4;
+  border-color: #a69c97;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feeling-label {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #8a817c;
+}
+
+/* Minimal theme */
+body.minimal-theme .feeling-btn {
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .feeling-btn.selected {
+  background: #f0f0f0;
+  border-color: #666;
+}
+
+@media (max-width: 768px) {
+  .feeling-selector {
+    gap: 8px;
+  }
+  .feeling-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+}

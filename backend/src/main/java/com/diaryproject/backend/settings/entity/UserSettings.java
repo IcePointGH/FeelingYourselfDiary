@@ -33,4 +33,8 @@ public class UserSettings {
     /** 主题配色方案，默认 morandi */
     @Column(nullable = false)
     private String theme = "morandi";
+
+    @Version
+    @Column(nullable = false)
+    private Long version = 0L;
 }
