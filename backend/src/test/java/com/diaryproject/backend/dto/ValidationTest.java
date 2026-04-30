@@ -71,9 +71,9 @@ class ValidationTest {
         ScheduleDTO.CreateRequest req = new ScheduleDTO.CreateRequest();
         req.setTitle("Test");
         req.setDate(LocalDate.now());
-        req.setFeeling(0);
+        req.setFeeling(-4);
         Set<ConstraintViolation<ScheduleDTO.CreateRequest>> violations = validator.validate(req);
-        assertTrue(violations.stream().anyMatch(v -> "情绪值最小为1".equals(v.getMessage())));
+        assertTrue(violations.stream().anyMatch(v -> "情绪值最小为-3".equals(v.getMessage())));
     }
 
     @Test
@@ -83,7 +83,7 @@ class ValidationTest {
         req.setDate(LocalDate.now());
         req.setFeeling(6);
         Set<ConstraintViolation<ScheduleDTO.CreateRequest>> violations = validator.validate(req);
-        assertTrue(violations.stream().anyMatch(v -> "情绪值最大为5".equals(v.getMessage())));
+        assertTrue(violations.stream().anyMatch(v -> "情绪值最大为3".equals(v.getMessage())));
     }
 
     // ==================== DiaryDTO.CreateRequest violations (5) ====================

@@ -23,8 +23,8 @@ public class ScheduleDTO {
         private LocalDate date;
         private LocalTime time;
         @NotNull(message = "情绪值不能为空")
-        @Min(value = 1, message = "情绪值最小为1")
-        @Max(value = 5, message = "情绪值最大为5")
+        @Min(value = -3, message = "情绪值最小为-3")
+        @Max(value = 3, message = "情绪值最大为3")
         private Integer feeling;
     }
 
@@ -38,8 +38,8 @@ public class ScheduleDTO {
         // Update can be partial: keep date as optional, matching Create as closely as possible without enforcing NotNull
         private LocalDate date;
         private LocalTime time;
-        @Min(value = 1, message = "情绪值最小为1")
-        @Max(value = 5, message = "情绪值最大为5")
+        @Min(value = -3, message = "情绪值最小为-3")
+        @Max(value = 3, message = "情绪值最大为3")
         private Integer feeling;
     }
 
