@@ -3,10 +3,12 @@ package com.diaryproject.backend.schedule;
 import com.diaryproject.backend.common.cache.CacheKeys;
 import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
+import com.diaryproject.backend.diary.service.DiaryService;
 import com.diaryproject.backend.schedule.dto.ScheduleDTO;
 import com.diaryproject.backend.schedule.entity.Schedule;
 import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import com.diaryproject.backend.schedule.service.ScheduleService;
+import com.diaryproject.backend.settings.service.UserSettingsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -31,7 +33,7 @@ class ScheduleServiceExceptionTest {
         CacheService mockCache = mock(CacheService.class);
         when(mockRepo.findById(999L)).thenReturn(Optional.empty());
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         ScheduleDTO.UpdateRequest request = new ScheduleDTO.UpdateRequest();
         request.setTitle("Updated Title");
@@ -50,7 +52,7 @@ class ScheduleServiceExceptionTest {
         when(mockSchedule.getUpdatedAt()).thenReturn(LocalDateTime.now());
         when(mockRepo.save(any())).thenReturn(mockSchedule);
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         ScheduleDTO.CreateRequest request = new ScheduleDTO.CreateRequest();
         request.setTitle("Test Title");
@@ -74,7 +76,7 @@ class ScheduleServiceExceptionTest {
         when(mockRepo.findById(1L)).thenReturn(Optional.of(mockSchedule));
         when(mockRepo.save(any())).thenReturn(mockSchedule);
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         ScheduleDTO.UpdateRequest request = new ScheduleDTO.UpdateRequest();
         request.setTitle("Updated Title");
@@ -92,7 +94,7 @@ class ScheduleServiceExceptionTest {
         when(mockSchedule.getUserId()).thenReturn(1L);
         when(mockRepo.findById(1L)).thenReturn(Optional.of(mockSchedule));
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         service.delete(1L, 1L);
 
@@ -117,7 +119,7 @@ class ScheduleServiceExceptionTest {
         when(mockSchedule.getUpdatedAt()).thenReturn(LocalDateTime.now());
         when(mockRepo.save(any())).thenReturn(mockSchedule);
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         ScheduleDTO.CreateRequest request = new ScheduleDTO.CreateRequest();
         request.setTitle("Test Title");
@@ -141,7 +143,7 @@ class ScheduleServiceExceptionTest {
         when(mockSchedule.getUpdatedAt()).thenReturn(LocalDateTime.now());
         when(mockRepo.save(any())).thenReturn(mockSchedule);
 
-        ScheduleService service = new ScheduleService(mockRepo, mockCache);
+        ScheduleService service = new ScheduleService(mockRepo, mockCache, mock(DiaryService.class), mock(UserSettingsService.class));
 
         ScheduleDTO.CreateRequest request = new ScheduleDTO.CreateRequest();
         request.setTitle("Test Title");
