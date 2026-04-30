@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { ThemeType } from '../types';
 
 interface ThemeContextType {
@@ -10,14 +10,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeType>(() => {
-    return (localStorage.getItem('theme') as ThemeType) || 'morandi';
-  });
+  const [theme] = useState<ThemeType>('morandi');
 
-  const setTheme = useCallback((newTheme: ThemeType) => {
-    localStorage.setItem('theme', newTheme);
-    setThemeState(newTheme);
-    document.body.className = newTheme === 'minimal' ? 'minimal-theme' : '';
+  // Ensure no stale minimal-theme class lingers from prior sessions
+  useEffect(() => {
+    document.body.classList.remove('minimal-theme');
+  }, []);
+
+  const setTheme = useCallback((_newTheme: ThemeType) => {
+    // Theme locked to Morandi
   }, []);
 
   return (

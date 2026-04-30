@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import com.diaryproject.backend.common.exception.ConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +113,7 @@ public class AuthService {
      * @param userId 用户 ID
      * @return 用户公开信息（不包含敏感字段）
      */
+    @Cacheable(value = "user", key = "#userId")
     @Transactional(readOnly = true)
     public AuthDTO.UserInfo getUserInfo(Long userId) {
         User user = userRepository.findById(userId)
@@ -123,6 +126,7 @@ public class AuthService {
      * @param userId 用户 ID
      * @param avatarUrl 头像 URL
      */
+    @CacheEvict(value = "user", key = "#userId")
     @Transactional
     public void updateAvatar(Long userId, String avatarUrl) {
         log.info("正在更新用户头像，userId: {}, avatarUrl: {}", userId, avatarUrl);

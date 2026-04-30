@@ -2,6 +2,8 @@ package com.diaryproject.backend.common.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
@@ -9,12 +11,15 @@ import jakarta.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT 工具类，提供 token 生成、验证、解析等功能
  */
 @Component
 public class JwtUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtil.class);
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -32,6 +37,7 @@ public class JwtUtil {
                 .claim("username", username)
                 .issuedAt(now)
                 .expiration(expiryDate)
+                .id(UUID.randomUUID().toString())
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -46,6 +52,27 @@ public class JwtUtil {
     public String getUsernameFromToken(String token) {
         Claims claims = parseToken(token);
         return claims.get("username", String.class);
+    }
+
+    /** 从 token 中提取 JWT ID (jti) */
+    public String extractTokenId(String token) {
+        Claims claims = parseToken(token);
+        return claims.getId();
+    }
+
+    /**
+     * Extract the expiration date from a JWT token.
+     *
+     * @param token the JWT token string
+     * @return the expiration date, or {@code null} if the token is invalid
+     */
+    public Date getExpirationFromToken(String token) {
+        try {
+            return parseToken(token).getExpiration();
+        } catch (Exception e) {
+            log.warn("Failed to extract expiration from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     /** 验证 token 是否有效 */

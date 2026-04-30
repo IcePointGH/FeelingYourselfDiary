@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useEmotionLabels } from '../../contexts/EmotionLabelsContext';
 import { useApi } from '../../hooks/useApi';
+import { useFeelingMode } from '../../hooks/useFeelingMode';
 import CollapsiblePanel from '../../components/CollapsiblePanel/CollapsiblePanel';
-import ThemeSettings from './ThemeSettings';
 import DataManagement from './DataManagement';
 import { SETTINGS_API, AUTH_API } from '../../services/api';
+import type { FeelingSelectorMode } from '../../types';
 import './Settings.css';
 
 const DEFAULT_LABELS: Record<string, string> = {
@@ -32,10 +34,11 @@ const EMOTION_PLACEHOLDERS: Record<string, string> = {
 const EMOTION_ORDER = [3, 2, 1, 0, -1, -2, -3];
 
 export default function SettingsPage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const { addToast } = useToast();
   const { refreshLabels } = useEmotionLabels();
   const { apiFetch } = useApi();
+  const navigate = useNavigate();
 
   // Profile
   const [nickname, setNickname] = useState('');
@@ -47,6 +50,16 @@ export default function SettingsPage() {
   // Labels
   const [emotionLabels, setEmotionLabels] = useState<Record<string, string>>({ ...DEFAULT_LABELS });
   const [loading, setLoading] = useState(false);
+
+  // Feeling selector mode
+  const { mode: feelingMode, setMode: setFeelingMode } = useFeelingMode();
+
+  // 感受描述联动我的思考
+  const [autoSaveThoughts, setAutoSaveThoughts] = useState(false);
+
+  // 自定义子面板切换
+  type CustomSection = 'emotion' | 'mode' | 'thoughts' | null;
+  const [customSection, setCustomSection] = useState<CustomSection>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -67,6 +80,7 @@ export default function SettingsPage() {
     const loadSettings = async () => {
       try {
         const res = await apiFetch(SETTINGS_API.base);
+        setAutoSaveThoughts(res.autoSaveThoughts ?? false);
         if (res.emotionLabels) {
           try {
             const parsed = JSON.parse(res.emotionLabels);
@@ -162,6 +176,24 @@ export default function SettingsPage() {
     }
   };
 
+  const handleToggleAutoSave = async (enabled: boolean) => {
+    setAutoSaveThoughts(enabled);
+    try {
+      await apiFetch(SETTINGS_API.base, {
+        method: 'PUT',
+        body: JSON.stringify({ autoSaveThoughts: enabled }),
+      });
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '保存设置失败', 'error');
+      setAutoSaveThoughts(!enabled); // rollback
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="settings-page">
       <div className="card">
@@ -212,28 +244,85 @@ export default function SettingsPage() {
           <button className="save-btn" onClick={handleSaveProfile} disabled={loading}>保存</button>
         </CollapsiblePanel>
 
-        <CollapsiblePanel title="配色方案">
-          <ThemeSettings />
-        </CollapsiblePanel>
-
-        <CollapsiblePanel title="自定义情绪语言">
-          <div className="emotion-options">
-            {EMOTION_ORDER.map(val => (
-              <div className="emotion-form-group" key={val}>
-                <label htmlFor={`emotion-${val}`}>感受值 {val}</label>
-                <input
-                  type="text"
-                  id={`emotion-${val}`}
-                  value={emotionLabels[String(val)]}
-                  onChange={e =>
-                    setEmotionLabels(prev => ({ ...prev, [val]: e.target.value }))
-                  }
-                  placeholder={EMOTION_PLACEHOLDERS[String(val)]}
-                />
-              </div>
-            ))}
-            <button className="save-btn" onClick={handleSaveLabels} disabled={loading}>保存情绪语言设置</button>
+        <CollapsiblePanel title="自定义">
+          <div className="custom-nav">
+            <button
+              className={`custom-nav-btn ${customSection === 'emotion' ? 'active' : ''}`}
+              onClick={() => setCustomSection(customSection === 'emotion' ? null : 'emotion')}
+            >
+              情绪语言
+            </button>
+            <button
+              className={`custom-nav-btn ${customSection === 'mode' ? 'active' : ''}`}
+              onClick={() => setCustomSection(customSection === 'mode' ? null : 'mode')}
+            >
+              数值选择
+            </button>
+            <button
+              className={`custom-nav-btn ${customSection === 'thoughts' ? 'active' : ''}`}
+              onClick={() => setCustomSection(customSection === 'thoughts' ? null : 'thoughts')}
+            >
+              日程与思考
+            </button>
           </div>
+
+          {customSection === 'emotion' && (
+            <div className="custom-sub">
+              <div className="emotion-options">
+                {EMOTION_ORDER.map(val => (
+                  <div className="emotion-form-group" key={val}>
+                    <label htmlFor={`emotion-${val}`}>感受值 {val}</label>
+                    <input
+                      type="text"
+                      id={`emotion-${val}`}
+                      value={emotionLabels[String(val)]}
+                      onChange={e =>
+                        setEmotionLabels(prev => ({ ...prev, [val]: e.target.value }))
+                      }
+                      placeholder={EMOTION_PLACEHOLDERS[String(val)]}
+                    />
+                  </div>
+                ))}
+                <button className="save-btn" onClick={handleSaveLabels} disabled={loading}>保存情绪语言设置</button>
+              </div>
+            </div>
+          )}
+
+          {customSection === 'mode' && (
+            <div className="custom-sub">
+              <div className="theme-options">
+                {(['buttons', 'slider'] as FeelingSelectorMode[]).map(opt => (
+                  <div
+                    key={opt}
+                    className={`theme-option ${feelingMode === opt ? 'active' : ''}`}
+                    onClick={() => setFeelingMode(opt)}
+                  >
+                    <div className={`theme-preview ${opt === 'slider' ? 'slider-preview' : 'buttons-preview'}`} />
+                    <span>{opt === 'buttons' ? '按钮式' : '滑动式'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {customSection === 'thoughts' && (
+            <div className="custom-sub">
+              <div className="toggle-row">
+                <div className="toggle-info">
+                  <span className="toggle-label">感受描述联动我的思考</span>
+                  <span className="toggle-desc">添加日程时，感受描述将自动归档到我的思考中</span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={autoSaveThoughts}
+                    onChange={e => handleToggleAutoSave(e.target.checked)}
+                  />
+                  <span className="toggle-track" />
+                </label>
+              </div>
+            </div>
+          )}
         </CollapsiblePanel>
 
         <CollapsiblePanel title="数据设置">
@@ -250,6 +339,13 @@ export default function SettingsPage() {
           <div className="about-content">
             <p>开发者的话将在此处显示。感谢您使用情绪平衡日记，希望它能陪伴您记录生活中的每一个瞬间。</p>
           </div>
+        </CollapsiblePanel>
+
+        <CollapsiblePanel title="账户操作">
+          <button className="logout-btn" onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt" />
+            <span>退出登录</span>
+          </button>
         </CollapsiblePanel>
       </div>
     </div>

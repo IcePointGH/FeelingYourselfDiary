@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
+import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import { SCHEDULE_API } from '../../services/api';
+import { KAOMOJI, DEFAULT_KAOMOJI, getFeelingClass } from '../../utils/feeling';
 import type { ScheduleItem } from '../../types';
 import './Schedule.css';
 
@@ -23,9 +25,25 @@ export default function SchedulePage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
   const [feeling, setFeeling] = useState<number>(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [kaoAnimKey, setKaoAnimKey] = useState(0);
   const [quote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
+  const { mode } = useFeelingMode();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  const autoResize = useCallback(() => {
+    const ta = textareaRef.current;
+    if (ta) {
+      ta.style.height = 'auto';
+      ta.style.height = Math.max(120, ta.scrollHeight) + 'px';
+    }
+  }, []);
+
+  useEffect(() => {
+    autoResize();
+  }, [description, autoResize]);
 
   const { data: items, error, refetch } = useFetch<ScheduleItem[]>(
     () => apiFetch(SCHEDULE_API.byDate(date)),
@@ -35,6 +53,12 @@ export default function SchedulePage() {
   useEffect(() => {
     if (error) addToast(error, 'error');
   }, [error, addToast]);
+
+  const handleFeelingChange = useCallback((val: number) => {
+    setFeeling(val);
+    setHasInteracted(true);
+    setKaoAnimKey(prev => prev + 1);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,10 +87,19 @@ export default function SchedulePage() {
   };
 
   const scheduleList = items ?? [];
+  const displayKao = hasInteracted ? KAOMOJI[feeling] ?? DEFAULT_KAOMOJI : DEFAULT_KAOMOJI;
+  const kaoMood = hasInteracted ? getFeelingClass(feeling) : 'positive';
 
   return (
     <div className="schedule-page">
       <div className="daily-quote">{quote}</div>
+
+      <div className={`kaomoji-showcase ${kaoMood}`}>
+        <span className="kaomoji-face" key={kaoAnimKey}>{displayKao}</span>
+        <span className="kaomoji-hint">
+          {hasInteracted ? '此刻的感受' : '你的心情是...'}
+        </span>
+      </div>
 
       <div className="card form-card">
         <h2>添加新日程</h2>
@@ -84,6 +117,7 @@ export default function SchedulePage() {
           <div className="form-group">
             <label>感受描述</label>
             <textarea
+              ref={textareaRef}
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="在这里记录你的感受..."
@@ -97,7 +131,7 @@ export default function SchedulePage() {
               <input type="time" value={time} onChange={e => setTime(e.target.value)} />
             </div>
           </div>
-          <FeelingSelector value={feeling} onChange={setFeeling} />
+          <FeelingSelector value={feeling} onChange={handleFeelingChange} mode={mode} />
           <button type="submit" className="btn submit-btn">添加日程</button>
         </form>
       </div>

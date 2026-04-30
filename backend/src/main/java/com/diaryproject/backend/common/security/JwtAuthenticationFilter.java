@@ -1,5 +1,6 @@
 package com.diaryproject.backend.common.security;
 
+import com.diaryproject.backend.common.cache.CacheService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,11 +26,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+    private final CacheService cacheService;
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, CacheService cacheService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.cacheService = cacheService;
     }
 
     @Override
@@ -46,6 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         try {
             if (jwtUtil.validateToken(token)) {
+                String jti = jwtUtil.extractTokenId(token);
+                if (cacheService.isTokenBlacklisted(jti)) {
+                    log.warn("JWT 令牌已被吊销: jti={}", jti);
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"code\":401,\"message\":\"令牌已被吊销\"}");
+                    return;
+                }
                 Long userId = jwtUtil.getUserIdFromToken(token);
                 String username = jwtUtil.getUsernameFromToken(token);
 

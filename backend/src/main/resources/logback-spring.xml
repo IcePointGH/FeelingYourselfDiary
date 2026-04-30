@@ -49,4 +49,7 @@
     <logger name="org.springframework" level="WARN" />
     <logger name="org.hibernate" level="WARN" />
     <logger name="com.zaxxer.hikari" level="WARN" />
+
+    <!-- Redisson: WARN in production to suppress connection pool debug noise -->
+    <logger name="org.redisson" level="WARN" />
 </configuration>

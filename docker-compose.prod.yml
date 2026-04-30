@@ -43,6 +43,20 @@ services:
     networks:
       - diary-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: emotion_diary_redis
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory-policy allkeys-lru --maxmemory 256mb --requirepass ${REDIS_PASSWORD}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - diary-network
+
   backend:
     build:
       context: ./backend
@@ -50,7 +64,7 @@ services:
     container_name: emotion_diary_backend
     environment:
       DB_URL: jdbc:mysql://mysql:3306/emotion_diary?createDatabaseIfNotExist=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-      DB_USERNAME: root
+      DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
@@ -64,12 +78,17 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USERNAME}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - diary-network
@@ -89,6 +108,7 @@ services:
 volumes:
   mysql_data:
   minio_data:
+  redis_data:
 
 networks:
   diary-network:

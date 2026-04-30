@@ -3,8 +3,9 @@ import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
-import { SCHEDULE_API } from '../../services/api';
-import type { ScheduleItem, PageResponse } from '../../types';
+import { SCHEDULE_API, ANALYSIS_API } from '../../services/api';
+import { KAOMOJI, getFeelingClass } from '../../utils/feeling';
+import type { ScheduleItem, PageResponse, MonthlyAnalysis } from '../../types';
 import { generateCalendar } from '../../utils/calendar';
 import './History.css';
 
@@ -15,9 +16,29 @@ export default function HistoryPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSchedules, setSelectedSchedules] = useState<ScheduleItem[]>([]);
   const [page, setPage] = useState(1);
+  const [monthlyMood, setMonthlyMood] = useState<Record<string, number>>({});
   const pageSize = 20;
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  // Fetch monthly mood analysis for calendar kaomoji
+  useEffect(() => {
+    let cancelled = false;
+    const fetchMonthlyMood = async () => {
+      try {
+        const yearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+        const data = await apiFetch(`${ANALYSIS_API.monthly}?month=${yearMonth}`);
+        const analysis = (data as MonthlyAnalysis) ?? data;
+        if (!cancelled && analysis?.dailyTotals) {
+          setMonthlyMood(analysis.dailyTotals);
+        }
+      } catch {
+        // Mood display is optional — fail silently
+      }
+    };
+    fetchMonthlyMood();
+    return () => { cancelled = true; };
+  }, [currentYear, currentMonth, apiFetch]);
 
   const { data: pageData, loading, error } = useFetch<PageResponse<ScheduleItem>>(
     () => apiFetch(SCHEDULE_API.list(page, pageSize)),
@@ -77,6 +98,12 @@ export default function HistoryPage() {
       .map(s => s.date)
   );
 
+  const pickKaomoji = (total: number): string => {
+    if (total > 0) return KAOMOJI[2]!;
+    if (total < 0) return KAOMOJI[-2]!;
+    return KAOMOJI[0]!;
+  };
+
   return (
     <div className="history-page">
       <div className="card calendar-card">
@@ -112,15 +139,23 @@ export default function HistoryPage() {
           {weekDays.map(d => (
             <div key={d} className="calendar-day-header">{d}</div>
           ))}
-          {calendarDays.map((day, idx) => (
-            <div
-              key={idx}
-              className={`calendar-day ${day.isCurrentMonth ? '' : 'other-month'} ${datesWithData.has(day.fullDate) ? 'has-data' : ''} ${selectedDate === day.fullDate ? 'selected' : ''}`}
-              onClick={() => handleSelectDate(day.fullDate)}
-            >
-              <span>{day.date}</span>
-            </div>
-          ))}
+          {calendarDays.map((day, idx) => {
+            const hasData = datesWithData.has(day.fullDate) && day.isCurrentMonth;
+            const dayTotal = monthlyMood[day.fullDate];
+            const moodClass = hasData && dayTotal !== undefined ? getFeelingClass(dayTotal) : '';
+            return (
+              <div
+                key={idx}
+                className={`calendar-day ${day.isCurrentMonth ? '' : 'other-month'} ${hasData ? 'has-data' : ''} ${moodClass} ${selectedDate === day.fullDate ? 'selected' : ''}`}
+                onClick={() => handleSelectDate(day.fullDate)}
+              >
+                <span className="day-num">{day.date}</span>
+                {hasData && dayTotal !== undefined && (
+                  <span className="day-kaomoji">{pickKaomoji(dayTotal)}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

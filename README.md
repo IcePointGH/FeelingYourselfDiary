@@ -20,10 +20,11 @@
 - CSS3（CSS Modules + 全局共享样式）
 
 ### 后端
-- Spring Boot 4.0.5
+- Spring Boot 4.0.5(注意版本，Spring3和4差异较大)
 - Java 21
 - Spring Data JPA（含 @Transactional / @Version 乐观锁）
 - Spring Security + JWT (jjwt)
+- Spring Cache + Redisson（Redis 缓存层，含 Token 黑名单 / 业务数据缓存 / Cache-Aside 模式）
 - Bean Validation
 - SLF4J + Logback（JSON 日志滚动归档 + MDC 请求追踪）
 - Lombok
@@ -31,6 +32,7 @@
 
 ### 数据库与基础设施
 - MySQL 8.0
+- Redis 7（缓存 / Token 黑名单）
 - MinIO (对象存储)
 - Docker & Docker Compose
 
@@ -87,7 +89,8 @@ FeelingYourselfDiary/
     │   ├── analysis/        # 分析统计模块（含 JPQL 聚合投影）
     │   ├── settings/        # 用户设置模块
     │   └── common/          # 公共组件
-    │       ├── config/      # Spring Security 配置
+    │       ├── cache/      # Redis 缓存抽象（CacheService / CacheKeys）
+    │       ├── config/      # Spring Security + Redis 配置
     │       ├── dto/         # 统一响应 ApiResponse<T>
     │       ├── exception/   # 自定义异常层次 + 全局处理器
     │       ├── filter/      # JWT 认证过滤器 + MDC 追踪过滤器
@@ -95,7 +98,7 @@ FeelingYourselfDiary/
     ├── src/main/resources/
     │   ├── application.properties
     │   └── logback-spring.xml  # 结构化日志配置（控制台 + JSON 滚动文件）
-    ├── src/test/             # 单元测试（70 项）
+    ├── src/test/             # 单元测试（121 项）
     └── pom.xml
 ```
 
@@ -142,6 +145,7 @@ docker-compose up -d
 
 启动后包含：
 - **MySQL** `localhost:3306` — 数据库 `emotion_diary`
+- **Redis** `localhost:6379` — 缓存服务（AOF 持久化，LRU 淘汰策略）
 - **MinIO Console** `localhost:9001` — 对象存储管理界面（登录凭据为 `MINIO_ROOT_USERNAME` / `MINIO_ROOT_PASSWORD`）
 
 ### 3. 启动后端服务
@@ -198,6 +202,7 @@ docker-compose down -v      # 停止并删除数据卷（重置数据库）
 | `/api/auth/register` | POST | 用户注册 | 否 |
 | `/api/auth/login` | POST | 用户登录 | 否 |
 | `/api/auth/me` | GET | 获取当前用户信息 | 是 |
+| `/api/auth/logout` | POST | 用户登出（Token 加入黑名单） | 是 |
 | `/api/schedules` | GET | 日程分页列表（`?page=0&size=20`） | 是 |
 | `/api/schedules` | POST | 创建日程 | 是 |
 | `/api/schedules/date/{date}` | GET | 按日期获取日程 | 是 |
@@ -224,6 +229,8 @@ docker-compose down -v      # 停止并删除数据卷（重置数据库）
 - **结构化日志**：Logback 双通道输出（控制台可读格式 + JSON 文件滚动归档）
 - **前端容错**：Error Boundary 兜底渲染异常；Toast 统一用户提示，替代浏览器 alert
 - **代码分割**：非首屏路由（Analysis / History / Settings）懒加载，减少初始包体积
+- **Redis 缓存层**：Redisson + Spring Cache 提供多级缓存策略——Token 黑名单（JWT 吊销）、业务数据缓存（日程/日记/分析/设置，Cache-Aside 模式写入即失效）、用户认证缓存（减少每次请求的 DB 查询）；Redis 不可用时自动降级回 DB，不影响业务可用性
+- **Token 吊销**：`POST /api/auth/logout` 将 JWT 加入 Redis 黑名单（TTL = 剩余有效期），过滤器层校验拦截已吊销 Token
 - **数据库自动初始化**：表结构由 Spring Data JPA 自动创建（`ddl-auto=update`），`init.sql` 用于后续数据迁移或种子数据
 
 ## 截图

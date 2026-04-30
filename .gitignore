@@ -74,3 +74,4 @@ HELP.md
 .env.*.local
 application-local.properties
 /docs/plan/
+/.sisyphus/

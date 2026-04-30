@@ -1,6 +1,9 @@
 package com.diaryproject.backend.diary.service;
 
+import com.diaryproject.backend.common.cache.CacheKeys;
+import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
+import org.springframework.cache.annotation.Cacheable;
 import com.diaryproject.backend.diary.dto.DiaryDTO;
 import com.diaryproject.backend.diary.entity.Diary;
 import com.diaryproject.backend.diary.repository.DiaryRepository;
@@ -24,9 +27,11 @@ public class DiaryService {
     private static final Logger log = LoggerFactory.getLogger(DiaryService.class);
 
     private final DiaryRepository diaryRepository;
+    private final CacheService cacheService;
 
-    public DiaryService(DiaryRepository diaryRepository) {
+    public DiaryService(DiaryRepository diaryRepository, CacheService cacheService) {
         this.diaryRepository = diaryRepository;
+        this.cacheService = cacheService;
     }
 
     /**
@@ -46,12 +51,14 @@ public class DiaryService {
 
         Diary saved = diaryRepository.save(diary);
         log.info("用户 {} 创建日记，日期: {}", userId, request.getDate());
+        cacheService.evictByPattern(CacheKeys.diaryPattern(userId));
         return mapToResponse(saved);
     }
 
     /**
      * 查询指定日期的日记列表，按创建时间倒序
      */
+    @Cacheable(value = "diaries", key = "'date:' + #userId + ':' + #date")
     @Transactional(readOnly = true)
     public List<DiaryDTO.Response> getByDate(Long userId, LocalDate date) {
         return diaryRepository.findByUserIdAndDateOrderByCreatedAtDesc(userId, date)
@@ -82,6 +89,7 @@ public class DiaryService {
 
         Diary updated = diaryRepository.save(diary);
         log.info("用户 {} 更新日记 id: {}", userId, id);
+        cacheService.evictByPattern(CacheKeys.diaryPattern(userId));
         return mapToResponse(updated);
     }
 
@@ -91,6 +99,7 @@ public class DiaryService {
         Diary diary = diaryRepository.findByUserIdAndId(userId, id)
                 .orElseThrow(() -> new ResourceNotFoundException("日记", id));
         diaryRepository.delete(diary);
+        cacheService.evictByPattern(CacheKeys.diaryPattern(userId));
         log.warn("用户 {} 删除日记 id: {}", userId, id);
     }
 

@@ -3,6 +3,54 @@
   margin: 0 auto;
 }
 
+/* Customization sub-navigation */
+.custom-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.custom-nav-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #e0d9d0;
+  border-radius: 8px;
+  background: #fcfbf9;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c6360;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.custom-nav-btn:hover {
+  border-color: #c7b8a9;
+  background: #f5f1eb;
+}
+
+.custom-nav-btn.active {
+  background: #e8dfd6;
+  border-color: #a69c97;
+  color: #5a534e;
+  font-weight: 600;
+}
+
+.custom-sub {
+  animation: customSlideIn 0.3s ease;
+}
+
+@keyframes customSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Emotion language form groups */
 .emotion-form-group {
   margin-bottom: 16px;
@@ -117,6 +165,58 @@
 .minimal-preview {
   background: #f0f0f0;
   border: 1px solid #e0e0e0;
+}
+
+.buttons-preview {
+  background: #f0ebe4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.buttons-preview::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #a69c97;
+  box-shadow:
+    18px 0 0 #c9a96e,
+    36px 0 0 #8a9a5b;
+  transform: translateX(-18px);
+}
+
+.slider-preview {
+  background: #f0ebe4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Track bar */
+.slider-preview::before {
+  content: '';
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #b87373, #c9a96e, #8a9a5b);
+}
+
+/* Thumb */
+.slider-preview::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #a69c97;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .theme-option.active .morandi-preview {
@@ -320,6 +420,46 @@ body.minimal-theme .about-content {
   color: #666;
 }
 
+body.minimal-theme .logout-btn {
+  border-color: #e0e0e0;
+  color: #a05050;
+}
+
+body.minimal-theme .logout-btn:hover {
+  background-color: #fef0f0;
+  border-color: #c08080;
+  color: #804040;
+}
+
+/* Logout button */
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1px solid #e0d9d0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: #b87373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.logout-btn:hover {
+  background-color: #fdf2f2;
+  border-color: #d4a0a0;
+  color: #a05050;
+}
+
+.logout-btn i {
+  font-size: 16px;
+}
+
 @media (max-width: 768px) {
   .theme-options {
     flex-direction: column;
@@ -327,5 +467,84 @@ body.minimal-theme .about-content {
 
   .emotion-form-group {
     margin-bottom: 12px;
+  }
+}
+
+/* Toggle row for schedule-thought linkage */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+}
+
+.toggle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toggle-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #5a534e;
+}
+
+.toggle-desc {
+  font-size: 13px;
+  color: #9a9088;
+}
+
+/* Pure CSS toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-track {
+  width: 48px;
+  height: 26px;
+  background: #d6cec4;
+  border-radius: 13px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch input:checked + .toggle-track {
+  background: #8a9a5b;
+}
+
+.toggle-switch input:checked + .toggle-track::after {
+  transform: translateX(22px);
+}
+
+@media (max-width: 768px) {
+  .toggle-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

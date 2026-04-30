@@ -3,6 +3,64 @@
   margin: 0 auto;
 }
 
+.kaomoji-showcase {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 28px 20px 20px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid #f0ebe4;
+  transition: background 0.4s ease, border-color 0.4s ease;
+}
+
+.kaomoji-showcase.positive {
+  background: rgba(240, 243, 232, 0.6);
+  border-color: #d5dfc0;
+}
+
+.kaomoji-showcase.neutral {
+  background: rgba(249, 245, 237, 0.6);
+  border-color: #e5dbc8;
+}
+
+.kaomoji-showcase.negative {
+  background: rgba(245, 236, 236, 0.6);
+  border-color: #e5d0d0;
+}
+
+.kaomoji-face {
+  display: inline-block;
+  font-family: 'Source Han Sans SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 1.3;
+  animation: kao-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kao-pop-in {
+  0% {
+    transform: scale(0.2) translateY(-12px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) translateY(2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.kaomoji-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #a69c97;
+  letter-spacing: 0.5px;
+}
+
 .daily-quote {
   font-style: italic;
   font-size: 16px;
@@ -29,6 +87,30 @@
 body.minimal-theme .daily-quote {
   background: #f9f9f9;
   border-left-color: #999;
+}
+
+body.minimal-theme .kaomoji-showcase {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .kaomoji-showcase.positive {
+  background: #f5faf5;
+  border-color: #d0d0d0;
+}
+
+body.minimal-theme .kaomoji-showcase.neutral {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+body.minimal-theme .kaomoji-showcase.negative {
+  background: #faf5f5;
+  border-color: #e0d0d0;
+}
+
+body.minimal-theme .kaomoji-hint {
+  color: #999;
 }
 
 @media (max-width: 768px) {

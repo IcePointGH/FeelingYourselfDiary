@@ -1,10 +1,14 @@
 package com.diaryproject.backend.settings.service;
 
+import com.diaryproject.backend.common.cache.CacheKeys;
+import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.settings.dto.UserSettingsDTO;
 import com.diaryproject.backend.settings.entity.UserSettings;
 import com.diaryproject.backend.settings.repository.UserSettingsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,12 +25,15 @@ public class UserSettingsService {
     private static final Logger log = LoggerFactory.getLogger(UserSettingsService.class);
 
     private final UserSettingsRepository userSettingsRepository;
+    private final CacheService cacheService;
 
-    public UserSettingsService(UserSettingsRepository userSettingsRepository) {
+    public UserSettingsService(UserSettingsRepository userSettingsRepository, CacheService cacheService) {
         this.userSettingsRepository = userSettingsRepository;
+        this.cacheService = cacheService;
     }
 
     /** 获取用户设置，不存在则创建默认设置 */
+    @Cacheable(value = "settings", key = "#userId")
     @Transactional(readOnly = true)
     public UserSettingsDTO.Response getSettings(Long userId) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
@@ -35,6 +42,7 @@ public class UserSettingsService {
     }
 
     /** 更新用户设置，只更新非空字段，不存在则创建 */
+    @CacheEvict(value = "settings", key = "#userId")
     @Transactional(rollbackFor = Exception.class)
     public UserSettingsDTO.Response updateSettings(Long userId, UserSettingsDTO.UpdateRequest request) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
@@ -68,6 +76,7 @@ public class UserSettingsService {
     }
 
     /** 清空用户设置数据 */
+    @CacheEvict(value = "settings", key = "#userId")
     @Transactional(rollbackFor = Exception.class)
     public void clearData(Long userId) {
         userSettingsRepository.findByUserId(userId).ifPresent(userSettingsRepository::delete);

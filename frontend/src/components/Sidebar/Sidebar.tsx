@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import './Sidebar.css';
@@ -14,16 +14,10 @@ const menuItems = [
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { theme } = useTheme();
-  const navigate = useNavigate();
 
   const sidebarClass = theme === 'minimal' ? 'minimal-theme' : '';
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
 
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${sidebarClass}`}>
@@ -68,13 +62,6 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
-
-      <div className="sidebar-footer">
-        <button className="menu-item logout-btn" onClick={handleLogout}>
-          <i className="fas fa-sign-out-alt" />
-          <span>退出登录</span>
-        </button>
-      </div>
     </aside>
   );
 }

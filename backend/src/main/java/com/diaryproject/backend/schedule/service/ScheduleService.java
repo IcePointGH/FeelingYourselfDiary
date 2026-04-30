@@ -1,10 +1,16 @@
 package com.diaryproject.backend.schedule.service;
 
+import com.diaryproject.backend.common.cache.CacheKeys;
+import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
 import com.diaryproject.backend.common.exception.UnauthorizedException;
+import com.diaryproject.backend.diary.dto.DiaryDTO;
+import com.diaryproject.backend.diary.service.DiaryService;
 import com.diaryproject.backend.schedule.dto.ScheduleDTO;
 import com.diaryproject.backend.schedule.entity.Schedule;
 import com.diaryproject.backend.schedule.repository.ScheduleRepository;
+import com.diaryproject.backend.settings.service.UserSettingsService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,9 +33,16 @@ public class ScheduleService {
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
 
     private final ScheduleRepository scheduleRepository;
+    private final CacheService cacheService;
+    private final DiaryService diaryService;
+    private final UserSettingsService userSettingsService;
 
-    public ScheduleService(ScheduleRepository scheduleRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository, CacheService cacheService,
+                           DiaryService diaryService, UserSettingsService userSettingsService) {
         this.scheduleRepository = scheduleRepository;
+        this.cacheService = cacheService;
+        this.diaryService = diaryService;
+        this.userSettingsService = userSettingsService;
     }
 
     /** 创建新日程 */
@@ -46,10 +59,14 @@ public class ScheduleService {
 
         Schedule saved = scheduleRepository.save(schedule);
         log.info("用户 {} 创建日程，日期: {}", userId, request.getDate());
+        autoArchiveToDiaryIfEnabled(userId, saved);
+        cacheService.evictByPattern(CacheKeys.analysisPattern(userId));
+        cacheService.evictByPattern(CacheKeys.schedulesPattern(userId));
         return mapToResponse(saved);
     }
 
     /** 查询指定日期的日程，按时间排序 */
+    @Cacheable(value = "schedules", key = "'date:' + #userId + ':' + #date")
     @Transactional(readOnly = true)
     public List<ScheduleDTO.Response> getByDate(Long userId, LocalDate date) {
         return scheduleRepository.findByUserIdAndDateOrderByTimeAsc(userId, date)
@@ -83,6 +100,9 @@ public class ScheduleService {
 
         Schedule updated = scheduleRepository.save(schedule);
         log.info("用户 {} 更新日程 id: {}", userId, id);
+        autoArchiveToDiaryIfEnabled(userId, updated);
+        cacheService.evictByPattern(CacheKeys.analysisPattern(userId));
+        cacheService.evictByPattern(CacheKeys.schedulesPattern(userId));
         return mapToResponse(updated);
     }
 
@@ -97,10 +117,13 @@ public class ScheduleService {
         }
 
         scheduleRepository.delete(schedule);
+        cacheService.evictByPattern(CacheKeys.analysisPattern(userId));
+        cacheService.evictByPattern(CacheKeys.schedulesPattern(userId));
         log.warn("用户 {} 删除日程 id: {}", userId, id);
     }
 
     /** 查询指定日期范围内的日程，按日期和时间排序 */
+    @Cacheable(value = "schedules", key = "'range:' + #userId + ':' + #start + ':' + #end")
     @Transactional(readOnly = true)
     public List<ScheduleDTO.Response> getByDateRange(Long userId, LocalDate start, LocalDate end) {
         return scheduleRepository.findByUserIdAndDateBetweenOrderByDateAscTimeAsc(userId, start, end)
@@ -120,6 +143,28 @@ public class ScheduleService {
         LocalDate start = date.withDayOfMonth(1);
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
         return getByDateRange(userId, start, end);
+    }
+
+    /** 如果用户开启了"感受描述联动我的思考"且描述非空，则自动归档一份到日记 */
+    private void autoArchiveToDiaryIfEnabled(Long userId, Schedule saved) {
+        String desc = saved.getDescription();
+        if (desc == null || desc.isBlank()) {
+            return;
+        }
+        try {
+            boolean enabled = userSettingsService.getSettings(userId).getAutoSaveThoughts();
+            if (!enabled) {
+                return;
+            }
+            DiaryDTO.CreateRequest req = new DiaryDTO.CreateRequest();
+            req.setTitle(saved.getTitle());
+            req.setContent(desc);
+            req.setDate(saved.getDate());
+            diaryService.create(userId, req);
+            log.info("用户 {} 自动归档感受描述到我的思考，日程 id: {}", userId, saved.getId());
+        } catch (Exception e) {
+            log.warn("自动归档感受描述失败，不阻断日程保存: {}", e.getMessage());
+        }
     }
 
     private ScheduleDTO.Response mapToResponse(Schedule schedule) {

@@ -1,0 +1,386 @@
+/* ============================================
+   FeelingSlider — Custom mood slider
+   Morandi earth-tone palette, custom thumb,
+   kaomoji indicators, animated kaomoji display
+   ============================================ */
+
+.feeling-slider {
+  --sl-thumb-size: 42px;
+  --sl-track-height: 6px;
+  --sl-track-pad: calc(var(--sl-thumb-size) / 2);
+
+  --sl-negative: #b87373;
+  --sl-neutral: #c9a96e;
+  --sl-positive: #8a9a5b;
+  --sl-track-bg: #e0d9d0;
+  --sl-text: #6c6360;
+  --sl-accent: #a69c97;
+  --sl-thumb-bg: #fff;
+  --sl-border: #e0d9d0;
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ── Kaomoji markers (inside track-bg, above track) ── */
+.kaomoji-marker {
+  position: absolute;
+  top: -44px;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  font-family: 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--sl-text);
+  opacity: 0.42;
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.kaomoji-marker:hover {
+  opacity: 0.7;
+  transform: translateX(-50%) scale(1.15);
+}
+
+.kaomoji-marker.marker-active {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.28);
+}
+
+.kaomoji-marker.negative.marker-active {
+  color: var(--sl-negative);
+}
+
+.kaomoji-marker.neutral.marker-active {
+  color: var(--sl-neutral);
+}
+
+.kaomoji-marker.positive.marker-active {
+  color: var(--sl-positive);
+}
+
+.kaomoji-marker:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+/* ── Track wrap ── */
+.slider-track-wrap {
+  position: relative;
+  width: 100%;
+  padding: 44px var(--sl-track-pad) 20px;
+  box-sizing: border-box;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.slider-track-bg {
+  position: relative;
+  width: 100%;
+  height: var(--sl-track-height);
+  border-radius: calc(var(--sl-track-height) / 2);
+  background: var(--sl-track-bg);
+  overflow: visible;
+}
+
+.slider-track-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: calc(var(--sl-track-height) / 2);
+  background: linear-gradient(
+    to right,
+    var(--sl-negative) 0%,
+    var(--sl-neutral) 50%,
+    var(--sl-positive) 100%
+  );
+  transition: width 0.15s ease-out;
+  pointer-events: none;
+}
+
+/* ── Tick dots ── */
+.slider-ticks {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.slider-tick-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c8c2bc;
+  border: 2px solid #fff;
+  transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.slider-tick-dot.tick-active {
+  background: var(--sl-accent);
+  border-color: #fff;
+  transform: scale(1.6);
+  box-shadow: 0 0 0 3px rgba(166, 156, 151, 0.25);
+}
+
+/* ── Thumb ── */
+.slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--sl-thumb-size);
+  height: var(--sl-thumb-size);
+  border-radius: 50%;
+  background: var(--sl-thumb-bg);
+  border: 2.5px solid var(--sl-accent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+  z-index: 2;
+  transition: left 0.15s ease-out, border-color 0.3s ease,
+    box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.slider-thumb:focus-visible {
+  outline: 2.5px solid var(--sl-accent);
+  outline-offset: 3px;
+}
+
+.slider-thumb:hover {
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+
+.slider-thumb:active {
+  cursor: grabbing;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18), 0 1px 5px rgba(0, 0, 0, 0.12);
+  transform: translate(-50%, -50%) scale(1.02);
+}
+
+/* Feeling-class thumb tints */
+.feeling-slider.negative .slider-thumb {
+  border-color: var(--sl-negative);
+}
+
+.feeling-slider.neutral .slider-thumb {
+  border-color: var(--sl-neutral);
+}
+
+.feeling-slider.positive .slider-thumb {
+  border-color: var(--sl-positive);
+}
+
+/* ── Dragging: disable transitions for smooth tracking ── */
+.slider-dragging .slider-thumb,
+.slider-dragging .slider-track-fill {
+  transition: none !important;
+}
+
+/* ── Value number row ── */
+.slider-value-row {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.slider-value-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--sl-accent);
+  transition: color 0.3s ease;
+}
+
+.feeling-slider.negative .slider-value-num {
+  color: var(--sl-negative);
+}
+
+.feeling-slider.neutral .slider-value-num {
+  color: var(--sl-neutral);
+}
+
+.feeling-slider.positive .slider-value-num {
+  color: var(--sl-positive);
+}
+
+/* ── Large kaomoji stage ── */
+.slider-kaomoji-stage {
+  text-align: center;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.stage-kaomoji {
+  display: inline-block;
+  font-family: 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+  font-weight: 700;
+  font-size: 52px;
+  line-height: 1.25;
+  color: var(--sl-neutral);
+  animation: kaomoji-pop 0.55s cubic-bezier(0.23, 1, 0.32, 1) both;
+  transition: color 0.3s ease;
+}
+
+.feeling-slider.negative .stage-kaomoji {
+  color: var(--sl-negative);
+}
+
+.feeling-slider.neutral .stage-kaomoji {
+  color: var(--sl-neutral);
+}
+
+.feeling-slider.positive .stage-kaomoji {
+  color: var(--sl-positive);
+}
+
+@keyframes kaomoji-pop {
+  0% {
+    transform: scale(0) translateY(12px);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.18) translateY(-6px);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.94) translateY(3px);
+    opacity: 1;
+  }
+  85% {
+    transform: scale(1.03) translateY(-1px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ── Disabled state ── */
+.feeling-slider.slider-disabled {
+  opacity: 0.48;
+  pointer-events: none;
+}
+
+.feeling-slider.slider-disabled .slider-thumb {
+  cursor: not-allowed;
+}
+
+.feeling-slider.slider-disabled .slider-track-wrap {
+  cursor: not-allowed;
+}
+
+.feeling-slider.slider-disabled .kaomoji-marker {
+  cursor: not-allowed;
+}
+
+/* ── Minimal theme overrides ── */
+body.minimal-theme .slider-track-bg {
+  background: #e8e8e8;
+}
+
+body.minimal-theme .slider-track-fill {
+  background: linear-gradient(to right, #999, #666, #999);
+}
+
+body.minimal-theme .slider-tick-dot {
+  background: #d0d0d0;
+  border-color: #fff;
+}
+
+body.minimal-theme .slider-tick-dot.tick-active {
+  background: #666;
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.2);
+}
+
+body.minimal-theme .slider-thumb {
+  background: #fff;
+  border-color: #888;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.minimal-theme .slider-thumb:focus-visible {
+  outline-color: #666;
+}
+
+body.minimal-theme .feeling-slider.negative .slider-thumb,
+body.minimal-theme .feeling-slider.neutral .slider-thumb,
+body.minimal-theme .feeling-slider.positive .slider-thumb {
+  border-color: #666;
+}
+
+body.minimal-theme .stage-kaomoji,
+body.minimal-theme .feeling-slider.negative .stage-kaomoji,
+body.minimal-theme .feeling-slider.neutral .stage-kaomoji,
+body.minimal-theme .feeling-slider.positive .stage-kaomoji {
+  color: #555;
+}
+
+body.minimal-theme .kaomoji-marker {
+  color: #888;
+}
+
+body.minimal-theme .kaomoji-marker.marker-active,
+body.minimal-theme .kaomoji-marker.negative.marker-active,
+body.minimal-theme .kaomoji-marker.neutral.marker-active,
+body.minimal-theme .kaomoji-marker.positive.marker-active {
+  color: #555;
+}
+
+body.minimal-theme .slider-value-num {
+  color: #666;
+}
+
+body.minimal-theme .feeling-slider.negative .slider-value-num,
+body.minimal-theme .feeling-slider.neutral .slider-value-num,
+body.minimal-theme .feeling-slider.positive .slider-value-num {
+  color: #555;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .feeling-slider {
+    --sl-thumb-size: 36px;
+  }
+
+  .kaomoji-marker {
+    font-size: 13px;
+  }
+
+  .slider-value-num {
+    font-size: 16px;
+  }
+
+  .stage-kaomoji {
+    font-size: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feeling-slider {
+    --sl-thumb-size: 32px;
+  }
+
+  .kaomoji-marker {
+    font-size: 11px;
+  }
+
+  .slider-value-num {
+    font-size: 14px;
+  }
+
+  .stage-kaomoji {
+    font-size: 38px;
+  }
+}

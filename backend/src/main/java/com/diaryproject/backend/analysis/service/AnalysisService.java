@@ -7,6 +7,7 @@ import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import com.diaryproject.backend.schedule.service.ScheduleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
@@ -33,6 +34,7 @@ public class AnalysisService {
     }
 
     /** 获取指定日期的每日分析（情绪指数统计） */
+    @Cacheable(value = "analysis", key = "'daily:' + #userId + ':' + #date")
     public AnalysisDTO.DailyResponse getDailyAnalysis(Long userId, LocalDate date) {
         log.debug("用户 {} 查询日情绪分析", userId);
         List<ScheduleDTO.Response> items = scheduleService.getByDate(userId, date);
@@ -40,6 +42,7 @@ public class AnalysisService {
     }
 
     /** 获取指定日期所在周的统计，包含每日情绪指数 */
+    @Cacheable(value = "analysis", key = "'weekly:' + #userId + ':' + #date")
     public AnalysisDTO.WeeklyResponse getWeeklyAnalysis(Long userId, LocalDate date) {
         log.debug("用户 {} 查询周情绪分析", userId);
         LocalDate start = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -63,6 +66,7 @@ public class AnalysisService {
     }
 
     /** 获取指定日期所在月的统计，包含每日情绪指数 */
+    @Cacheable(value = "analysis", key = "'monthly:' + #userId + ':' + #date")
     public AnalysisDTO.MonthlyResponse getMonthlyAnalysis(Long userId, LocalDate date) {
         log.debug("用户 {} 查询月情绪分析", userId);
         LocalDate start = date.withDayOfMonth(1);

@@ -76,6 +76,13 @@
   border-bottom: 1px solid #f0ebe4;
   text-align: center;
   transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar.collapsed .user-info {
+  padding: 20px 10px;
 }
 
 .user-avatar {
@@ -87,13 +94,15 @@
   border: 2px solid #d4c9c0;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar.collapsed .user-avatar {
   width: 40px;
   height: 40px;
-  margin: 0 auto;
+  margin: 0 auto 12px;
+  transform: translateY(28px);
 }
 
 .user-avatar img {
@@ -104,18 +113,15 @@
 
 .user-details {
   overflow: hidden;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.25s ease,
-              margin-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.25s ease;
   max-height: 60px;
   opacity: 1;
   margin-top: 0;
 }
 
 .sidebar.collapsed .user-details {
-  max-height: 0;
   opacity: 0;
-  margin-top: 0;
+  pointer-events: none;
 }
 
 .user-info h3 {
@@ -173,6 +179,7 @@
   width: 24px;
   text-align: center;
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-item span {
@@ -189,27 +196,15 @@
 
 .sidebar.collapsed .menu-item {
   padding: 14px 0;
-  justify-content: center;
+}
+
+.sidebar.collapsed .menu-item i {
+  transform: translateX(23px);
 }
 
 .sidebar.collapsed .menu-item span {
   opacity: 0;
   width: 0;
-}
-
-/* ── Footer ── */
-
-.sidebar-footer {
-  border-top: 1px solid #f0ebe4;
-  padding: 12px 0;
-}
-
-.logout-btn {
-  width: 100%;
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: inherit;
 }
 
 /* ── Minimal theme ── */
@@ -220,8 +215,7 @@ body.minimal-theme .sidebar {
 }
 
 body.minimal-theme .sidebar-header,
-body.minimal-theme .user-info,
-body.minimal-theme .sidebar-footer {
+body.minimal-theme .user-info {
   border-color: #e0e0e0;
 }
 
