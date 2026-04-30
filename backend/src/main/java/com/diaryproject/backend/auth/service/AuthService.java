@@ -90,21 +90,21 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setNickname(request.getNickname());
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         log.info("新用户注册: {}", request.getUsername());
 
         // Create default user settings (includes theme)
         UserSettings settings = new UserSettings();
-        settings.setUserId(user.getId());
+        settings.setUserId(savedUser.getId());
         settings.setTheme("morandi");
         settings.setAutoSaveThoughts(false);
         userSettingsRepository.save(settings);
 
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername());
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getUsername());
 
         AuthDTO.AuthResponse response = new AuthDTO.AuthResponse();
         response.setToken(token);
-        response.setUser(mapToUserInfo(user));
+        response.setUser(mapToUserInfo(savedUser));
         return response;
     }
 
