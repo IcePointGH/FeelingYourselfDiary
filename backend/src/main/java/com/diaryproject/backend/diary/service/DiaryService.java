@@ -3,6 +3,7 @@ package com.diaryproject.backend.diary.service;
 import com.diaryproject.backend.common.cache.CacheKeys;
 import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import com.diaryproject.backend.diary.dto.DiaryDTO;
 import com.diaryproject.backend.diary.entity.Diary;
@@ -40,6 +41,7 @@ public class DiaryService {
      * @param request 日记创建请求（标题、内容、日期）
      * @return 创建的日记响应
      */
+    @CacheEvict(value = "diaries", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public DiaryDTO.Response create(Long userId, DiaryDTO.CreateRequest request) {
         Diary diary = Diary.builder()
@@ -78,6 +80,7 @@ public class DiaryService {
      * 更新日记，仅允许日记所有者操作
      * @throws RuntimeException 如果日记不存在或无权操作
      */
+    @CacheEvict(value = "diaries", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public DiaryDTO.Response update(Long userId, Long id, DiaryDTO.UpdateRequest request) {
         Diary diary = diaryRepository.findByUserIdAndId(userId, id)
@@ -94,6 +97,7 @@ public class DiaryService {
     }
 
     /** 删除日记，仅允许日记所有者操作 */
+    @CacheEvict(value = "diaries", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId, Long id) {
         Diary diary = diaryRepository.findByUserIdAndId(userId, id)

@@ -10,6 +10,7 @@ import com.diaryproject.backend.schedule.dto.ScheduleDTO;
 import com.diaryproject.backend.schedule.entity.Schedule;
 import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import com.diaryproject.backend.settings.service.UserSettingsService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,6 +47,7 @@ public class ScheduleService {
     }
 
     /** 创建新日程 */
+    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public ScheduleDTO.Response create(Long userId, ScheduleDTO.CreateRequest request) {
         Schedule schedule = Schedule.builder()
@@ -83,6 +85,7 @@ public class ScheduleService {
     }
 
     /** 更新日程，检查用户权限 */
+    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public ScheduleDTO.Response update(Long userId, Long id, ScheduleDTO.UpdateRequest request) {
         Schedule schedule = scheduleRepository.findById(id)
@@ -107,6 +110,7 @@ public class ScheduleService {
     }
 
     /** 删除日程，检查用户权限 */
+    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId, Long id) {
         Schedule schedule = scheduleRepository.findById(id)
