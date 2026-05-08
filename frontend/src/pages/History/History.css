@@ -19,12 +19,12 @@
 .year-select,
 .month-select {
   background: rgba(255, 255, 255, 0.6);
-  border: 1px solid #e0d9d0;
+  border: 1px solid #d0d0d0;
   border-radius: 6px;
   padding: 6px 10px;
   font: inherit;
   font-size: 16px;
-  color: #5a534e;
+  color: #454545;
   cursor: pointer;
   transition: all 0.3s ease;
   appearance: none;
@@ -40,14 +40,14 @@
 .year-select:focus,
 .month-select:focus {
   background-color: rgba(255, 255, 255, 0.9);
-  border-color: #a69c97;
+  border-color: #454545;
   outline: none;
 }
 
 .icon-btn {
   background: none;
   border: none;
-  color: #a69c97;
+  color: #454545;
   font-size: 18px;
   cursor: pointer;
   padding: 8px 12px;
@@ -56,8 +56,8 @@
 }
 
 .icon-btn:hover {
-  background: #f0ebe4;
-  color: #6c6360;
+  background: #f0f0f0;
+  color: #454545;
 }
 
 .calendar-grid {
@@ -70,7 +70,7 @@
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: #8a817c;
+  color: #999;
   padding: 10px;
 }
 
@@ -83,10 +83,10 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: rgba(255,255,255,0.4);
+  background: #fafafa;
   border: 1px solid transparent;
   font-size: 15px;
-  color: #5a534e;
+  color: #454545;
   gap: 2px;
 }
 
@@ -112,41 +112,30 @@
   opacity: 0.85;
 }
 
-/* Mood-tinted day backgrounds */
-.calendar-day.has-data.positive {
-  background: rgba(240, 243, 232, 0.55);
-}
+/* Per-value calendar day backgrounds */
+.calendar-day.has-data.feel--3 { background: rgba(215, 87, 114, 0.18); }
+.calendar-day.has-data.feel--2 { background: rgba(245, 134, 123, 0.18); }
+.calendar-day.has-data.feel--1 { background: rgba(254, 169, 121, 0.18); }
+.calendar-day.has-data.feel-0  { background: rgba(255, 224, 98, 0.20); }
+.calendar-day.has-data.feel-1  { background: rgba(60, 223, 233, 0.18); }
+.calendar-day.has-data.feel-2  { background: rgba(18, 184, 236, 0.18); }
+.calendar-day.has-data.feel-3  { background: rgba(22, 134, 238, 0.18); }
 
-.calendar-day.has-data.neutral {
-  background: rgba(249, 245, 237, 0.55);
-}
-
-.calendar-day.has-data.negative {
-  background: rgba(245, 236, 236, 0.55);
-}
-
-.calendar-day.selected.positive {
-  background: #8a9a5b;
-  color: white;
-}
-
-.calendar-day.selected.neutral {
-  background: #a69c97;
-  color: white;
-}
-
-.calendar-day.selected.negative {
-  background: #b87373;
-  color: white;
-}
+.calendar-day.selected.feel--3 { background: #d75772; color: white; }
+.calendar-day.selected.feel--2 { background: #f5867b; color: white; }
+.calendar-day.selected.feel--1 { background: #fea979; color: white; }
+.calendar-day.selected.feel-0  { background: #c9a810; color: white; }
+.calendar-day.selected.feel-1  { background: #25a8b8; color: white; }
+.calendar-day.selected.feel-2  { background: #12b8ec; color: white; }
+.calendar-day.selected.feel-3  { background: #1686ee; color: white; }
 
 .calendar-day:hover {
-  background: rgba(255,255,255,0.9);
-  border-color: #d4c9c0;
+  background: #f0f0f0;
+  border-color: #d0d0d0;
 }
 
 .calendar-day.other-month {
-  color: #c9bfb6;
+  color: #ccc;
   background: transparent;
 }
 
@@ -155,62 +144,18 @@
 }
 
 .calendar-day.selected {
+  background: #454545;
   color: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.calendar-day.selected:not(.positive):not(.negative):not(.neutral) {
-  background: #a69c97;
 }
 
 .detail-card h2 {
   text-align: center;
   margin-bottom: 25px;
-  color: #5a534e;
+  color: #454545;
   font-size: 22px;
 }
 
-/* Minimal theme */
-body.minimal-theme .year-select,
-body.minimal-theme .month-select {
-  background: #ffffff;
-  border-color: #e0e0e0;
-}
-
-body.minimal-theme .year-select:hover,
-body.minimal-theme .month-select:hover,
-body.minimal-theme .year-select:focus,
-body.minimal-theme .month-select:focus {
-  background: #f5f5f5;
-  border-color: #ccc;
-}
-
-body.minimal-theme .icon-btn:hover {
-  background: #f5f5f5;
-}
-
-body.minimal-theme .calendar-day {
-  background: #fafafa;
-}
-
-body.minimal-theme .calendar-day:hover {
-  background: #f0f0f0;
-  border-color: #ccc;
-}
-
-body.minimal-theme .calendar-day.has-data {
-  background: #e0e0e0;
-}
-
-body.minimal-theme .calendar-day.selected {
-  background: #666;
-  color: white;
-}
-
-body.minimal-theme .calendar-day.other-month {
-  color: #bbb;
-  background: transparent;
-}
 
 @media (max-width: 768px) {
   .calendar-grid {

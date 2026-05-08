@@ -1,7 +1,6 @@
 .sidebar {
   width: 260px;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(15px);
+  background: #ffffff;
   box-shadow: 2px 0 15px rgba(0, 0, 0, 0.08);
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
@@ -18,36 +17,36 @@
 /* ── Header ── */
 
 .sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid #f0ebe4;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8e8e8;
   display: flex;
+  justify-content: center;
   align-items: center;
-  height: 64px;
-  gap: 8px;
+  height: 80px;
+  position: relative;
+  background: #ffffff;
 }
 
-.app-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #4a433e;
-  white-space: nowrap;
-  overflow: hidden;
+.app-logo {
+  max-width: 100%;
+  height: auto;
+  max-height: 56px;
+  object-fit: contain;
   opacity: 1;
-  transition: opacity 0.25s ease, width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 1;
-  min-width: 0;
+  transition: opacity 0.25s ease, max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar.collapsed .app-title {
+.sidebar.collapsed .app-logo {
   opacity: 0;
-  width: 0;
-  flex: 0;
+  max-width: 0;
 }
 
 .sidebar-toggle {
+  position: absolute;
+  right: 12px;
   background: none;
   border: none;
-  color: #8a817c;
+  color: #999;
   font-size: 16px;
   cursor: pointer;
   padding: 8px;
@@ -62,7 +61,7 @@
 }
 
 .sidebar-toggle:hover {
-  background-color: #f0ebe4;
+  background-color: #f0f0f0;
 }
 
 .sidebar.collapsed .sidebar-toggle {
@@ -73,7 +72,7 @@
 
 .user-info {
   padding: 20px;
-  border-bottom: 1px solid #f0ebe4;
+  border-bottom: 1px solid #e8e8e8;
   text-align: center;
   transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -91,7 +90,7 @@
   border-radius: 50%;
   overflow: hidden;
   margin: 0 auto 12px;
-  border: 2px solid #d4c9c0;
+  border: 2px solid #e8e8e8;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               margin 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -127,7 +126,7 @@
 .user-info h3 {
   font-size: 16px;
   font-weight: 600;
-  color: #6c6360;
+  color: #454545;
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -135,7 +134,7 @@
 
 .user-info p {
   font-size: 13px;
-  color: #8a817c;
+  color: #999;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -165,17 +164,17 @@
 }
 
 .menu-item:hover {
-  background-color: #f0ebe4;
+  background-color: #f5f5f5;
 }
 
 .menu-item.active {
-  background-color: #f0ebe4;
-  border-left-color: #a69c97;
+  background-color: #f5f5f5;
+  border-left-color: #1686ee;
 }
 
 .menu-item i {
   font-size: 18px;
-  color: #a69c97;
+  color: #999;
   width: 24px;
   text-align: center;
   flex-shrink: 0;
@@ -184,7 +183,7 @@
 
 .menu-item span {
   font-weight: 500;
-  color: #6c6360;
+  color: #454545;
   font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
@@ -205,36 +204,6 @@
 .sidebar.collapsed .menu-item span {
   opacity: 0;
   width: 0;
-}
-
-/* ── Minimal theme ── */
-
-body.minimal-theme .sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e0e0e0;
-}
-
-body.minimal-theme .sidebar-header,
-body.minimal-theme .user-info {
-  border-color: #e0e0e0;
-}
-
-body.minimal-theme .menu-item:hover {
-  background-color: #f5f5f5;
-}
-
-body.minimal-theme .menu-item.active {
-  background-color: #f0f0f0;
-  border-left-color: #666;
-}
-
-body.minimal-theme .menu-item i {
-  color: #666;
-}
-
-body.minimal-theme .menu-item span,
-body.minimal-theme .user-info h3 {
-  color: #333;
 }
 
 /* ── Mobile ── */

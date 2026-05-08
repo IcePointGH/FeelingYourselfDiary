@@ -25,8 +25,8 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 2px solid #e0d9d0;
-  background: #fff;
+  border: 2px solid #e0e0e0;
+  background: #fafafa;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
@@ -46,44 +46,33 @@
   transform: none;
 }
 
-.feeling-btn.negative {
-  color: #b87373;
-}
-
-.feeling-btn.neutral {
-  color: #c9a96e;
-}
-
-.feeling-btn.positive {
-  color: #8a9a5b;
-}
+/* Per-value button colors */
+.feeling-btn.feel--3 { color: #d75772; border-color: #d75772; }
+.feeling-btn.feel--2 { color: #f5867b; border-color: #f5867b; }
+.feeling-btn.feel--1 { color: #fea979; border-color: #fea979; }
+.feeling-btn.feel-0  { color: #c9a810; border-color: #c9a810; }
+.feeling-btn.feel-1  { color: #25a8b8; border-color: #25a8b8; }
+.feeling-btn.feel-2  { color: #12b8ec; border-color: #12b8ec; }
+.feeling-btn.feel-3  { color: #1686ee; border-color: #1686ee; }
 
 .feeling-btn.selected {
-  background: #f0ebe4;
-  border-color: #a69c97;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
+
+/* Selected — per-value fill with white text (0 uses dark text for contrast) */
+.feeling-btn.feel--3.selected { background: #d75772; border-color: #d75772; color: #fff; }
+.feeling-btn.feel--2.selected { background: #f5867b; border-color: #f5867b; color: #fff; }
+.feeling-btn.feel--1.selected { background: #fea979; border-color: #fea979; color: #fff; }
+.feeling-btn.feel-0.selected  { background: #c9a810; border-color: #c9a810; color: #fff; }
+.feeling-btn.feel-1.selected  { background: #25a8b8; border-color: #25a8b8; color: #fff; }
+.feeling-btn.feel-2.selected  { background: #12b8ec; border-color: #12b8ec; color: #fff; }
+.feeling-btn.feel-3.selected  { background: #1686ee; border-color: #1686ee; color: #fff; }
 
 .feeling-label {
   text-align: center;
   margin-top: 10px;
   font-size: 14px;
   color: #8a817c;
-}
-
-/* Minimal theme */
-body.minimal-theme .feeling-btn {
-  border-color: #e0e0e0;
-}
-
-body.minimal-theme .feeling-btn.selected {
-  background: #f0f0f0;
-  border-color: #666;
-}
-
-body.minimal-theme .slider-fallback {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
 }
 
 @media (max-width: 768px) {

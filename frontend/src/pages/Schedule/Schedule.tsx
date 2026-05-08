@@ -29,6 +29,7 @@ export default function SchedulePage() {
   const [kaoAnimKey, setKaoAnimKey] = useState(0);
   const [quote] = useState(() => quotes[Math.floor(Math.random() * quotes.length)]);
   const { mode } = useFeelingMode();
+  const [showDesc, setShowDesc] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -94,13 +95,6 @@ export default function SchedulePage() {
     <div className="schedule-page">
       <div className="daily-quote">{quote}</div>
 
-      <div className={`kaomoji-showcase ${kaoMood}`}>
-        <span className="kaomoji-face" key={kaoAnimKey}>{displayKao}</span>
-        <span className="kaomoji-hint">
-          {hasInteracted ? '此刻的感受' : '你的心情是...'}
-        </span>
-      </div>
-
       <div className="card form-card">
         <h2>添加新日程</h2>
         <form onSubmit={handleSubmit}>
@@ -114,24 +108,47 @@ export default function SchedulePage() {
               required
             />
           </div>
-          <div className="form-group">
-            <label>感受描述</label>
-            <textarea
-              ref={textareaRef}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="在这里记录你的感受..."
-              rows={4}
-            />
+
+          <div className="datetime-compact">
+            <DateInput value={date} onChange={v => setDate(v)} required />
+            <span className="time-divider">·</span>
+            <input type="time" value={time} onChange={e => setTime(e.target.value)} />
           </div>
-          <div className="form-group">
-            <label>日期和时间</label>
-            <div className="datetime-row">
-              <DateInput value={date} onChange={v => setDate(v)} required />
-              <input type="time" value={time} onChange={e => setTime(e.target.value)} />
+
+          {/* Unified feeling area — slider has its own kaomoji, buttons get one here */}
+          <div className="feeling-area">
+            {mode === 'buttons' && (
+              <>
+                <span className="feeling-area-kaomoji" key={kaoAnimKey}>{displayKao}</span>
+                <span className="feeling-area-hint">
+                  {hasInteracted ? '此刻的感受' : '你的心情是...'}
+                </span>
+              </>
+            )}
+            <FeelingSelector value={feeling} onChange={handleFeelingChange} mode={mode} />
+          </div>
+
+          {/* Collapsible description */}
+          <button
+            type="button"
+            className="desc-toggle"
+            onClick={() => setShowDesc(!showDesc)}
+          >
+            <i className={`fas fa-${showDesc ? 'minus' : 'plus'}-circle`} />
+            <span>添加描述{description && !showDesc ? ` (已输入)` : ''}</span>
+          </button>
+          {showDesc && (
+            <div className="form-group desc-expanded">
+              <textarea
+                ref={textareaRef}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="在这里记录你的感受..."
+                rows={4}
+              />
             </div>
-          </div>
-          <FeelingSelector value={feeling} onChange={handleFeelingChange} mode={mode} />
+          )}
+
           <button type="submit" className="btn submit-btn">添加日程</button>
         </form>
       </div>

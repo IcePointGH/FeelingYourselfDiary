@@ -8,6 +8,9 @@
   flex: 1;
   padding: 40px;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  scrollbar-gutter: stable;
 }
 
 @media (max-width: 768px) {

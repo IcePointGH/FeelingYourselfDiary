@@ -337,7 +337,7 @@ export default function SettingsPage() {
 
         <CollapsiblePanel title="开发者的话">
           <div className="about-content">
-            <p>开发者的话将在此处显示。感谢您使用情绪平衡日记，希望它能陪伴您记录生活中的每一个瞬间。</p>
+            <p>开发者的话将在此处显示。感谢您使用seven sense，希望它能陪伴您记录生活中的每一个瞬间。</p>
           </div>
         </CollapsiblePanel>
 

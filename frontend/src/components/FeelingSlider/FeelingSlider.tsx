@@ -156,6 +156,11 @@ export default function FeelingSlider({
 
   return (
     <div className={wrapperCls}>
+      {/* Large animated kaomoji display — above slider */}
+      <div className="slider-kaomoji-stage" key={animKey}>
+        <span className="stage-kaomoji">{KAOMOJI[clampedValue]}</span>
+      </div>
+
       {/* Slider track */}
       <div
         className="slider-track-wrap"
@@ -227,14 +232,9 @@ export default function FeelingSlider({
         </div>
       </div>
 
-      {/* Value label between track and kaomoji display */}
+      {/* Value label */}
       <div className="slider-value-row">
         <span className="slider-value-num">{`${clampedValue > 0 ? '+' : ''}${clampedValue}`}</span>
-      </div>
-
-      {/* Large animated kaomoji display */}
-      <div className="slider-kaomoji-stage" key={animKey}>
-        <span className="stage-kaomoji">{KAOMOJI[clampedValue]}</span>
       </div>
     </div>
   );

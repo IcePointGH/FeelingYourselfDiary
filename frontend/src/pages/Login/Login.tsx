@@ -26,8 +26,8 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <img src="/LOGO-v1/横版-白-抠图后.png" alt="seven sense" className="auth-logo" />
       <div className="auth-container">
-        <h1>情绪平衡日记</h1>
         <h2>登录</h2>
         {success && <div className="success-message">{success}</div>}
         {error && <div className="error-message">{error}</div>}

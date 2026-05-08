@@ -39,7 +39,7 @@ export default function FeelingSelector({
             <button
               key={val}
               type="button"
-              className={`feeling-btn ${getFeelingClass(val)} ${value === val ? 'selected' : ''}`}
+              className={`feeling-btn feel${val >= 0 ? '-' : '--'}${Math.abs(val)} ${value === val ? 'selected' : ''}`}
               onClick={() => onChange(val)}
               disabled={disabled}
               title={emotionLabels[String(val)] ?? String(val)}

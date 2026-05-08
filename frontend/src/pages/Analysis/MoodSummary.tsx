@@ -43,7 +43,7 @@ export default function MoodSummary({ tab, items }: MoodSummaryProps) {
                     {item.date}{item.time ? ` ${item.time}` : ''}
                   </div>
                 </div>
-                <div className={`detail-feeling ${item.feeling > 0 ? 'positive' : item.feeling < 0 ? 'negative' : 'neutral'}`}>
+                <div className={`detail-feeling feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>
                   {formatFeelingValue(item.feeling)}
                 </div>
               </div>

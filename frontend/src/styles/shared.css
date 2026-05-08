@@ -5,9 +5,9 @@
 
 /* ── Card ── */
 .card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(15px);
+  background: #ffffff;
   padding: 30px;
+  border: 1px solid #e8e8e8;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   margin-bottom: 30px;
@@ -16,7 +16,7 @@
 .card h2 {
   text-align: center;
   margin-bottom: 25px;
-  color: #5a534e;
+  color: #454545;
   font-size: 22px;
 }
 
@@ -29,7 +29,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #6c6360;
+  color: #454545;
   font-size: 15px;
 }
 
@@ -37,28 +37,28 @@
 .form-group textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #e0d9d0;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   font-size: 15px;
-  background-color: #fcfbf9;
+  background-color: #fafafa;
   transition: all 0.3s ease;
   font-family: inherit;
   box-sizing: border-box;
-  color: #5a534e;
+  color: #454545;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #c7b8a9;
-  box-shadow: 0 0 0 3px rgba(199, 184, 169, 0.1);
+  border-color: #1686ee;
+  box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.1);
 }
 
 /* ── Submit / Save button ── */
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background-color: #a69c97;
+  background-color: #454545;
   color: white;
   border: none;
   border-radius: 8px;
@@ -70,13 +70,13 @@
 }
 
 .submit-btn:hover {
-  background-color: #968c87;
+  background-color: #333;
 }
 
 /* ── Empty text ── */
 .empty-text {
   text-align: center;
-  color: #a69c97;
+  color: #999;
   padding: 30px;
   font-size: 15px;
 }
@@ -96,20 +96,20 @@
 }
 
 .feeling-badge.positive {
-  background-color: #f0f3e8;
-  color: #7a8a4b;
+  background-color: #e8f4f8;
+  color: #1686ee;
 }
 
 .feeling-badge.neutral {
-  background-color: #f9f5ed;
-  color: #b89a5e;
+  background-color: #fef9e7;
+  color: #b89a1e;
 }
 
 /* ── Delete button small ── */
 .delete-btn-small {
   background: none;
   border: none;
-  color: #c9a9a9;
+  color: #ccc;
   cursor: pointer;
   padding: 6px;
   border-radius: 4px;
@@ -118,8 +118,8 @@
 }
 
 .delete-btn-small:hover {
-  color: #b87373;
-  background: #f5ecec;
+  color: #d75772;
+  background: #fef0f0;
 }
 
 /* ── Schedule list container ── */
@@ -129,22 +129,4 @@
   gap: 12px;
 }
 
-/* ── Minimal theme overrides for shared patterns ── */
-body.minimal-theme .card {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-}
 
-body.minimal-theme .form-group input,
-body.minimal-theme .form-group textarea {
-  background: #fff;
-  border-color: #e0e0e0;
-}
-
-body.minimal-theme .submit-btn {
-  background: #666;
-}
-
-body.minimal-theme .submit-btn:hover {
-  background: #333;
-}

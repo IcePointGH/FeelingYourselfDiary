@@ -22,7 +22,7 @@ export default function Sidebar() {
   return (
     <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${sidebarClass}`}>
       <div className="sidebar-header">
-        <div className="app-title">情绪平衡日记</div>
+        <img src="/LOGO-v1/横版-白-抠图后.png" alt="seven sense" className="app-logo" />
         <button
           className="sidebar-toggle"
           onClick={() => setCollapsed(!collapsed)}

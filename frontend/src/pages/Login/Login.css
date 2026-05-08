@@ -1,14 +1,15 @@
 .auth-page {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f7f5f2, #faf8f6);
+  background: #fafafa;
 }
 
 .auth-container {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(15px);
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
   padding: 40px;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
@@ -16,17 +17,24 @@
   max-width: 400px;
 }
 
+.auth-logo {
+  display: block;
+  max-width: 280px;
+  height: auto;
+  margin-bottom: 28px;
+}
+
 .auth-container h1 {
   text-align: center;
   font-size: 28px;
   margin-bottom: 10px;
-  color: #4a433e;
+  color: #454545;
 }
 
 .auth-container h2 {
   text-align: center;
   font-size: 18px;
-  color: #8a817c;
+  color: #999;
   margin-bottom: 30px;
   font-weight: 500;
 }
@@ -39,29 +47,30 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #6c6360;
+  color: #454545;
 }
 
 .form-group input {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #e0d9d0;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   font-size: 16px;
-  background-color: #fcfbf9;
+  background-color: #fafafa;
+  color: #454545;
   transition: all 0.3s ease;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #c7b8a9;
-  box-shadow: 0 0 0 3px rgba(199, 184, 169, 0.1);
+  border-color: #1686ee;
+  box-shadow: 0 0 0 3px rgba(22,134,238,0.1);
 }
 
 .btn {
   width: 100%;
   padding: 12px;
-  background-color: #a69c97;
+  background-color: #454545;
   color: white;
   border: none;
   border-radius: 8px;
@@ -72,7 +81,7 @@
 }
 
 .btn:hover:not(:disabled) {
-  background-color: #968c87;
+  background-color: #333;
 }
 
 .btn:disabled {
@@ -81,21 +90,21 @@
 }
 
 .error-message {
-  background-color: #f5ecec;
-  color: #a86363;
+  background-color: #fef0f0;
+  color: #c93c3c;
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 20px;
   text-align: center;
   font-size: 14px;
   animation: fadeIn 0.3s ease;
-  border-left: 4px solid #c97b7b;
+  border-left: 4px solid #d75772;
   padding-left: 14px;
 }
 
 .success-message {
-  background-color: #eaf5ec;
-  color: #4a7c59;
+  background-color: #e8f5e9;
+  color: #2e7d32;
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 20px;
@@ -112,12 +121,12 @@
 .auth-link {
   text-align: center;
   margin-top: 20px;
-  color: #8a817c;
+  color: #999;
   font-size: 14px;
 }
 
 .auth-link a {
-  color: #a69c97;
+  color: #1686ee;
   text-decoration: none;
   font-weight: 500;
 }

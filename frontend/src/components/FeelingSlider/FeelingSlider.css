@@ -8,15 +8,11 @@
   --sl-thumb-size: 42px;
   --sl-track-height: 6px;
   --sl-track-pad: calc(var(--sl-thumb-size) / 2);
-
-  --sl-negative: #b87373;
-  --sl-neutral: #c9a96e;
-  --sl-positive: #8a9a5b;
-  --sl-track-bg: #e0d9d0;
-  --sl-text: #6c6360;
-  --sl-accent: #a69c97;
+  --sl-track-bg: #e8e8e8;
+  --sl-text: #454545;
+  --sl-accent: #454545;
   --sl-thumb-bg: #fff;
-  --sl-border: #e0d9d0;
+  --sl-border: #d0d0d0;
 
   display: flex;
   flex-direction: column;
@@ -55,17 +51,6 @@
   transform: translateX(-50%) scale(1.28);
 }
 
-.kaomoji-marker.negative.marker-active {
-  color: var(--sl-negative);
-}
-
-.kaomoji-marker.neutral.marker-active {
-  color: var(--sl-neutral);
-}
-
-.kaomoji-marker.positive.marker-active {
-  color: var(--sl-positive);
-}
 
 .kaomoji-marker:disabled {
   cursor: not-allowed;
@@ -99,9 +84,13 @@
   border-radius: calc(var(--sl-track-height) / 2);
   background: linear-gradient(
     to right,
-    var(--sl-negative) 0%,
-    var(--sl-neutral) 50%,
-    var(--sl-positive) 100%
+    #d75772 0%,
+    #f5867b 17%,
+    #fea979 33%,
+    #ffe062 50%,
+    #3cdfe9 67%,
+    #12b8ec 83%,
+    #1686ee 100%
   );
   transition: width 0.15s ease-out;
   pointer-events: none;
@@ -168,18 +157,6 @@
   transform: translate(-50%, -50%) scale(1.02);
 }
 
-/* Feeling-class thumb tints */
-.feeling-slider.negative .slider-thumb {
-  border-color: var(--sl-negative);
-}
-
-.feeling-slider.neutral .slider-thumb {
-  border-color: var(--sl-neutral);
-}
-
-.feeling-slider.positive .slider-thumb {
-  border-color: var(--sl-positive);
-}
 
 /* ── Dragging: disable transitions for smooth tracking ── */
 .slider-dragging .slider-thumb,
@@ -201,23 +178,12 @@
   transition: color 0.3s ease;
 }
 
-.feeling-slider.negative .slider-value-num {
-  color: var(--sl-negative);
-}
-
-.feeling-slider.neutral .slider-value-num {
-  color: var(--sl-neutral);
-}
-
-.feeling-slider.positive .slider-value-num {
-  color: var(--sl-positive);
-}
 
 /* ── Large kaomoji stage ── */
 .slider-kaomoji-stage {
   text-align: center;
   line-height: 1;
-  margin-top: 4px;
+  margin-bottom: 24px;
 }
 
 .stage-kaomoji {
@@ -226,22 +192,11 @@
   font-weight: 700;
   font-size: 52px;
   line-height: 1.25;
-  color: var(--sl-neutral);
+  color: var(--sl-accent);
   animation: kaomoji-pop 0.55s cubic-bezier(0.23, 1, 0.32, 1) both;
   transition: color 0.3s ease;
 }
 
-.feeling-slider.negative .stage-kaomoji {
-  color: var(--sl-negative);
-}
-
-.feeling-slider.neutral .stage-kaomoji {
-  color: var(--sl-neutral);
-}
-
-.feeling-slider.positive .stage-kaomoji {
-  color: var(--sl-positive);
-}
 
 @keyframes kaomoji-pop {
   0% {
@@ -284,69 +239,6 @@
   cursor: not-allowed;
 }
 
-/* ── Minimal theme overrides ── */
-body.minimal-theme .slider-track-bg {
-  background: #e8e8e8;
-}
-
-body.minimal-theme .slider-track-fill {
-  background: linear-gradient(to right, #999, #666, #999);
-}
-
-body.minimal-theme .slider-tick-dot {
-  background: #d0d0d0;
-  border-color: #fff;
-}
-
-body.minimal-theme .slider-tick-dot.tick-active {
-  background: #666;
-  border-color: #fff;
-  box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.2);
-}
-
-body.minimal-theme .slider-thumb {
-  background: #fff;
-  border-color: #888;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-body.minimal-theme .slider-thumb:focus-visible {
-  outline-color: #666;
-}
-
-body.minimal-theme .feeling-slider.negative .slider-thumb,
-body.minimal-theme .feeling-slider.neutral .slider-thumb,
-body.minimal-theme .feeling-slider.positive .slider-thumb {
-  border-color: #666;
-}
-
-body.minimal-theme .stage-kaomoji,
-body.minimal-theme .feeling-slider.negative .stage-kaomoji,
-body.minimal-theme .feeling-slider.neutral .stage-kaomoji,
-body.minimal-theme .feeling-slider.positive .stage-kaomoji {
-  color: #555;
-}
-
-body.minimal-theme .kaomoji-marker {
-  color: #888;
-}
-
-body.minimal-theme .kaomoji-marker.marker-active,
-body.minimal-theme .kaomoji-marker.negative.marker-active,
-body.minimal-theme .kaomoji-marker.neutral.marker-active,
-body.minimal-theme .kaomoji-marker.positive.marker-active {
-  color: #555;
-}
-
-body.minimal-theme .slider-value-num {
-  color: #666;
-}
-
-body.minimal-theme .feeling-slider.negative .slider-value-num,
-body.minimal-theme .feeling-slider.neutral .slider-value-num,
-body.minimal-theme .feeling-slider.positive .slider-value-num {
-  color: #555;
-}
 
 /* ── Responsive ── */
 @media (max-width: 768px) {

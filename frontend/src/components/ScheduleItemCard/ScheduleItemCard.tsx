@@ -3,6 +3,15 @@ import { getFeelingClass } from '../../utils/feeling';
 import { formatFeelingValue } from '../../utils/feeling';
 import './ScheduleItemCard.css';
 
+/**
+ * Format ISO date string (YYYY-MM-DD) to Chinese format (YYYY年M月D日)
+ */
+function formatDateChinese(dateStr: string): string {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${y}年${parseInt(m, 10)}月${parseInt(d, 10)}日`;
+}
+
 interface ScheduleItemCardProps {
   item: ScheduleItem;
   onDelete?: (id: number) => void;
@@ -30,10 +39,10 @@ export default function ScheduleItemCard({
         <div className="schedule-title">{item.title}</div>
         {item.description && <div className="schedule-desc">{item.description}</div>}
         <div className="schedule-meta">
-          <span>
-            {showDate && <>{item.date} </>}
-            {item.time}
-          </span>
+          {showDate && (
+            <span className="schedule-date">{formatDateChinese(item.date)}</span>
+          )}
+          {item.time && <span className="schedule-time">{item.time}</span>}
           <span className={`feeling-badge ${getFeelingClass(item.feeling)}`}>
             {formatFeelingValue(item.feeling)}
           </span>

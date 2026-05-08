@@ -4,7 +4,7 @@ import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import { SCHEDULE_API, ANALYSIS_API } from '../../services/api';
-import { KAOMOJI, getFeelingClass } from '../../utils/feeling';
+import { KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, PageResponse, MonthlyAnalysis } from '../../types';
 import { generateCalendar } from '../../utils/calendar';
 import './History.css';
@@ -142,7 +142,7 @@ export default function HistoryPage() {
           {calendarDays.map((day, idx) => {
             const hasData = datesWithData.has(day.fullDate) && day.isCurrentMonth;
             const dayTotal = monthlyMood[day.fullDate];
-            const moodClass = hasData && dayTotal !== undefined ? getFeelingClass(dayTotal) : '';
+            const moodClass = hasData && dayTotal !== undefined ? `feel${dayTotal >= 0 ? '-' : '--'}${Math.abs(dayTotal)}` : '';
             return (
               <div
                 key={idx}

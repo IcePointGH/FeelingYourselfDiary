@@ -1,5 +1,5 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { formatFeelingValue } from '../../utils/feeling';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { formatFeelingValue, getMoodColor } from '../../utils/feeling';
 
 interface MoodTrendChartProps {
   tab: 'daily' | 'weekly' | 'monthly';
@@ -14,6 +14,21 @@ function formatXAxisDate(dateStr: string, tab: string): string {
   }
   const parts = dateStr.split('-');
   return `${parts[1]}-${parts[2]}`;
+}
+
+/* Custom dot colored by mood value */
+function MoodDot(props: { cx?: number; cy?: number; payload?: { value: number } }) {
+  const { cx, cy, payload } = props;
+  if (cx == null || cy == null || !payload) return null;
+  const color = getMoodColor(payload.value);
+  return <circle cx={cx} cy={cy} r={4} fill={color} stroke="#fff" strokeWidth={1.5} />;
+}
+
+function MoodActiveDot(props: { cx?: number; cy?: number; payload?: { value: number } }) {
+  const { cx, cy, payload } = props;
+  if (cx == null || cy == null || !payload) return null;
+  const color = getMoodColor(payload.value);
+  return <circle cx={cx} cy={cy} r={6} fill={color} stroke="#fff" strokeWidth={2} />;
 }
 
 export default function MoodTrendChart({ tab, chartData, month }: MoodTrendChartProps) {
@@ -31,38 +46,39 @@ export default function MoodTrendChart({ tab, chartData, month }: MoodTrendChart
         <div className={`chart-container${tab === 'monthly' ? ' monthly' : ''}`}>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0d9d0" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
               <XAxis
                 dataKey="date"
                 tickFormatter={(d) => formatXAxisDate(d, tab)}
-                tick={{ fontSize: 11, fill: '#a69c97' }}
-                axisLine={{ stroke: '#e0d9d0' }}
-                tickLine={{ stroke: '#e0d9d0' }}
+                tick={{ fontSize: 11, fill: '#999' }}
+                axisLine={{ stroke: '#e8e8e8' }}
+                tickLine={{ stroke: '#e8e8e8' }}
               />
               <YAxis
-                tick={{ fontSize: 11, fill: '#a69c97' }}
-                axisLine={{ stroke: '#e0d9d0' }}
-                tickLine={{ stroke: '#e0d9d0' }}
+                tick={{ fontSize: 11, fill: '#999' }}
+                axisLine={{ stroke: '#e8e8e8' }}
+                tickLine={{ stroke: '#e8e8e8' }}
                 domain={['dataMin - 1', 'dataMax + 1']}
               />
               <Tooltip
                 contentStyle={{
-                  background: 'rgba(255,255,255,0.95)',
-                  border: '1px solid #e0d9d0',
+                  background: '#ffffff',
+                  border: '1px solid #e8e8e8',
                   borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#5a534e',
+                  color: '#454545',
                 }}
                 formatter={(value) => [formatFeelingValue(Number(value)), '情绪值']}
                 labelFormatter={(label) => formatXAxisDate(String(label), tab)}
               />
+              <ReferenceLine y={0} stroke="#e0e0e0" strokeDasharray="4 4" />
               <Line
                 type="monotone"
                 dataKey="value"
-                stroke="#a69c97"
-                strokeWidth={2}
-                dot={{ r: 3, fill: '#a69c97' }}
-                activeDot={{ r: 5 }}
+                stroke="#d0d0d0"
+                strokeWidth={1.5}
+                dot={<MoodDot />}
+                activeDot={<MoodActiveDot />}
               />
             </LineChart>
           </ResponsiveContainer>
