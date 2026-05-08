@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import './Sidebar.css';
 
 const menuItems = [
-  { path: '/', icon: 'fa-plus', label: '添加日程' },
+  { path: '/schedule', icon: 'fa-plus', label: '添加日程' },
   { path: '/thoughts', icon: 'fa-book', label: '我的思考' },
   { path: '/history', icon: 'fa-history', label: '历史记录' },
   { path: '/analysis', icon: 'fa-chart-line', label: '数据分析' },
@@ -55,7 +55,7 @@ export default function Sidebar() {
             key={item.path}
             to={item.path}
             className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}
-            end={item.path === '/'}
+            end={item.path === '/schedule'}
           >
             <i className={`fas ${item.icon}`} />
             <span>{item.label}</span>

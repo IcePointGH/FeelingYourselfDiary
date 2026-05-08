@@ -19,7 +19,7 @@ export default function Register() {
     try {
       await register({ username, password, nickname });
       setSuccess('注册成功，正在跳转...');
-      setTimeout(() => navigate('/'), 1200);
+      setTimeout(() => navigate('/schedule'), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : '注册失败，请稍后再试');
     }

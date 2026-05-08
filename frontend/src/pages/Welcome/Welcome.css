@@ -1,0 +1,512 @@
+/* ============================================
+   Welcome Page — Onboarding / Introduction
+   Design: Morandi style, matches existing auth pages
+   ============================================ */
+
+.welcome-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  padding: 40px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Status Bar (top-left) ── */
+.welcome-status-bar {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  z-index: 10;
+}
+
+.status-logged-in {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+  padding: 6px 12px 6px 6px;
+  border-radius: 24px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.status-logged-in:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: #d0d0d0;
+}
+
+.status-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e8e8e8;
+}
+
+.status-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #454545;
+}
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2e7d32;
+  background: #e8f5e9;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.status-arrow {
+  font-size: 10px;
+  color: #999;
+  transition: transform 0.3s ease;
+}
+
+.status-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown Menu ── */
+.status-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  animation: dropdownIn 0.2s ease;
+  z-index: 20;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-logout-btn {
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #d75772;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.dropdown-logout-btn:hover {
+  background: #fef0f0;
+  color: #c93c3c;
+}
+
+.dropdown-logout-btn i {
+  font-size: 14px;
+}
+
+.status-not-logged {
+  font-size: 13px;
+  color: #bbb;
+}
+
+/* ── Hero Section ── */
+.welcome-hero {
+  text-align: center;
+  margin-bottom: 48px;
+  animation: heroFadeIn 0.8s ease both;
+}
+
+.welcome-logo {
+  display: block;
+  max-width: 260px;
+  height: auto;
+  margin: 0 auto 24px;
+  animation: heroFadeIn 0.8s ease 0.1s both;
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #454545;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  animation: heroFadeIn 0.8s ease 0.2s both;
+}
+
+.welcome-tagline {
+  font-size: 18px;
+  color: #999;
+  margin-bottom: 8px;
+  font-weight: 400;
+  animation: heroFadeIn 0.8s ease 0.3s both;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #bbb;
+  font-weight: 400;
+  animation: heroFadeIn 0.8s ease 0.4s both;
+}
+
+/* ── Features Section ── */
+.welcome-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 680px;
+  width: 100%;
+  margin-bottom: 48px;
+}
+
+.feature-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: cardFadeIn 0.6s ease both;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.15s; }
+.feature-card:nth-child(2) { animation-delay: 0.25s; }
+.feature-card:nth-child(3) { animation-delay: 0.35s; }
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 16px;
+  background: #f5f8fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon i {
+  font-size: 22px;
+  color: #1686ee;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #454545;
+  margin-bottom: 8px;
+}
+
+.feature-desc {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── CTA Button ── */
+.welcome-cta {
+  text-align: center;
+  animation: heroFadeIn 0.8s ease 0.5s both;
+}
+
+.welcome-start-btn {
+  padding: 14px 56px;
+  background-color: #454545;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.welcome-start-btn:hover {
+  background-color: #333;
+  transform: scale(1.04);
+}
+
+.welcome-start-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── Footer ── */
+.welcome-footer {
+  margin-top: 32px;
+  text-align: center;
+  animation: heroFadeIn 0.8s ease 0.6s both;
+}
+
+.welcome-footer p {
+  font-size: 14px;
+  color: #999;
+}
+
+.welcome-footer a {
+  color: #1686ee;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+  transition: color 0.3s ease;
+}
+
+.welcome-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Animations ── */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .welcome-features {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    max-width: 100%;
+  }
+
+  .welcome-title {
+    font-size: 26px;
+  }
+
+  .welcome-tagline {
+    font-size: 16px;
+  }
+
+  .welcome-logo {
+    max-width: 220px;
+  }
+
+  .welcome-start-btn {
+    padding: 14px 48px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 32px 16px;
+  }
+
+  .welcome-features {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .welcome-title {
+    font-size: 24px;
+  }
+
+  .welcome-hero {
+    margin-bottom: 36px;
+  }
+
+  .feature-card {
+    padding: 22px 18px;
+  }
+
+  .welcome-logo {
+    max-width: 200px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .welcome-hero,
+  .welcome-logo,
+  .welcome-title,
+  .welcome-tagline,
+  .welcome-subtitle,
+  .welcome-cta,
+  .welcome-footer,
+  .feature-card,
+  .welcome-status-bar,
+  .welcome-decorations * {
+    animation: none;
+  }
+}
+
+/* ── Decorative Background ── */
+.welcome-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* Sun cluster — top-right */
+.deco-sun {
+  position: absolute;
+  top: 8%;
+  right: 10%;
+  font-size: 64px;
+  opacity: 0.28;
+  animation: sunFloat 6s ease-in-out infinite;
+}
+
+@keyframes sunFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.06); }
+}
+
+.deco-sun-kao {
+  position: absolute;
+  top: 16%;
+  right: 18%;
+  font-size: 22px;
+  color: #1686ee;
+  opacity: 0.22;
+  animation: sunFloat 6s ease-in-out 1s infinite;
+}
+
+/* Rain cluster — bottom-left */
+.deco-rain {
+  position: absolute;
+  bottom: 12%;
+  left: 8%;
+  font-size: 56px;
+  opacity: 0.24;
+  animation: rainFloat 7s ease-in-out infinite;
+}
+
+@keyframes rainFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+}
+
+.deco-rain-kao {
+  position: absolute;
+  bottom: 22%;
+  left: 6%;
+  font-size: 20px;
+  color: #f5867b;
+  opacity: 0.2;
+  animation: rainFloat 7s ease-in-out 1.5s infinite;
+}
+
+/* Floating kaomoji — scattered */
+.deco-float {
+  position: absolute;
+  font-size: 18px;
+  opacity: 0.14;
+  animation: driftFloat 8s ease-in-out infinite;
+  font-family: 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+}
+
+.deco-1 {
+  top: 25%;
+  left: 18%;
+  color: #25a8b8;
+  animation-delay: 0s;
+  font-size: 20px;
+}
+
+.deco-2 {
+  top: 55%;
+  right: 14%;
+  color: #c9a810;
+  animation-delay: 2s;
+}
+
+.deco-3 {
+  top: 68%;
+  left: 55%;
+  color: #3cdfe9;
+  animation-delay: 4s;
+  font-size: 16px;
+}
+
+.deco-4 {
+  top: 35%;
+  right: 32%;
+  color: #fea979;
+  animation-delay: 6s;
+  font-size: 17px;
+}
+
+@keyframes driftFloat {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-14px) translateX(8px);
+  }
+  50% {
+    transform: translateY(-6px) translateX(-6px);
+  }
+  75% {
+    transform: translateY(-18px) translateX(-10px);
+  }
+}
+
+/* Hide decorations on very small screens */
+@media (max-width: 480px) {
+  .deco-sun { font-size: 48px; top: 4%; right: 4%; }
+  .deco-rain { font-size: 40px; bottom: 6%; left: 3%; }
+  .deco-float { font-size: 14px; }
+  .deco-sun-kao, .deco-rain-kao { display: none; }
+}
+
+/* ── Status bar responsive ── */
+@media (max-width: 480px) {
+  .welcome-status-bar {
+    top: 16px;
+    left: 16px;
+  }
+
+  .status-name {
+    display: none;
+  }
+}

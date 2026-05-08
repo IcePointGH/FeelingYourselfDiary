@@ -18,7 +18,7 @@ export default function Login() {
     try {
       await login({ username, password });
       setSuccess('登录成功，正在跳转...');
-      setTimeout(() => navigate('/'), 1200);
+      setTimeout(() => navigate('/schedule'), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录失败，请检查用户名和密码');
     }

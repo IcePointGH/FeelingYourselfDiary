@@ -387,6 +387,35 @@
   font-size: 16px;
 }
 
+/* Back to welcome button */
+.back-welcome-btn {
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: #454545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.back-welcome-btn:hover {
+  background-color: #f5f8fa;
+  border-color: #1686ee;
+  color: #1686ee;
+}
+
+.back-welcome-btn i {
+  font-size: 16px;
+}
+
 @media (max-width: 768px) {
   .theme-options {
     flex-direction: column;

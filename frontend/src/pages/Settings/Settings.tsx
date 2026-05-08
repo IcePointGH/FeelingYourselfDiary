@@ -329,6 +329,13 @@ export default function SettingsPage() {
           <DataManagement />
         </CollapsiblePanel>
 
+        <CollapsiblePanel title="导航">
+          <button className="back-welcome-btn" onClick={() => navigate('/')}>
+            <i className="fas fa-home" />
+            <span>返回欢迎页</span>
+          </button>
+        </CollapsiblePanel>
+
         <CollapsiblePanel title="使用手册">
           <div className="help-content">
             <p>使用手册内容将在此处显示。您可以在这里了解如何记录日程、书写日记、查看情绪分析等功能的使用方法。</p>

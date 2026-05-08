@@ -10,6 +10,7 @@ import Toast from './components/Toast/Toast';
 import PageSkeleton from './components/PageSkeleton';
 
 // Synchronous — most frequently used pages
+import Welcome from './pages/Welcome/Welcome';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import SchedulePage from './pages/Schedule/Schedule';
@@ -29,10 +30,11 @@ function App() {
             <ToastProvider>
               <BrowserRouter>
               <Routes>
+                <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route element={<Layout />}>
-                  <Route path="/" element={<SchedulePage />} />
+                  <Route path="/schedule" element={<SchedulePage />} />
                   <Route path="/thoughts" element={<ThoughtsPage />} />
                   <Route path="/history" element={<Suspense fallback={<PageSkeleton />}><HistoryPage /></Suspense>} />
                   <Route path="/analysis" element={<Suspense fallback={<PageSkeleton />}><AnalysisPage /></Suspense>} />
