@@ -84,11 +84,8 @@ export default function Welcome() {
           alt="seven sense"
           className="welcome-logo"
         />
-        <h1 className="welcome-title">Feeling Yourself</h1>
+        <h1 className="welcome-title">情绪平衡日记</h1>
         <p className="welcome-tagline">记录每一刻情绪，了解真实的自己</p>
-        <p className="welcome-subtitle">
-          日程记录 · 心情日记 · 情绪分析 · 数据可视化
-        </p>
       </div>
 
       <div className="welcome-features">

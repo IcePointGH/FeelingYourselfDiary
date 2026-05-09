@@ -166,13 +166,6 @@
   animation: heroFadeIn 0.8s ease 0.3s both;
 }
 
-.welcome-subtitle {
-  font-size: 14px;
-  color: #bbb;
-  font-weight: 400;
-  animation: heroFadeIn 0.8s ease 0.4s both;
-}
-
 /* ── Features Section ── */
 .welcome-features {
   display: grid;
@@ -236,7 +229,7 @@
 /* ── CTA Button ── */
 .welcome-cta {
   text-align: center;
-  animation: heroFadeIn 0.8s ease 0.5s both;
+  animation: heroFadeIn 0.8s ease 0.4s both;
 }
 
 .welcome-start-btn {
@@ -265,7 +258,7 @@
 .welcome-footer {
   margin-top: 32px;
   text-align: center;
-  animation: heroFadeIn 0.8s ease 0.6s both;
+  animation: heroFadeIn 0.8s ease 0.5s both;
 }
 
 .welcome-footer p {
@@ -367,7 +360,6 @@
   .welcome-logo,
   .welcome-title,
   .welcome-tagline,
-  .welcome-subtitle,
   .welcome-cta,
   .welcome-footer,
   .feature-card,
@@ -448,7 +440,7 @@
 .deco-1 {
   top: 25%;
   left: 18%;
-  color: #25a8b8;
+  color: #3cdfe9;
   animation-delay: 0s;
   font-size: 20px;
 }
@@ -456,7 +448,7 @@
 .deco-2 {
   top: 55%;
   right: 14%;
-  color: #c9a810;
+  color: #ffe062;
   animation-delay: 2s;
 }
 
