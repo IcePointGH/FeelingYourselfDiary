@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { KAOMOJI } from '../../utils/feeling';
 import './Welcome.css';
 
 export default function Welcome() {
   const { isAuthenticated, user, logout } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
@@ -80,7 +82,7 @@ export default function Welcome() {
 
       <div className="welcome-hero">
         <img
-          src="/LOGO-v1/横版-白-抠图后.png"
+          src={theme === 'dark' ? '/LOGO-v1/横版-暗-抠图后.png' : '/LOGO-v1/横版-白-抠图后.png'}
           alt="seven sense"
           className="welcome-logo"
         />

@@ -2,7 +2,7 @@ export type FeelingValue = -3 | -2 | -1 | 0 | 1 | 2 | 3;
 
 export type FeelingSelectorMode = 'buttons' | 'slider';
 
-export type ThemeType = 'morandi' | 'minimal';
+export type ThemeType = 'morandi' | 'minimal' | 'dark';
 
 export interface User {
   id: number;

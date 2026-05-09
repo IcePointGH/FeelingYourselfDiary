@@ -5,6 +5,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useEmotionLabels } from '../../contexts/EmotionLabelsContext';
 import { useApi } from '../../hooks/useApi';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
+import { useTheme } from '../../contexts/ThemeContext';
 import CollapsiblePanel from '../../components/CollapsiblePanel/CollapsiblePanel';
 import DataManagement from './DataManagement';
 import { SETTINGS_API, AUTH_API } from '../../services/api';
@@ -53,12 +54,13 @@ export default function SettingsPage() {
 
   // Feeling selector mode
   const { mode: feelingMode, setMode: setFeelingMode } = useFeelingMode();
+  const { theme, setTheme } = useTheme();
 
   // 感受描述联动我的思考
   const [autoSaveThoughts, setAutoSaveThoughts] = useState(false);
 
   // 自定义子面板切换
-  type CustomSection = 'emotion' | 'mode' | 'thoughts' | null;
+  type CustomSection = 'emotion' | 'mode' | 'thoughts' | 'dark' | null;
   const [customSection, setCustomSection] = useState<CustomSection>(null);
 
   useEffect(() => {
@@ -264,6 +266,12 @@ export default function SettingsPage() {
             >
               日程与思考
             </button>
+            <button
+              className={`custom-nav-btn ${customSection === 'dark' ? 'active' : ''}`}
+              onClick={() => setCustomSection(customSection === 'dark' ? null : 'dark')}
+            >
+              深夜模式
+            </button>
           </div>
 
           {customSection === 'emotion' && (
@@ -317,6 +325,25 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={autoSaveThoughts}
                     onChange={e => handleToggleAutoSave(e.target.checked)}
+                  />
+                  <span className="toggle-track" />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {customSection === 'dark' && (
+            <div className="custom-sub">
+              <div className="toggle-row">
+                <div className="toggle-info">
+                  <span className="toggle-label">深夜模式</span>
+                  <span className="toggle-desc">切换深色背景，夜间使用更舒适</span>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={theme === 'dark'}
+                    onChange={e => setTheme(e.target.checked ? 'dark' : 'morandi')}
                   />
                   <span className="toggle-track" />
                 </label>

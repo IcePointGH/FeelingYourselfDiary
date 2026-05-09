@@ -1,5 +1,17 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { ThemeType } from '../types';
+
+const THEME_KEY = 'app-theme';
+
+function getInitialTheme(): ThemeType {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === 'dark' || stored === 'minimal') return stored;
+  return 'morandi';
+}
+
+function applyTheme(theme: ThemeType) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
 
 interface ThemeContextType {
   theme: ThemeType;
@@ -10,10 +22,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme] = useState<ThemeType>('morandi');
+  const [theme, setThemeState] = useState<ThemeType>(getInitialTheme);
 
-  const setTheme = useCallback((_newTheme: ThemeType) => {
-    // Single theme design — switching reserved for future dark mode
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const setTheme = useCallback((newTheme: ThemeType) => {
+    localStorage.setItem(THEME_KEY, newTheme);
+    setThemeState(newTheme);
   }, []);
 
   return (
