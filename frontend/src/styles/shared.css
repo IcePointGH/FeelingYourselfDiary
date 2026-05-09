@@ -90,20 +90,14 @@
   font-weight: 600;
 }
 
-.feeling-badge.negative {
-  background-color: #f5ecec;
-  color: #a86363;
-}
-
-.feeling-badge.positive {
-  background-color: #e8f4f8;
-  color: #1686ee;
-}
-
-.feeling-badge.neutral {
-  background-color: #fef9e7;
-  color: #b89a1e;
-}
+/* Per-value feeling badge colors */
+.feeling-badge.feel--3 { background: rgba(215,87,114,0.12); color: #d75772; }
+.feeling-badge.feel--2 { background: rgba(245,134,123,0.12); color: #f5867b; }
+.feeling-badge.feel--1 { background: rgba(254,169,121,0.12); color: #fea979; }
+.feeling-badge.feel-0  { background: rgba(255,224,98,0.15);  color: #c4a000; }
+.feeling-badge.feel-1  { background: rgba(60,223,233,0.12);  color: #3cdfe9; }
+.feeling-badge.feel-2  { background: rgba(18,184,236,0.12);  color: #12b8ec; }
+.feeling-badge.feel-3  { background: rgba(22,134,238,0.12);  color: #1686ee; }
 
 /* ── Delete button small ── */
 .delete-btn-small {

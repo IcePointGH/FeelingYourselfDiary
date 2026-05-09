@@ -1,5 +1,4 @@
 import type { ScheduleItem } from '../../types';
-import { getFeelingClass } from '../../utils/feeling';
 import { formatFeelingValue } from '../../utils/feeling';
 import './ScheduleItemCard.css';
 
@@ -43,7 +42,7 @@ export default function ScheduleItemCard({
             <span className="schedule-date">{formatDateChinese(item.date)}</span>
           )}
           {item.time && <span className="schedule-time">{item.time}</span>}
-          <span className={`feeling-badge ${getFeelingClass(item.feeling)}`}>
+          <span className={`feeling-badge feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>
             {formatFeelingValue(item.feeling)}
           </span>
         </div>
