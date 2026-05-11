@@ -1,6 +1,21 @@
 version: '3.8'
 
 services:
+  caddy:
+    image: caddy:alpine
+    container_name: emotion_diary_caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      - diary-network
+
   mysql:
     image: mysql:8.0
     container_name: emotion_diary_mysql
@@ -68,12 +83,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
-      # ===== 生产部署前注意 =====
-      #TODO
-      # CORS_ORIGINS: 当前默认值为 *（允许所有来源），生产环境应设置为具体前端域名
-      # 示例: CORS_ORIGINS: ${CORS_ORIGINS:-https://your-frontend-domain.com}
-      # JWT_SECRET: 当前使用占位符，生产环境必须替换为强随机密钥
-      # DB_PASSWORD / MINIO 密钥: 当前使用占位符，生产环境必须替换
+      # ===== Caddy 已处理 HTTPS，CORS 通过 .env 的 CORS_ORIGINS 配置 =====
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USERNAME}
@@ -98,14 +108,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: emotion_diary_frontend
-    ports:
-      - "80:80"
+    # 不再对外暴露端口，由 Caddy 反代处理所有外部流量
     depends_on:
       - backend
     networks:
       - diary-network
 
 volumes:
+  caddy_data:
+  caddy_config:
   mysql_data:
   minio_data:
   redis_data:

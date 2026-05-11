@@ -1,0 +1,11 @@
+# 临时配置：DNS 指向前通过 IP 访问（无 SSL）
+# DNS 指向后，删除此文件，将 Caddyfile 改回正式版本
+
+:80 {
+    reverse_proxy frontend:80
+
+    header {
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
+}
