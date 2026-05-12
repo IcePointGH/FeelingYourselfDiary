@@ -57,6 +57,12 @@ export default function SchedulePage() {
     [apiFetch, date]
   );
 
+  // 本地乐观更新镜像：勾选时立即更新 UI，后台 API 同步
+  const [scheduleList, setScheduleList] = useState<ScheduleItem[]>([]);
+  useEffect(() => {
+    if (items) setScheduleList(items);
+  }, [items]);
+
   useEffect(() => {
     if (error) addToast(error, 'error');
   }, [error, addToast]);
@@ -115,15 +121,23 @@ export default function SchedulePage() {
   };
 
   const handleToggleComplete = async (id: number) => {
+    // 乐观更新：立即翻转本地状态
+    setScheduleList(prev => prev.map(it =>
+      it.id === id ? { ...it, completed: !it.completed } : it
+    ));
     try {
       await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
+      // 后台静默刷新确保数据一致
       refetch();
     } catch (err) {
+      // 失败时回滚
+      setScheduleList(prev => prev.map(it =>
+        it.id === id ? { ...it, completed: !it.completed } : it
+      ));
       addToast(err instanceof Error ? err.message : '操作失败', 'error');
     }
   };
 
-  const scheduleList = items ?? [];
   const displayKao = hasInteracted ? KAOMOJI[feeling] ?? DEFAULT_KAOMOJI : DEFAULT_KAOMOJI;
   const kaoMood = hasInteracted ? getFeelingClass(feeling) : 'positive';
 
