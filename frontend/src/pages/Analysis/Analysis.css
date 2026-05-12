@@ -296,34 +296,6 @@
   font-size: 14px;
 }
 
-/* ── AI date range ── */
-.ai-date-range {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.ai-date-range .form-group {
-  flex: 1;
-  min-width: 120px;
-  margin-bottom: 0;
-}
-
-.ai-date-range .form-group label {
-  display: block;
-  font-size: 12px;
-  color: #999;
-  margin-bottom: 4px;
-}
-
-.date-separator {
-  color: #999;
-  font-size: 14px;
-  padding-bottom: 8px;
-}
-
 .ai-analyze-btn {
   background: linear-gradient(135deg, #a69c97, #8a817c);
 }

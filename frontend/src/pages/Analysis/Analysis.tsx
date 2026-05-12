@@ -37,9 +37,6 @@ export default function AnalysisPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('chart');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
-  // Range dates for AI analysis
-  const [aiStartDate, setAiStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [aiEndDate, setAiEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [data, setData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -91,10 +88,10 @@ export default function AnalysisPage() {
     setAiStats(null);
     try {
       const body: Record<string, string> = {};
-      if (tab !== 'full') {
-        body.startDate = aiStartDate;
-        body.endDate = aiEndDate;
-      }
+      if (tab === 'daily') body.date = date;
+      else if (tab === 'weekly') body.date = isoWeekToDate(date);
+      else if (tab === 'monthly') body.month = month;
+      // full: no body needed for full-history analysis
       const res = await apiFetch(AI_API.analyze, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -137,74 +134,58 @@ export default function AnalysisPage() {
             <button
               key={t}
               className={`tab-btn ${tab === t ? 'active' : ''}`}
-              onClick={() => setTab(t)}
+              onClick={() => { setTab(t); if (t === 'full') setViewMode('ai'); }}
             >
               {tabLabels[t]}
             </button>
           ))}
         </div>
 
-        {viewMode === 'chart' ? (
-          <>
-            {tab !== 'full' && (
-              <div className="form-group">
-                {tab === 'monthly' ? (
-                  <DateInput type="month" value={month} onChange={v => setMonth(v)} />
-                ) : tab === 'weekly' ? (
-                  <DateInput type="week" value={date} onChange={v => setDate(v)} />
-                ) : (
-                  <DateInput type="date" value={date} onChange={v => setDate(v)} />
-                )}
-              </div>
+        {tab !== 'full' && (
+          <div className="form-group">
+            {tab === 'monthly' ? (
+              <DateInput type="month" value={month} onChange={v => setMonth(v)} />
+            ) : tab === 'weekly' ? (
+              <DateInput type="week" value={date} onChange={v => setDate(v)} />
+            ) : (
+              <DateInput type="date" value={date} onChange={v => setDate(v)} />
             )}
+          </div>
+        )}
 
-            {tab !== 'full' && (
-              <div className="analyze-row">
-                <button className="analyze-btn" onClick={handleAnalyze} disabled={loading}>
-                  {loading ? '分析中...' : '图表分析'}
-                </button>
-                <button
-                  className="view-toggle-btn"
-                  onClick={() => { setViewMode('ai'); setData(null); setAiResult(null); }}
-                  title="切换到AI智能分析"
-                >
-                  <i className="fas fa-exchange-alt" />
-                  <span>AI</span>
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {tab !== 'full' && (
-              <div className="ai-date-range">
-                <div className="form-group">
-                  <label>开始日期</label>
-                  <DateInput type="date" value={aiStartDate} onChange={v => setAiStartDate(v)} />
-                </div>
-                <span className="date-separator">至</span>
-                <div className="form-group">
-                  <label>结束日期</label>
-                  <DateInput type="date" value={aiEndDate} onChange={v => setAiEndDate(v)} />
-                </div>
-              </div>
-            )}
+        {tab !== 'full' && (
+          <div className="analyze-row">
+            <button
+              className={`analyze-btn ${viewMode === 'ai' ? 'ai-analyze-btn' : ''}`}
+              onClick={viewMode === 'ai' ? handleAiAnalyze : handleAnalyze}
+              disabled={loading || aiLoading}
+            >
+              {loading || aiLoading ? '分析中...' : viewMode === 'ai' ? 'AI智能分析' : '图表分析'}
+            </button>
+            <button
+              className="view-toggle-btn"
+              onClick={() => { setViewMode(v => v === 'chart' ? 'ai' : 'chart'); setData(null); setAiResult(null); }}
+              title={viewMode === 'chart' ? '切换到AI智能分析' : '切换到图表分析'}
+            >
+              <i className="fas fa-exchange-alt" />
+              <span>{viewMode === 'chart' ? 'AI' : '图表'}</span>
+            </button>
+          </div>
+        )}
 
-            <div className="analyze-row">
-              <button className="analyze-btn ai-analyze-btn" onClick={handleAiAnalyze} disabled={aiLoading}>
-                {aiLoading ? 'AI分析中...' : 'AI智能分析'}
-              </button>
-              <button
-                className="view-toggle-btn"
-                onClick={() => { setViewMode('chart'); setData(null); setAiResult(null); }}
-                title="切换到图表分析"
-              >
-                <i className="fas fa-exchange-alt" />
-                <span>图表</span>
-              </button>
-            </div>
+        {tab === 'full' && (
+          <div className="analyze-row">
+            <button
+              className="analyze-btn ai-analyze-btn"
+              onClick={handleAiAnalyze}
+              disabled={aiLoading}
+            >
+              {aiLoading ? 'AI分析中...' : 'AI智能分析'}
+            </button>
+          </div>
+        )}
 
-            {aiResult && (
+        {viewMode === 'ai' && aiResult && (
               <div className="ai-result-card">
                 {aiStats && (
                   <div className="ai-stats">
@@ -216,8 +197,6 @@ export default function AnalysisPage() {
                 <div className="ai-markdown" dangerouslySetInnerHTML={{ __html: aiResult.replace(/\n/g, '<br/>') }} />
               </div>
             )}
-          </>
-        )}
       </div>
 
       {viewMode === 'chart' && data && (
