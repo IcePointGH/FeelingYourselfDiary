@@ -45,7 +45,7 @@ export default function ThoughtsPage() {
         try {
           const session = await apiFetch(AI_API.sessions, {
             method: 'POST',
-            body: JSON.stringify({ sessionType: 'chat' }),
+            body: JSON.stringify({ title: '新对话', sessionType: 'chat' }),
           });
           if (!cancelled) setAiSessionId(session.id);
         } catch {
