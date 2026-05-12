@@ -78,9 +78,16 @@
   overflow: hidden;
 }
 
+.ai-layout > :first-child {
+  height: 100%;
+}
+
 .ai-chat-area {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .ai-loading-state {
