@@ -3,7 +3,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
-import type { MessageResponse, SessionResponse } from '../../types';
+import { useApi } from '../../hooks/useApi';
+import { AI_API } from '../../services/api';
+import type { ContextEntry, MessageResponse, SessionResponse } from '../../types';
+import ContextPicker from './ContextPicker';
 import styles from './AI.module.css';
 
 const API_BASE_URL = '/api';
@@ -25,6 +28,9 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
 
   const { token } = useAuth();
   const { addToast } = useToast();
+  const { apiFetch } = useApi();
+  const [contextEntries, setContextEntries] = useState<ContextEntry[]>([]);
+  const [showContextPicker, setShowContextPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -77,6 +83,54 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
   useEffect(() => {
     if (!loading) textareaRef.current?.focus();
   }, [loading]);
+
+  // ── Fetch context entries on session change ──
+  const fetchContextEntries = useCallback(async () => {
+    try {
+      const data = await apiFetch(AI_API.sessionContext(sessionId));
+      setContextEntries(data ?? []);
+    } catch {
+      // Silently fail — context is optional
+    }
+  }, [sessionId, apiFetch]);
+
+  useEffect(() => {
+    fetchContextEntries();
+  }, [fetchContextEntries]);
+
+  // ── Remove a single context entry ──
+  const removeContextEntry = useCallback(async (entryId: number) => {
+    try {
+      await apiFetch(`${AI_API.sessionContext(sessionId)}/${entryId}`, { method: 'DELETE' });
+      await fetchContextEntries();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '移除失败';
+      addToast(msg, 'error');
+    }
+  }, [sessionId, apiFetch, fetchContextEntries, addToast]);
+
+  // ── Copy message content ──
+  const handleCopy = useCallback(async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      addToast('已复制', 'success');
+    } catch {
+      addToast('复制失败', 'error');
+    }
+  }, [addToast]);
+
+  // ── Delete single message ──
+  const handleDeleteMessage = useCallback(async (msgId: number) => {
+    if (!window.confirm('确定删除这条消息？')) return;
+    try {
+      await apiFetch(AI_API.deleteMessage(msgId), { method: 'DELETE' });
+      setMessages(prev => prev.filter(m => m.id !== msgId));
+      addToast('消息已删除', 'success');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '删除失败';
+      addToast(msg, 'error');
+    }
+  }, [apiFetch, addToast]);
 
   // ── Send message ──
   const handleSend = useCallback(async () => {
@@ -274,6 +328,23 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
                 msg.role === 'user' ? styles.messageBubbleUser : styles.messageBubbleAssistant
               }`}
             >
+              {/* Copy + Delete action buttons */}
+              <div className={styles.messageActions}>
+                <button
+                  className={styles.copyBtn}
+                  onClick={() => handleCopy(msg.content)}
+                  title="复制"
+                >
+                  <i className="fas fa-copy" />
+                </button>
+                <button
+                  className={styles.deleteMsgBtn}
+                  onClick={() => handleDeleteMessage(msg.id)}
+                  title="删除"
+                >
+                  <i className="fas fa-trash" />
+                </button>
+              </div>
               {/* Avatar icon */}
               {msg.role !== 'user' && (
                 <div className={styles.messageAvatar}>
@@ -329,8 +400,44 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Context chips */}
+      {contextEntries.length > 0 && (
+        <div className={styles.contextChips}>
+          <i className="fas fa-database" style={{ fontSize: 12, color: '#7C5CFC', marginRight: 4 }} />
+          {contextEntries.map(entry => (
+            <div key={entry.id} className={styles.contextChip}>
+              <span className={styles.contextChipText}>
+                [{entry.date}] {entry.title}
+                {entry.type === 'schedule' && entry.feeling != null && (
+                  <span className={styles.contextChipFeeling}>
+                    ({entry.feeling > 0 ? '+' : ''}{entry.feeling})
+                  </span>
+                )}
+              </span>
+              <button
+                className={styles.contextChipRemove}
+                onClick={() => removeContextEntry(entry.id)}
+                title="从上下文中移除"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Input area */}
       <div className={styles.chatInput}>
+        <button
+          className={styles.contextToggle}
+          onClick={() => setShowContextPicker(prev => !prev)}
+          title="选择上下文数据"
+        >
+          <i className="fas fa-list-ul" />
+          {contextEntries.length > 0 && (
+            <span className={styles.contextToggleBadge}>{contextEntries.length}</span>
+          )}
+        </button>
         <textarea
           ref={textareaRef}
           className={styles.chatTextarea}
@@ -349,6 +456,25 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
         >
           <i className="fas fa-paper-plane" />
         </button>
+      </div>
+
+      {/* Context picker slide-out panel */}
+      {showContextPicker && (
+        <div className={styles.contextOverlay} onClick={() => setShowContextPicker(false)} />
+      )}
+      <div className={`${styles.contextPanelWrapper} ${showContextPicker ? styles.contextPanelOpen : ''}`}>
+        <div className={styles.contextPanelHeader}>
+          <span>选择上下文数据</span>
+          <button className={styles.contextPanelClose} onClick={() => setShowContextPicker(false)}>
+            <i className="fas fa-times" />
+          </button>
+        </div>
+        <ContextPicker
+          sessionId={sessionId}
+          contextEntries={contextEntries}
+          onContextChange={fetchContextEntries}
+          onRemoveContext={removeContextEntry}
+        />
       </div>
     </div>
   );

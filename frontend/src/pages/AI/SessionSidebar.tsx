@@ -165,27 +165,49 @@ export default function SessionSidebar({ activeSessionId, onSelect, onNew }: Ses
                 <i className={`fas ${TYPE_ICONS[session.sessionType] || 'fa-comments'}`} />
               </div>
                 <div className={styles.sessionItemBody}>
-                  {editingId === session.id ? (
-                    <input
-                      ref={inputRef}
-                      className={styles.renameInput}
-                      value={editTitle}
-                      onChange={e => setEditTitle(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') handleRename(session.id);
-                        if (e.key === 'Escape') handleCancelRename();
-                      }}
-                      onBlur={() => handleRename(session.id)}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  ) : (
-                    <div
-                      className={styles.sessionItemTitle}
-                      onDoubleClick={() => handleStartRename(session.id, session.title)}
-                    >
-                      {session.title}
-                    </div>
-                  )}
+                  <div className={styles.sessionItemTitleRow}>
+                    {editingId === session.id ? (
+                      <input
+                        ref={inputRef}
+                        className={styles.renameInput}
+                        value={editTitle}
+                        onChange={e => setEditTitle(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') handleRename(session.id);
+                          if (e.key === 'Escape') handleCancelRename();
+                        }}
+                        onBlur={() => handleRename(session.id)}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    ) : (
+                      <>
+                        <div
+                          className={styles.sessionItemTitle}
+                          onDoubleClick={() => handleStartRename(session.id, session.title)}
+                        >
+                          {session.title}
+                        </div>
+                        <button
+                          className={styles.editBtn}
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleStartRename(session.id, session.title);
+                          }}
+                          title="重命名"
+                        >
+                          <i className="fas fa-pen" />
+                        </button>
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={e => handleDelete(session.id, e)}
+                          disabled={deleting === session.id}
+                          title="删除会话"
+                        >
+                          <i className={`fas ${deleting === session.id ? 'fa-spinner fa-spin' : 'fa-trash'}`} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 <div className={styles.sessionItemMeta}>
                   {formatDate(session.createdAt)}
                   {session.messageCount > 0 && (
@@ -193,14 +215,6 @@ export default function SessionSidebar({ activeSessionId, onSelect, onNew }: Ses
                   )}
                 </div>
               </div>
-              <button
-                className={styles.deleteBtn}
-                onClick={e => handleDelete(session.id, e)}
-                disabled={deleting === session.id}
-                title="删除会话"
-              >
-                <i className={`fas ${deleting === session.id ? 'fa-spinner fa-spin' : 'fa-trash'}`} />
-              </button>
             </div>
           ))}
         </div>

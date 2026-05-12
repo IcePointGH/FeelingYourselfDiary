@@ -34,4 +34,8 @@ export const AI_API = {
   sessions: `${API_BASE_URL}/ai/sessions`,
   chat: (sessionId: number) => `${API_BASE_URL}/ai/sessions/${sessionId}/chat`,
   rename: (sessionId: number) => `${API_BASE_URL}/ai/sessions/${sessionId}`,
+  contextSchedules: `${API_BASE_URL}/ai/context/schedules`,
+  contextDiaries: `${API_BASE_URL}/ai/context/diaries`,
+  sessionContext: (sessionId: number) => `${API_BASE_URL}/ai/sessions/${sessionId}/context`,
+  deleteMessage: (id: number) => `${API_BASE_URL}/ai/messages/${id}`,
 };

@@ -121,6 +121,23 @@ public class AiSessionService {
     }
 
     /**
+     * 删除单条消息（校验所属会话的归属权）
+     */
+    @Transactional
+    public void deleteMessage(Long userId, Long messageId) {
+        AiMessage message = aiMessageRepository.findById(messageId)
+                .orElseThrow(() -> new ResourceNotFoundException("AI 消息", messageId));
+
+        // Verify the message's session belongs to the current user
+        aiSessionRepository.findByUserIdAndId(userId, message.getSessionId())
+                .orElseThrow(() -> new ResourceNotFoundException("AI 会话", message.getSessionId()));
+
+        aiMessageRepository.delete(message);
+        log.info("AI 消息删除成功 — messageId: {}, sessionId: {}, userId: {}",
+                messageId, message.getSessionId(), userId);
+    }
+
+    /**
      * 重命名会话
      */
     @Transactional

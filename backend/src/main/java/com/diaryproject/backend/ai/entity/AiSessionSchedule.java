@@ -34,4 +34,8 @@ public class AiSessionSchedule {
     /** 关联日记 ID（保留字段） */
     @Column(name = "diary_id")
     private Long diaryId;
+
+    /** 用户自定义标签 */
+    @Column(name = "tag")
+    private String tag;
 }

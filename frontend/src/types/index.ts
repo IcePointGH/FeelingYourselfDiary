@@ -154,3 +154,38 @@ export interface MessageResponse {
   sequenceNum: number;
   createdAt: string;
 }
+
+// ── Context Picker types ──
+
+export interface ScheduleSummary {
+  id: number;
+  date: string;
+  time: string | null;
+  title: string;
+  feeling: FeelingValue;
+  description: string | null;
+}
+
+export interface DiarySummary {
+  id: number;
+  date: string;
+  title: string;
+  content: string;
+}
+
+export interface ContextEntry {
+  id: number;
+  scheduleId: number | null;
+  diaryId: number | null;
+  date: string;
+  title: string;
+  tag: string | null;
+  feeling: number | null;
+  type: 'schedule' | 'diary';
+}
+
+export interface AddContextRequest {
+  scheduleId: number | null;
+  diaryId: number | null;
+  tag?: string;
+}

@@ -22,8 +22,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/ai/**")
-                .excludePathPatterns("/api/ai/health", "/api/ai/sessions/**");
+        // TODO: 上线后启用速率限制
+        // registry.addInterceptor(rateLimitInterceptor)
+        //         .addPathPatterns("/api/ai/**")
+        //         .excludePathPatterns("/api/ai/health", "/api/ai/sessions/**");
     }
 }

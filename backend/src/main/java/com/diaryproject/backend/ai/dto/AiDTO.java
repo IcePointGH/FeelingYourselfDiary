@@ -102,4 +102,43 @@ public class AiDTO {
         @NotNull(message = "标题不能为空")
         private String title;
     }
+
+    // ==================== Context Picker DTOs ====================
+
+    @Data
+    public static class AddContextRequest {
+        private Long scheduleId;
+        private Long diaryId;
+        private String tag;
+    }
+
+    @Data
+    public static class ContextEntry {
+        private Long id;           // AiSessionSchedule.id
+        private Long scheduleId;
+        private Long diaryId;
+        private String date;       // date of the entry
+        private String title;      // schedule/diary title
+        private String tag;        // user label
+        private Integer feeling;   // -3..+3, null for diaries
+        private String type;       // "schedule" or "diary"
+    }
+
+    @Data
+    public static class ScheduleSummary {
+        private Long id;
+        private String date;
+        private String time;
+        private String title;
+        private Integer feeling;    // -3..+3
+        private String description;
+    }
+
+    @Data
+    public static class DiarySummary {
+        private Long id;
+        private String date;
+        private String title;
+        private String content;     // truncated to 50 chars for list view
+    }
 }

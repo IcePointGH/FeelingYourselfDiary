@@ -1,9 +1,15 @@
 package com.diaryproject.backend.ai.service;
 
 import com.diaryproject.backend.ai.entity.AiMessage;
+import com.diaryproject.backend.ai.entity.AiSessionSchedule;
 import com.diaryproject.backend.ai.repository.AiMessageRepository;
 import com.diaryproject.backend.ai.repository.AiSessionRepository;
+import com.diaryproject.backend.ai.repository.AiSessionScheduleRepository;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
+import com.diaryproject.backend.diary.entity.Diary;
+import com.diaryproject.backend.diary.repository.DiaryRepository;
+import com.diaryproject.backend.schedule.entity.Schedule;
+import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -29,13 +35,22 @@ public class AiChatService {
 
     private final AiSessionRepository aiSessionRepository;
     private final AiMessageRepository aiMessageRepository;
+    private final AiSessionScheduleRepository aiSessionScheduleRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final DiaryRepository diaryRepository;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
                          AiMessageRepository aiMessageRepository,
+                         AiSessionScheduleRepository aiSessionScheduleRepository,
+                         ScheduleRepository scheduleRepository,
+                         DiaryRepository diaryRepository,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
+        this.aiSessionScheduleRepository = aiSessionScheduleRepository;
+        this.scheduleRepository = scheduleRepository;
+        this.diaryRepository = diaryRepository;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -73,7 +88,10 @@ public class AiChatService {
             contextMessages = contextMessages.subList(contextMessages.size() - 40, contextMessages.size());
         }
 
-        // 5. 构建 ChatClient 消息列表
+        // 5. 加载上下文选择条目（日程/日记），构建上下文数据块
+        String contextBlock = buildContextBlock(sessionId);
+
+        // 6. 构建 ChatClient 消息列表
         String systemPrompt = """
                 你是一个温暖而专业的情绪平衡助手，名字叫"小七"。
                 你会收到用户的日程记录（包含情绪值 -3 到 +3）和日记文本。
@@ -87,9 +105,15 @@ public class AiChatService {
         List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
         messages.add(new SystemMessage(systemPrompt));
 
-        for (AiMessage msg : contextMessages) {
+        for (int i = 0; i < contextMessages.size(); i++) {
+            AiMessage msg = contextMessages.get(i);
             if ("user".equals(msg.getRole())) {
-                messages.add(new UserMessage(msg.getContent()));
+                String content = msg.getContent();
+                // Augment the most recent user message (the one just sent) with context data
+                if (contextBlock != null && i == contextMessages.size() - 1) {
+                    content = contextBlock + "\n\n---\n\n" + content;
+                }
+                messages.add(new UserMessage(content));
             } else if ("assistant".equals(msg.getRole())) {
                 messages.add(new AssistantMessage(msg.getContent()));
             }
@@ -153,5 +177,67 @@ public class AiChatService {
                 .build();
         aiMessageRepository.save(assistantMsg);
         log.info("助手消息已保存 — sessionId: {}, seq: {}, len: {}", sessionId, sequenceNum, content.length());
+    }
+
+    /**
+     * 构建上下文数据块（用户选择的日程/日记数据）
+     * 返回 null 表示没有已选上下文
+     */
+    private String buildContextBlock(Long sessionId) {
+        List<AiSessionSchedule> contextEntries = aiSessionScheduleRepository.findBySessionId(sessionId);
+        if (contextEntries.isEmpty()) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("以下是我选取的需要分析的数据：\n\n");
+
+        for (AiSessionSchedule entry : contextEntries) {
+            if (entry.getTag() != null && !entry.getTag().isBlank()) {
+                sb.append("【标签：").append(entry.getTag()).append("】\n");
+            }
+
+            if (entry.getScheduleId() != null) {
+                scheduleRepository.findById(entry.getScheduleId()).ifPresent(s -> {
+                    sb.append("【").append(s.getDate()).append("】");
+                    if (s.getTime() != null) {
+                        sb.append(" ").append(s.getTime());
+                    }
+                    sb.append("\n  标题：").append(s.getTitle());
+                    sb.append("\n  情绪：").append(s.getFeeling()).append(" (").append(getFeelingLabel(s.getFeeling())).append(")");
+                    if (s.getDescription() != null && !s.getDescription().isBlank()) {
+                        sb.append("\n  描述：").append(s.getDescription());
+                    }
+                    sb.append("\n\n");
+                });
+            } else if (entry.getDiaryId() != null) {
+                diaryRepository.findById(entry.getDiaryId()).ifPresent(d -> {
+                    sb.append("【").append(d.getDate()).append("】");
+                    sb.append("\n  标题：").append(d.getTitle());
+                    sb.append("\n  内容：").append(d.getContent());
+                    sb.append("\n\n");
+                });
+            }
+        }
+
+        String result = sb.toString();
+        log.info("上下文数据块已构建 — sessionId: {}, entries: {}, len: {}", sessionId, contextEntries.size(), result.length());
+        return result;
+    }
+
+    /**
+     * 将情绪值映射为中文标签
+     */
+    private String getFeelingLabel(int feeling) {
+        switch (feeling) {
+            case -3: return "极差";
+            case -2: return "较差";
+            case -1: return "略差";
+            case 0:  return "一般";
+            case 1:  return "略好";
+            case 2:  return "较好";
+            case 3:  return "极好";
+            default: return "未知";
+        }
     }
 }
