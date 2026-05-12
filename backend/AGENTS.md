@@ -44,6 +44,7 @@ backend/src/main/java/com/diaryproject/backend/
 - **Exception handling**: Throw subclass of `BusinessException`. Never catch and return error manually -- let GlobalExceptionHandler map it.
 - **Optimistic locking**: `@Version Long version` on User, Schedule, Diary entities. Initialized to `0L`.
 - **MDC tracing**: `traceId` and `userId` auto-injected per request by MdcTracingFilter. Available in all log statements.
+- **SSE streaming**: `SseEmitter` for real-time push. Always call `response.setBufferSize(0)` in controller before returning emitter to disable servlet buffering. Backend must configure `spring.security.filter.dispatcher-types=REQUEST,ERROR` in `application.properties` to exclude ASYNC dispatches from the security filter chain — otherwise `AuthorizationDeniedException` is thrown on every SSE chunk (JWT filter skips async dispatch, leaving anonymous SecurityContext).
 - **Testing**: Pure Mockito. No Spring context. Mocks created manually (`mock()`). See test conventions section.
 
 ## ANTI-PATTERNS
@@ -55,7 +56,7 @@ backend/src/main/java/com/diaryproject/backend/
 - **Do NOT** change `ddl-auto` without migration plan -- schema is JPA-managed.
 
 ## TEST CONVENTIONS
-- **Framework**: JUnit 5 + Mockito. No Spring context. 121 tests in 17 classes.
+- **Framework**: JUnit 5 + Mockito. No Spring context. 136 tests in 19 classes.
 - **Pattern**: Each test class mirrors a production package. Method naming: `methodName_scenario_whenCondition`.
 - **Structural tests**: Tests verify annotation presence (`@Transactional`, `@Cacheable`, `@Version`, `@Table.indexes`) via reflection -- intentional design decision for compile-time-untraceable metadata.
 - **Disabled tests**: `@Disabled("Requires running Redis/MySQL")` -- integration tests to be enabled when infra available.
@@ -64,6 +65,6 @@ backend/src/main/java/com/diaryproject/backend/
 ## COMMANDS
 ```bash
 ./mvnw spring-boot:run    # Dev server on :8080
-./mvnw test               # Run all 121 tests
+./mvnw test               # Run all 136 tests
 ./mvnw package -DskipTests # Build executable JAR
 ```

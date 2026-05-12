@@ -1,7 +1,7 @@
 # Feeling Yourself Diary — Knowledge Base
 
-**Generated:** 2026-05-11
-**Commit:** 6b0ca80
+**Generated:** 2026-05-12
+**Commit:** eeb088a
 **Branch:** main
 
 ## OVERVIEW
@@ -39,6 +39,10 @@ Full-stack emotion/mood diary app. Users record daily schedules with mood values
 | Global CSS/dark mode | `frontend/src/index.css` | `[data-theme='dark']` selector |
 | Docker infra | `docker-compose.yml`, `docker-compose.prod.yml` | MySQL 8.0, Redis 7, MinIO, Caddy |
 | Env config | `.env.example`, `backend/.../application.properties` | All sensitive values via env vars |
+| AI chat (SSE streaming) | `backend/.../ai/controller/AiSessionController.java`, `frontend/src/pages/AI/AIChatPanel.tsx` | SseEmitter → SSE → RAF rendering |
+| AI analysis | `backend/.../ai/service/AiService.java`, `frontend/src/pages/AI/AI.tsx` | Range/full-history modes |
+| AI system prompts | `backend/src/main/resources/prompts/*.md` | 5 prompt templates loaded by PromptService |
+| AI memory (user portrait) | `backend/.../ai/service/MemoryService.java`, `user_memory` table | 5-exchange async portrait update |
 
 ## CONVENTIONS (Project-Specific)
 - **Backend**: All modules follow Controller=>Service=>Repository=>Entity pattern. `@Transactional` on writes, `readOnly=true` on queries. `@Version` optimistic locking on core entities. Bean Validation on DTOs. `ApiResponse<T>` uniform response envelope.
@@ -47,6 +51,8 @@ Full-stack emotion/mood diary app. Users record daily schedules with mood values
 - **Auth**: JWT stateless, Redis token blacklist for logout, BCrypt passwords, fuzzy error messages (anti-enumeration).
 - **Cache key convention**: Direct `CacheService` uses `:` separator. Spring `@Cacheable` uses `::` separator. DO NOT mix.
 - **Testing**: Backend only -- pure Mockito unit tests (no Spring context). No frontend tests exist. See `backend/AGENTS.md`.
+- **SSE streaming**: Backend uses `SseEmitter` with `response.setBufferSize(0)` for zero-buffer real-time push. `spring.security.filter.dispatcher-types=REQUEST,ERROR` (excludes ASYNC) to prevent `AuthorizationDeniedException` on async dispatches. Frontend parses `data:` format (Spring sends no space after colon), uses `requestAnimationFrame` throttled rendering at 60fps, plain text during streaming (no Markdown re-parse overhead).
+- **@Transactional self-invocation**: When a `@Transactional` method is called from within the same class (via `this`), Spring's AOP proxy is bypassed and the annotation has NO effect. Either call via injected self-reference or rely on `JpaRepository.save()`'s built-in transaction.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 - **Do NOT refactor adjacent code** when fixing bugs or adding features. Surgical changes only.
@@ -68,7 +74,7 @@ npm run lint                            # ESLint
 
 # Backend (cd backend)
 ./mvnw spring-boot:run                  # Run on :8080
-./mvnw test                             # Run 121 unit tests
+./mvnw test                             # Run 136 unit tests
 ./mvnw package -DskipTests              # Build JAR
 
 # Production
@@ -76,7 +82,7 @@ docker-compose -f docker-compose.prod.yml up -d   # Full production stack
 ```
 
 ## NOTES
-- `backend/src/main/resources/application.properties` has TODO for production: change `ddl-auto=update` => `validate`, harden JWT secret, tune HikariCP.
+- `backend/src/main/resources/application.properties` has TODO: harden JWT secret, tune HikariCP.
 - `SecurityConfig.java` has TODO: lock down CORS origins, raise BCrypt strength to 12.
 - `AuthContext.tsx` has TODO: switch from localStorage to httpOnly cookies for JWT.
 - Frontend has zero test infrastructure (no Vitest/Jest/Playwright).

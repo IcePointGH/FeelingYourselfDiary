@@ -37,6 +37,8 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const fullContentRef = useRef('');
+  const rafIdRef = useRef<number | null>(null);
 
   // ── Load session detail on mount ──
   useEffect(() => {
@@ -203,7 +205,17 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
 
       const decoder = new TextDecoder();
       let buffer = '';
-      let fullContent = '';
+      fullContentRef.current = '';
+
+      /** Schedule a RAF-based UI update (max ~60fps, no duplicate frames) */
+      const scheduleRender = () => {
+        if (rafIdRef.current === null) {
+          rafIdRef.current = requestAnimationFrame(() => {
+            setStreamingContent(fullContentRef.current);
+            rafIdRef.current = null;
+          });
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
@@ -218,52 +230,63 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
 
         for (const part of parts) {
           const lines = part.split('\n');
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              // Check for stream-end marker
+          for (let line of lines) {
+            if (line.endsWith('\r')) line = line.slice(0, -1);
+            if (line.startsWith('data:')) {
+              const raw = line.slice(5);
+              const data = raw.startsWith(' ') ? raw.slice(1) : raw;
+              if (!data) continue;
               if (data === '[DONE]') break;
               try {
-                // Try to parse as JSON (may contain content field)
                 const parsed = JSON.parse(data);
                 const chunk = parsed.content ?? parsed.text ?? parsed.message ?? data;
-                fullContent += chunk;
+                fullContentRef.current += chunk;
               } catch {
-                // Plain text chunk
-                fullContent += data;
+                fullContentRef.current += data;
               }
               setWaitingFirstChunk(false);
             }
           }
         }
 
-        setStreamingContent(fullContent);
+        scheduleRender();
       }
 
       // Flush remaining buffer
       if (buffer.trim()) {
         const lines = buffer.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
+        for (let line of lines) {
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith('data:')) {
+            const raw = line.slice(5);
+            const data = raw.startsWith(' ') ? raw.slice(1) : raw;
+            if (!data || data === '[DONE]') continue;
             try {
               const parsed = JSON.parse(data);
               const chunk = parsed.content ?? parsed.text ?? parsed.message ?? data;
-              fullContent += chunk;
+              fullContentRef.current += chunk;
             } catch {
-              fullContent += data;
+              fullContentRef.current += data;
             }
           }
         }
+        scheduleRender();
       }
 
+      // Cancel any pending RAF before finalizing
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+
+      const finalContent = fullContentRef.current;
+
       // Add final assistant message
-      if (fullContent.trim()) {
+      if (finalContent.trim()) {
         const assistantMsg: MessageResponse = {
           id: Date.now(),
           role: 'assistant',
-          content: fullContent.trim(),
+          content: finalContent.trim(),
           sequenceNum: messages.length + 2,
           createdAt: new Date().toISOString(),
         };
@@ -279,6 +302,10 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
       const msg = err instanceof Error ? err.message : '发送消息失败';
       addToast(msg, 'error');
     } finally {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
       setStreaming(false);
       setStreamingContent('');
       setWaitingFirstChunk(false);
@@ -391,7 +418,7 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
           </div>
         ))}
 
-        {/* Streaming bubble */}
+        {/* Streaming bubble — plain text for smooth 60fps rendering */}
         {streaming && streamingContent && (
           <div className={`${styles.messageRow} ${styles.messageRowAssistant}`}>
             <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant} ${styles.streamingBubble}`}>
@@ -399,11 +426,7 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
                 <i className="fas fa-robot" />
               </div>
               <div className={styles.messageContent}>
-                <div className={styles.markdown}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {streamingContent}
-                  </ReactMarkdown>
-                </div>
+                <div className={styles.streamingText}>{streamingContent}</div>
                 <span className={styles.cursor} />
               </div>
             </div>

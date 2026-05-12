@@ -22,7 +22,9 @@ frontend/src/
 │   ├── Toast/            # Toast notifications
 │   ├── common/
 │   │   └── ErrorBoundary # Render error catch
-│   └── PageSkeleton      # Lazy-load fallback
+│   ├── EmptyState/        # Empty state placeholder
+│   ├── Skeleton/          # Loading skeleton component
+│   └── PageSkeleton       # Lazy-load fallback
 ├── contexts/             # React Context providers
 │   ├── AuthContext        # JWT auth state (login/logout/register)
 │   ├── ThemeContext       # Theme switching (Morandi/Minimal)
@@ -40,6 +42,7 @@ frontend/src/
 │   ├── Thoughts/         # Diary writing and review
 │   ├── History/          # Calendar + paginated list (lazy-loaded)
 │   ├── Analysis/         # Mood charts daily/weekly/monthly (lazy-loaded)
+│   ├── AI/               # AI chat + analysis (AIChatPanel / SessionSidebar / ContextPicker)
 │   └── Settings/         # Theme, labels, data management (lazy-loaded)
 ├── services/
 │   └── api.ts            # API endpoint URL constants
@@ -66,6 +69,8 @@ frontend/src/
 | API calls | `hooks/useApi.ts` (authenticated), `hooks/useFetch.ts` (generic) | useFetch returns `{data, loading, error}` |
 | Dark mode styles | `index.css` | Selector: `[data-theme='dark']` |
 | Route definitions | `App.tsx` lines 33-44 | 8 routes total, 3 lazy-loaded |
+| AI chat / SSE | `pages/AI/AIChatPanel.tsx` | SSE stream parsing, RAF rendering, plain text during streaming |
+| AI analysis / modes | `pages/AI/AI.tsx` | Chat / Range / Full-history tabs, polling, consent |
 
 ## CONVENTIONS
 - **State**: React Context only (no Redux, Zustand, Recoil). Each context in its own file under `contexts/`.
@@ -75,6 +80,7 @@ frontend/src/
 - **Lazy loading**: `React.lazy()` for History, Analysis, Settings pages. `<PageSkeleton />` as shared fallback.
 - **Error handling**: `ErrorBoundary` wraps entire app. `Toast` for user-facing messages (replaces `alert()`). API errors caught in hooks, surfaced via ToastContext.
 - **Naming**: PascalCase components, camelCase hooks/utils, kebab-case CSS class names in `shared.css`.
+- **SSE streaming**: Backend Spring `SseEmitter` outputs `data:{text}\n\n` (NO space after colon). Frontend MUST NOT expect `data: ` with space. Use `startsWith('data:')` and strip optional leading space. Accumulate chunks in a `useRef` and throttle UI updates via `requestAnimationFrame` (60fps). During streaming, render as **plain text** (e.g. `white-space: pre-wrap`) — do NOT use `ReactMarkdown` which re-parses entire content on every frame. After stream completes, render final message with `ReactMarkdown`.
 
 ## ANTI-PATTERNS
 - **Do NOT** add state management libraries (Redux, Zustand, etc.) -- React Context is intentional.

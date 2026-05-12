@@ -1505,6 +1505,15 @@
   50% { opacity: 0; }
 }
 
+/* Streaming plain text — avoids Markdown re-parse overhead during live streaming */
+.streamingText {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-primary, #333);
+}
+
 /* ── Typing indicator (animated dots) ── */
 
 .typingDots {
@@ -2483,6 +2492,10 @@
 
 [data-theme='dark'] .cursor {
   background: #9b8cff;
+}
+
+[data-theme='dark'] .streamingText {
+  color: #e0d9ff;
 }
 
 [data-theme='dark'] .typingDots span {

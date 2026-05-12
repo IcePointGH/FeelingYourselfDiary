@@ -201,9 +201,11 @@ public class AiChatService {
     }
 
     /**
-     * 保存助手的回复消息到数据库（独立事务，避免 Flux 回调中的事务问题）
+     * 保存助手的回复消息到数据库。
+     * <p>注意：此方法从 {@link #chat} 的 onComplete 回调中通过自调用执行，
+     * 因此 {@code @Transactional} 不生效（Spring AOP 不拦截自调用）。
+     * DB 写入依赖 {@code JpaRepository.save()} 的内置事务。</p>
      */
-    @Transactional
     public void saveAssistantMessage(Long sessionId, int sequenceNum, String content) {
         AiMessage assistantMsg = AiMessage.builder()
                 .sessionId(sessionId)

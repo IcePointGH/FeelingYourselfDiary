@@ -6,6 +6,7 @@ import com.diaryproject.backend.ai.service.AiChatService;
 import com.diaryproject.backend.ai.service.AiSessionService;
 import com.diaryproject.backend.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,13 +103,18 @@ public class AiSessionController {
 
     /**
      * 流式聊天 — SSE 实时响应（Mode 1 聊天）
+     * <p>禁用响应缓冲 {@code response.setBufferSize(0)} 确保每个 token 被立即推送，
+     * 配合前端 requestAnimationFrame 限帧渲染实现丝滑流式输出。</p>
      */
     @PostMapping("/{sessionId}/chat")
     public SseEmitter chat(
             @PathVariable Long sessionId,
             @Valid @RequestBody AiDTO.ChatRequest request,
-            HttpServletRequest httpRequest) {
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) {
         Long userId = (Long) httpRequest.getAttribute("userId");
+        // Disable servlet response buffering — every SseEmitter.send() pushes to socket immediately
+        httpResponse.setBufferSize(0);
         log.info("REST AI 聊天 — userId: {}, sessionId: {}", userId, sessionId);
         return aiChatService.chat(userId, sessionId, request.getMessage());
     }
