@@ -304,6 +304,20 @@
 .btn-cancel:hover {
   background: #eee;
 }
+
+.btn-danger {
+  background: #e74c3c;
+  color: #fff;
+  border: 1px solid #c0392b;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
 .future-reminder-overlay {
   position: fixed;
   top: 0;

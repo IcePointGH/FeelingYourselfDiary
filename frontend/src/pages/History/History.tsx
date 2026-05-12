@@ -84,6 +84,31 @@ export default function HistoryPage() {
     }
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm('确定要删除这条记录吗？')) return;
+    try {
+      await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
+      setOptimisticItems(prev => prev.filter(it => it.id !== id));
+      setSelectedSchedules(prev => prev.filter(it => it.id !== id));
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '删除失败', 'error');
+    }
+  };
+
+  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => {
+    const updateItem = (prev: ScheduleItem[]) => prev.map(it => it.id === id ? { ...it, ...data } : it);
+    setOptimisticItems(updateItem);
+    setSelectedSchedules(updateItem);
+    try {
+      await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+      refetch();
+    } catch (err) {
+      refetch();
+      addToast(err instanceof Error ? err.message : '更新失败', 'error');
+    }
+  };
+
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -206,9 +231,10 @@ export default function HistoryPage() {
                 <ScheduleItemCard
                   key={item.id}
                   item={item}
-                  showActions={false}
                   showDate={false}
                   onToggleComplete={handleToggleComplete}
+                  onDelete={handleDelete}
+                  onUpdate={handleUpdate}
                 />
               ))}
             </div>
@@ -230,6 +256,8 @@ export default function HistoryPage() {
                     item={item}
                     onClick={(clickedItem) => handleSelectDate(clickedItem.date)}
                     onToggleComplete={handleToggleComplete}
+                    onDelete={handleDelete}
+                    onUpdate={handleUpdate}
                   />
                 ))}
               </div>

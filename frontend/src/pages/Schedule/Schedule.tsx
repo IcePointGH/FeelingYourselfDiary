@@ -144,6 +144,21 @@ export default function SchedulePage() {
     }
   };
 
+  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => {
+    // 乐观更新
+    setScheduleList(prev => prev.map(it => it.id === id ? { ...it, ...data } : it));
+    try {
+      await apiFetch(`${SCHEDULE_API.base}/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+      refetch();
+    } catch (err) {
+      refetch(); // 回滚
+      addToast(err instanceof Error ? err.message : '更新失败', 'error');
+    }
+  };
+
   const handleToggleComplete = async (id: number) => {
     // 乐观更新：立即翻转本地状态
     setScheduleList(prev => prev.map(it =>
@@ -258,6 +273,7 @@ export default function SchedulePage() {
                   item={item}
                   onDelete={batchMode ? undefined : handleDelete}
                   onToggleComplete={batchMode ? undefined : handleToggleComplete}
+                  onUpdate={batchMode ? undefined : handleUpdate}
                 />
               </div>
             ))}
@@ -272,6 +288,16 @@ export default function SchedulePage() {
             <span className="batch-count">已选 {selectedIds.size} 项</span>
             <button className="btn submit-btn" onClick={() => batchToggle(true)}>批量完成</button>
             <button className="btn btn-cancel" onClick={() => batchToggle(false)}>批量取消</button>
+            <button className="btn btn-danger" onClick={async () => {
+              if (!confirm(`确定删除选中的 ${selectedIds.size} 条日程吗？此操作不可撤销。`)) return;
+              const ids = Array.from(selectedIds);
+              for (const id of ids) {
+                try { await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' }); } catch { /* continue */ }
+              }
+              setSelectedIds(new Set());
+              setBatchMode(false);
+              refetch();
+            }}>批量删除</button>
           </div>
         )}
       </div>

@@ -12,11 +12,14 @@ function formatDateChinese(dateStr: string): string {
   return `${y}年${parseInt(m, 10)}月${parseInt(d, 10)}日`;
 }
 
+const FEELINGS = [-3, -2, -1, 0, 1, 2, 3] as const;
+
 interface ScheduleItemCardProps {
   item: ScheduleItem;
   onDelete?: (id: number) => void;
   onClick?: (item: ScheduleItem) => void;
   onToggleComplete?: (id: number) => void;
+  onUpdate?: (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => void;
   showActions?: boolean;
   showDate?: boolean;
 }
@@ -26,11 +29,18 @@ export default function ScheduleItemCard({
   onDelete,
   onClick,
   onToggleComplete,
+  onUpdate,
   showActions = true,
   showDate = true,
 }: ScheduleItemCardProps) {
   const isFuture = new Date(item.date) > new Date(new Date().toDateString());
   const [showFutureConfirm, setShowFutureConfirm] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(item.title);
+  const [editDesc, setEditDesc] = useState(item.description ?? '');
+  const [editDate, setEditDate] = useState(item.date);
+  const [editTime, setEditTime] = useState(item.time ?? '');
+  const [editFeeling, setEditFeeling] = useState(item.feeling);
 
   /** 勾选框点击：未来+未完成→弹确认窗，否则直接切换 */
   const handleCheckToggle = (e: React.MouseEvent) => {
@@ -45,6 +55,34 @@ export default function ScheduleItemCard({
   const handleConfirmToggle = () => {
     setShowFutureConfirm(false);
     onToggleComplete?.(item.id);
+  };
+
+  const startEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditTitle(item.title);
+    setEditDesc(item.description ?? '');
+    setEditDate(item.date);
+    setEditTime(item.time ?? '');
+    setEditFeeling(item.feeling);
+    setEditing(true);
+  };
+
+  const saveEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!editTitle.trim()) return;
+    onUpdate?.(item.id, {
+      title: editTitle.trim(),
+      description: editDesc.trim(),
+      date: editDate,
+      time: editTime,
+      feeling: editFeeling,
+    });
+    setEditing(false);
+  };
+
+  const cancelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditing(false);
   };
 
   return (
@@ -79,14 +117,19 @@ export default function ScheduleItemCard({
           </span>
         </div>
       </div>
-      {showActions && onDelete && (
-        <button
-          className="delete-btn-small"
-          onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-          title="删除"
-        >
-          <i className="fas fa-trash" />
-        </button>
+      {showActions && (
+        <div className="card-actions">
+          {onUpdate && (
+            <button className="action-btn edit-btn" onClick={startEdit} title="编辑">
+              <i className="fas fa-pen" />
+            </button>
+          )}
+          {onDelete && (
+            <button className="action-btn delete-btn-small" onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} title="删除">
+              <i className="fas fa-trash" />
+            </button>
+          )}
+        </div>
       )}
 
       {/* 未来日程勾选确认弹窗 */}
@@ -97,6 +140,52 @@ export default function ScheduleItemCard({
             <div className="future-confirm-actions">
               <button className="btn btn-cancel" onClick={() => setShowFutureConfirm(false)}>取消</button>
               <button className="btn submit-btn" onClick={handleConfirmToggle}>确定勾选</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 编辑弹窗 */}
+      {editing && (
+        <div className="edit-overlay" onClick={(e) => e.stopPropagation()}>
+          <div className="edit-popup" onClick={(e) => e.stopPropagation()}>
+            <h3>编辑日程</h3>
+            <div className="form-group">
+              <label>事项 *</label>
+              <input type="text" value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="事项" required />
+            </div>
+            <div className="form-group">
+              <label>描述</label>
+              <textarea value={editDesc} onChange={e => setEditDesc(e.target.value)} placeholder="描述（可选）" rows={3} />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>日期</label>
+                <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>时间</label>
+                <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)} />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>情绪</label>
+              <div className="feeling-quick">
+                {FEELINGS.map(f => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`feeling-btn ${editFeeling === f ? 'active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); setEditFeeling(f); }}
+                  >
+                    {f > 0 ? `+${f}` : `${f}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="edit-actions">
+              <button className="btn btn-cancel" onClick={cancelEdit}>取消</button>
+              <button className="btn submit-btn" onClick={saveEdit}>保存</button>
             </div>
           </div>
         </div>
