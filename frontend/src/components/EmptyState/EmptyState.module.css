@@ -1,0 +1,82 @@
+/* ════════════════════════════════════════════
+   EmptyState — reusable empty display
+   ════════════════════════════════════════════ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 8px;
+  min-height: 160px;
+}
+
+.icon {
+  font-size: 32px;
+  color: #ccc;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #888;
+  margin: 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.description {
+  font-size: 13px;
+  color: #bbb;
+  margin: 0;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.actionBtn {
+  margin-top: 8px;
+  padding: 8px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.actionBtn:hover {
+  background: #f5f3ff;
+  border-color: #d4ccff;
+  color: #7C5CFC;
+}
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .icon {
+  color: #666;
+}
+
+[data-theme='dark'] .title {
+  color: #999;
+}
+
+[data-theme='dark'] .description {
+  color: #777;
+}
+
+[data-theme='dark'] .actionBtn {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #bbb;
+}
+
+[data-theme='dark'] .actionBtn:hover {
+  background: #4a3f60;
+  border-color: #5a4f70;
+  color: #9b8cff;
+}

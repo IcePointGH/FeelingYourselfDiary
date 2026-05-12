@@ -12,6 +12,8 @@ public interface AiSessionRepository extends JpaRepository<AiSession, Long> {
 
     List<AiSession> findByUserIdOrderByUpdatedAtDesc(Long userId);
 
+    List<AiSession> findByUserIdAndSessionTypeOrderByUpdatedAtDesc(Long userId, String sessionType);
+
     Optional<AiSession> findByUserIdAndId(Long userId, Long id);
 
     void deleteByUserIdAndId(Long userId, Long id);

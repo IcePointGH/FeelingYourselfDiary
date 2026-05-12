@@ -7,6 +7,8 @@ import { useApi } from '../../hooks/useApi';
 import { AI_API } from '../../services/api';
 import type { ContextEntry, MessageResponse, SessionResponse } from '../../types';
 import ContextPicker from './ContextPicker';
+import EmptyState from '../../components/EmptyState/EmptyState';
+import Skeleton from '../../components/Skeleton/Skeleton';
 import styles from './AI.module.css';
 
 const API_BASE_URL = '/api';
@@ -16,14 +18,15 @@ interface AIChatPanelProps {
   rateLimited: boolean;
   onRateLimited?: () => void;
   onQuotaUpdate?: (headers: Headers) => void;
+  onComplete?: () => void;
 }
 
-export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQuotaUpdate }: AIChatPanelProps) {
+export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQuotaUpdate, onComplete }: AIChatPanelProps) {
   const [messages, setMessages] = useState<MessageResponse[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [waitingFirstChunk, setWaitingFirstChunk] = useState(false);
 
   const { token } = useAuth();
@@ -40,7 +43,8 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
     let cancelled = false;
 
     (async () => {
-      setLoading(true);
+      // Only show loading on first mount (no messages yet), not on session switch
+      if (messages.length === 0) setLoading(true);
       try {
         const res = await fetch(`${API_BASE_URL}/ai/sessions/${sessionId}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -74,15 +78,19 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
     return () => { cancelled = true; };
   }, [sessionId, token, addToast, onRateLimited, onQuotaUpdate]);
 
-  // ── Auto-scroll to bottom ──
+  // ── Scroll: existing history → instant to bottom; new messages → smooth ──
+  const prevMsgCountRef = useRef(-1);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length === 0) return;
+    if (prevMsgCountRef.current === -1) {
+      // Initial load with history: scroll to bottom instantly (no animation)
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+    } else if (messages.length > prevMsgCountRef.current || streamingContent) {
+      // New message arrived: smooth scroll
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMsgCountRef.current = messages.length;
   }, [messages, streamingContent]);
-
-  // ── Focus textarea after loading ──
-  useEffect(() => {
-    if (!loading) textareaRef.current?.focus();
-  }, [loading]);
 
   // ── Fetch context entries on session change ──
   const fetchContextEntries = useCallback(async () => {
@@ -261,6 +269,9 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
         };
         setMessages(prev => [...prev, assistantMsg]);
       }
+
+      // Notify parent that stream completed (for sidebar refresh, etc.)
+      onComplete?.();
     } catch (err) {
       if ((err as Error).name === 'AbortError') return;
       // Remove optimistic message
@@ -273,7 +284,7 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
       setWaitingFirstChunk(false);
       abortRef.current = null;
     }
-  }, [input, streaming, messages.length, sessionId, token, addToast, onRateLimited, onQuotaUpdate, rateLimited]);
+  }, [input, streaming, messages.length, sessionId, token, addToast, onRateLimited, onQuotaUpdate, rateLimited, onComplete]);
 
   // ── Key handler: Enter to send, Shift+Enter for newline ──
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -283,13 +294,13 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
     }
   }, [handleSend]);
 
-  // ── Loading state ──
-  if (loading) {
+  // ── Loading state (minimal spinner, no skeleton flash) ──
+  if (loading && messages.length === 0) {
     return (
       <div className={styles.chatPanel}>
-        <div className={styles.emptyChat}>
+        <div className={styles.sidebarLoading}>
           <div className={styles.spinner} />
-          <span>加载会话中...</span>
+          <span>加载中...</span>
         </div>
       </div>
     );
@@ -311,10 +322,13 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
     <div className={styles.chatPanel}>
       {/* Message list */}
       <div className={styles.messageList}>
-        {messages.length === 0 && (
+        {messages.length === 0 && !streaming && (
           <div className={styles.emptyChat}>
-            <i className="fas fa-comments" style={{ fontSize: 40, color: '#ccc' }} />
-            <p>开始和 AI 对话吧</p>
+            <EmptyState
+              icon="fa-comments"
+              title="开始对话"
+              description="发送第一条消息，与小七聊聊"
+            />
           </div>
         )}
 
@@ -328,23 +342,6 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
                 msg.role === 'user' ? styles.messageBubbleUser : styles.messageBubbleAssistant
               }`}
             >
-              {/* Copy + Delete action buttons */}
-              <div className={styles.messageActions}>
-                <button
-                  className={styles.copyBtn}
-                  onClick={() => handleCopy(msg.content)}
-                  title="复制"
-                >
-                  <i className="fas fa-copy" />
-                </button>
-                <button
-                  className={styles.deleteMsgBtn}
-                  onClick={() => handleDeleteMessage(msg.id)}
-                  title="删除"
-                >
-                  <i className="fas fa-trash" />
-                </button>
-              </div>
               {/* Avatar icon */}
               {msg.role !== 'user' && (
                 <div className={styles.messageAvatar}>
@@ -362,7 +359,34 @@ export default function AIChatPanel({ sessionId, rateLimited, onRateLimited, onQ
                   </div>
                 )}
               </div>
-              <span className={styles.messageTime}>{formatTime(msg.createdAt)}</span>
+              <div className={styles.messageFooter}>
+                {/* User: buttons left, time right. AI: time left, buttons right */}
+                {msg.role === 'user' ? (
+                  <>
+                    <div className={styles.messageActions}>
+                      <button className={styles.copyBtn} onClick={() => handleCopy(msg.content)} title="复制">
+                        <i className="fas fa-copy" />
+                      </button>
+                      <button className={styles.deleteMsgBtn} onClick={() => handleDeleteMessage(msg.id)} title="删除">
+                        <i className="fas fa-trash" />
+                      </button>
+                    </div>
+                    <span className={styles.messageTime}>{formatTime(msg.createdAt)}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.messageTime}>{formatTime(msg.createdAt)}</span>
+                    <div className={styles.messageActions}>
+                      <button className={styles.copyBtn} onClick={() => handleCopy(msg.content)} title="复制">
+                        <i className="fas fa-copy" />
+                      </button>
+                      <button className={styles.deleteMsgBtn} onClick={() => handleDeleteMessage(msg.id)} title="删除">
+                        <i className="fas fa-trash" />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         ))}

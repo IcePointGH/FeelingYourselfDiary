@@ -12,8 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,10 +47,23 @@ public class AiSessionService {
      */
     @Transactional
     public AiDTO.SessionResponse createSession(Long userId, AiDTO.CreateSessionRequest req) {
+        // Auto-generate title if blank
+        String title = req.getTitle();
+        if (title == null || title.isBlank()) {
+            String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm"));
+            if ("range".equals(req.getSessionType())) {
+                title = "时间区间分析 " + now;
+            } else if ("full".equals(req.getSessionType())) {
+                title = "全历史分析 " + now;
+            } else {
+                title = "新对话";
+            }
+        }
+
         AiSession session = AiSession.builder()
                 .userId(userId)
                 .sessionType(req.getSessionType())
-                .title(req.getTitle())
+                .title(title)
                 .status("active")
                 .progress(0)
                 .build();
@@ -60,11 +76,33 @@ public class AiSessionService {
     }
 
     /**
-     * 获取用户的所有会话列表
+     * 获取用户的所有会话列表（向后兼容）
      */
     @Transactional(readOnly = true)
     public List<AiDTO.SessionListItem> listUserSessions(Long userId) {
-        List<AiSession> sessions = aiSessionRepository.findByUserIdOrderByUpdatedAtDesc(userId);
+        return listUserSessions(userId, null, 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * 获取用户会话列表（支持类型筛选 + 分页）
+     */
+    @Transactional(readOnly = true)
+    public List<AiDTO.SessionListItem> listUserSessions(Long userId, String type, int page, int size) {
+        List<AiSession> sessions;
+        if (type != null && !type.isBlank()) {
+            sessions = aiSessionRepository.findByUserIdAndSessionTypeOrderByUpdatedAtDesc(userId, type);
+        } else {
+            sessions = aiSessionRepository.findByUserIdOrderByUpdatedAtDesc(userId);
+        }
+
+        // Manual pagination
+        int start = page * size;
+        if (start >= sessions.size()) {
+            return Collections.emptyList();
+        }
+        int end = Math.min(start + size, sessions.size());
+        sessions = sessions.subList(start, end);
+
         return sessions.stream().map(s -> {
             int msgCount = aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(s.getId()).size();
             AiDTO.SessionListItem item = new AiDTO.SessionListItem();
@@ -76,6 +114,34 @@ public class AiSessionService {
             item.setMessageCount(msgCount);
             return item;
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 保存时间区间分析结果为会话（用于分析历史）
+     */
+    @Transactional
+    public void saveRangeAnalysis(Long userId, String markdown, LocalDate startDate, LocalDate endDate) {
+        String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd HH:mm"));
+        String title = "时间区间分析 " + now;
+
+        AiSession session = AiSession.builder()
+                .userId(userId)
+                .sessionType("range")
+                .title(title)
+                .status("completed")
+                .progress(100)
+                .build();
+        session = aiSessionRepository.save(session);
+
+        AiMessage message = AiMessage.builder()
+                .sessionId(session.getId())
+                .role("assistant")
+                .content(markdown)
+                .sequenceNum(1)
+                .build();
+        aiMessageRepository.save(message);
+
+        log.info("时间区间分析会话已保存 — sessionId: {}, userId: {}, range: {} ~ {}", session.getId(), userId, startDate, endDate);
     }
 
     /**
@@ -138,7 +204,7 @@ public class AiSessionService {
     }
 
     /**
-     * 重命名会话
+     * 重命名会话（带用户校验 — 外部 API 调用）
      */
     @Transactional
     public AiDTO.SessionResponse renameSession(Long userId, Long sessionId, String newTitle) {
@@ -150,6 +216,18 @@ public class AiSessionService {
 
         int msgCount = aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId).size();
         return toSessionResponse(session, msgCount);
+    }
+
+    /**
+     * 重命名会话（内部调用 — 无需用户校验，供 @Async 使用）
+     */
+    @Transactional
+    public void renameSession(Long sessionId, String newTitle) {
+        AiSession session = aiSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("AI 会话", sessionId));
+        session.setTitle(newTitle);
+        aiSessionRepository.save(session);
+        log.info("AI 会话重命名(内部) — sessionId: {}, newTitle: {}", sessionId, newTitle);
     }
 
     private AiDTO.SessionResponse toSessionResponse(AiSession session, int messageCount) {

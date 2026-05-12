@@ -88,7 +88,7 @@ public class AiAnalysisService {
                     .orElseThrow(() -> new RuntimeException("AI 会话未找到: " + sessionId));
             session.setStatus("processing");
             session.setProgress(0);
-            aiSessionRepository.save(session);
+            session = aiSessionRepository.save(session);
 
             // 2. 获取用户全部数据（按日期升序排列）
             List<Schedule> allSchedules = scheduleRepository.findByUserIdOrderByDateDescTimeDesc(userId);
@@ -137,7 +137,7 @@ public class AiAnalysisService {
                 int progress = (i + 1) * 100 / totalChunks;
                 session.setProgress(progress);
                 session.setStatus("processing");
-                aiSessionRepository.save(session);
+                session = aiSessionRepository.save(session);
 
                 log.debug("分块分析完成 [{}/{}] — progress: {}%", i + 1, totalChunks, progress);
             }

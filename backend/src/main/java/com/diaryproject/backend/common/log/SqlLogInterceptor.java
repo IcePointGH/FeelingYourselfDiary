@@ -46,7 +46,7 @@ public class SqlLogInterceptor implements StatementInspector {
         String operation = parts[0].toUpperCase();
         String table = extractTable(sql, operation);
 
-        log.info("[DB] {}", operation + (table != null ? " " + table : ""));
+        log.debug("[DB] {}", operation + (table != null ? " " + table : ""));
 
         return sql;
     }

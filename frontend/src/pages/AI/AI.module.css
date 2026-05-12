@@ -541,6 +541,135 @@
   transform: translateY(-1px);
 }
 
+/* ── Analysis History ── */
+.analysisHistory {
+  margin-top: 24px;
+  padding-top: 20px;
+}
+
+.analysisHistoryTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.analysisHistoryTitle i {
+  color: #7C5CFC;
+  font-size: 13px;
+}
+
+.noHistoryText {
+  font-size: 13px;
+  color: #bbb;
+  text-align: center;
+  padding: 16px 0;
+  margin: 0;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: default;
+  transition: background 0.15s ease;
+  margin-bottom: 4px;
+}
+
+.historyItem:hover {
+  background: #f5f3ff;
+}
+
+.historyItemInfo {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyItemTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #454545;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyItemDate {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.historyItemActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.viewHistoryBtn,
+.deleteHistoryBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.viewHistoryBtn:hover {
+  background: #e0d8ff;
+  color: #7C5CFC;
+}
+
+.deleteHistoryBtn:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* ── Back button ── */
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.backBtn:hover {
+  background: #f5f3ff;
+  border-color: #d4ccff;
+  color: #7C5CFC;
+}
+
+.backBtn i {
+  font-size: 12px;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .aiPage {
@@ -797,11 +926,24 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding: 12px 8px;
+  gap: 4px;
+}
+
+.skeletonSessionCard {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  color: #999;
-  font-size: 13px;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.skeletonSessionBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
 .sidebarEmpty {
@@ -947,18 +1089,21 @@
 /* ── Message action buttons (copy / delete) ── */
 
 .messageActions {
-  position: absolute;
-  top: 4px;
-  right: 8px;
   display: flex;
-  gap: 2px;
+  gap: 4px;
   opacity: 0;
   transition: opacity 0.2s ease;
-  z-index: 1;
 }
 
 .messageBubble:hover .messageActions {
   opacity: 1;
+}
+
+.messageFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
 }
 
 .copyBtn,
@@ -984,41 +1129,6 @@
 .deleteMsgBtn:hover {
   opacity: 1;
   background: rgba(0, 0, 0, 0.1);
-}
-
-/* User bubble action buttons (on purple bg) */
-.messageBubbleUser .copyBtn,
-.messageBubbleUser .deleteMsgBtn {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.messageBubbleUser .copyBtn:hover,
-.messageBubbleUser .deleteMsgBtn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.15);
-}
-
-/* Assistant bubble action buttons (on light bg) */
-.messageBubbleAssistant .copyBtn,
-.messageBubbleAssistant .deleteMsgBtn {
-  color: #aaa;
-}
-
-.messageBubbleAssistant .copyBtn:hover,
-.messageBubbleAssistant .deleteMsgBtn:hover {
-  color: #454545;
-  background: rgba(0, 0, 0, 0.08);
-}
-
-[data-theme='dark'] .messageBubbleAssistant .copyBtn,
-[data-theme='dark'] .messageBubbleAssistant .deleteMsgBtn {
-  color: #888;
-}
-
-[data-theme='dark'] .messageBubbleAssistant .copyBtn:hover,
-[data-theme='dark'] .messageBubbleAssistant .deleteMsgBtn:hover {
-  color: #e0e0e0;
-  background: rgba(255, 255, 255, 0.1);
 }
 
 /* ── Edit button on sidebar session items ── */
@@ -1117,6 +1227,31 @@
 .emptyChat p {
   margin: 0;
   color: #999;
+}
+
+/* ── Chat loading skeleton ── */
+
+.chatLoadingSkeleton {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.skeletonMessage {
+  display: flex;
+}
+
+.skeletonMessageUser {
+  justify-content: flex-end;
+  margin-left: 40px;
+}
+
+.skeletonMessageAssistant {
+  justify-content: flex-start;
+  margin-right: 40px;
 }
 
 /* ── Message list ── */
@@ -1525,50 +1660,150 @@
   gap: 12px;
 }
 
-/* ── Responsive: Stack sidebar below chat on narrow screens ── */
+/* ── Hamburger button (mobile only) ── */
+.hamburgerBtn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 101;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  color: #7C5CFC;
+  font-size: 18px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.hamburgerBtn:hover {
+  background: #f4f2ff;
+  border-color: #7C5CFC;
+}
+
+.hamburgerBtn:active {
+  transform: scale(0.95);
+}
+
+/* ── Sidebar overlay backdrop ── */
+.sidebarOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 99;
+  animation: fadeIn 0.2s ease;
+}
+
+/* ── Sidebar close button inside overlay ── */
+.sidebarCloseBtn {
+  display: none;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  z-index: 102;
+  transition: background 0.2s ease;
+}
+
+.sidebarCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Responsive: Mobile layout (≤768px) ── */
 @media (max-width: 768px) {
-  .chatLayout {
-    flex-direction: column;
-    height: calc(100vh - 180px);
+  /* Show hamburger button */
+  .hamburgerBtn {
+    display: flex;
   }
 
+  /* Page padding reduction */
+  .aiPage {
+    padding: 16px;
+    padding-top: 50px;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  /* ── SessionSidebar: hidden by default, fullscreen overlay when open ── */
   .sessionSidebar {
-    width: 100%;
-    max-height: 200px;
-    border-right: none;
-    border-bottom: 1px solid #f0f0f0;
-    flex-shrink: 0;
+    display: none;
+  }
+
+  .sidebarOpen {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    width: 100vw;
+    height: 100vh;
+    background: #fafafa;
+    overflow: hidden;
+    animation: slideInLeft 0.25s ease;
+  }
+
+  @keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+
+  .sidebarOverlay {
+    display: block;
+  }
+
+  .sidebarCloseBtn {
+    display: flex;
+  }
+
+  /* ── Chat layout ── */
+  .chatLayout {
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    min-height: 350px;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
   }
 
   .chatPanel {
     min-height: 300px;
   }
 
+  .messageList {
+    padding: 12px;
+  }
+
   .messageBubble {
-    max-width: 90%;
+    max-width: 100%;
   }
 
   .messageBubbleUser {
-    margin-left: 20px;
+    margin-left: 8px;
   }
 
   .messageBubbleAssistant {
-    margin-right: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .chatLayout {
-    height: calc(100vh - 160px);
-    min-height: 300px;
-  }
-
-  .sessionSidebar {
-    max-height: 160px;
-  }
-
-  .messageList {
-    padding: 12px;
+    margin-right: 8px;
   }
 
   .chatInput {
@@ -1581,8 +1816,97 @@
   }
 
   .sendBtn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Touch-friendly context toggle */
+  .contextToggle {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* ── Date range: stack vertically ── */
+  .dateRange {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .dateInput {
+    width: 100%;
+  }
+
+  .dateSeparator {
+    text-align: center;
+    padding: 0;
+  }
+
+  .analyzeBtn {
+    width: 100%;
+  }
+
+  /* ── Full mode: full-width progress + buttons ── */
+  .fullHistory {
+    padding: 16px 0;
+  }
+
+  .retryBtn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 24px;
+  }
+
+  /* ── ContextPicker: bottom sheet ── */
+  .contextPanelWrapper {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+    border-left: none;
+    border-top: 1px solid #e8e8e8;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .contextPanelOpen {
+    right: auto;
+    transform: translateY(0);
+  }
+
+  .contextPanelHeader {
+    border-radius: 16px 16px 0 0;
+  }
+
+  /* ── Result stats: stack vertically ── */
+  .resultStats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .markdown h1 { font-size: 20px; }
+  .markdown h2 { font-size: 17px; }
+  .markdown h3 { font-size: 15px; }
+}
+
+@media (max-width: 480px) {
+  .chatLayout {
+    height: calc(100vh - 120px);
+    min-height: 300px;
+  }
+
+  .messageBubble {
+    font-size: 13px;
+  }
+
+  .sessionSidebar {
+    max-height: 160px;
   }
 }
 
@@ -1950,6 +2274,34 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme='dark'] .hamburgerBtn {
+  background: #3d3d3d;
+  border-color: #555;
+  color: #9b8cff;
+}
+
+[data-theme='dark'] .hamburgerBtn:hover {
+  background: #4a3f60;
+  border-color: #9b8cff;
+}
+
+[data-theme='dark'] .sidebarOpen {
+  background: #383838;
+}
+
+[data-theme='dark'] .sidebarCloseBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .sidebarCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme='dark'] .sidebarOverlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
 [data-theme='dark'] .sessionSidebar {
   background: #383838;
   border-right-color: #555;
@@ -2264,4 +2616,139 @@
 
 [data-theme='dark'] .contextDiaryPreview {
   color: #777;
+}
+
+/* ════════════════════════════════════════════
+   Full-History Mode (Mode 3)
+   ════════════════════════════════════════════ */
+
+.fullHistory {
+  padding: 24px 0;
+}
+
+.fullDesc {
+  font-size: 14px;
+  color: #888;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.fullProgressBar {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.fullProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #7C5CFC, #a78bfa);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.fullStatus {
+  font-size: 13px;
+  color: #888;
+  margin: 8px 0 0 0;
+  text-align: center;
+}
+
+.fullResult {
+  margin-top: 20px;
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: #f5f3ff;
+  border: 1px solid #d4ccff;
+  border-radius: 8px;
+  color: #7C5CFC;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.retryBtn:hover {
+  background: #ece7ff;
+  border-color: #b8a6ff;
+}
+
+/* Dark mode */
+[data-theme='dark'] .fullProgressBar {
+  background: #333;
+}
+
+[data-theme='dark'] .fullDesc {
+  color: #aaa;
+}
+
+[data-theme='dark'] .fullStatus {
+  color: #999;
+}
+
+[data-theme='dark'] .retryBtn {
+  background: #2a2535;
+  border-color: #4a3d6b;
+  color: #a78bfa;
+}
+
+[data-theme='dark'] .retryBtn:hover {
+  background: #352e45;
+  border-color: #5c4d8a;
+}
+
+/* Dark mode — Analysis History */
+[data-theme='dark'] .analysisHistory {
+  border-color: #555;
+}
+
+[data-theme='dark'] .analysisHistoryTitle {
+  color: #999;
+}
+
+[data-theme='dark'] .historyItem:hover {
+  background: #2a2540;
+}
+
+[data-theme='dark'] .historyItemTitle {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .historyItemDate {
+  color: #777;
+}
+
+[data-theme='dark'] .noHistoryText {
+  color: #777;
+}
+
+[data-theme='dark'] .viewHistoryBtn:hover {
+  background: #4a3f60;
+  color: #9b8cff;
+}
+
+[data-theme='dark'] .deleteHistoryBtn:hover {
+  background: #3d2828;
+  color: #f5867b;
+}
+
+/* Dark mode — Back button */
+[data-theme='dark'] .backBtn {
+  background: #383838;
+  border-color: #555;
+  color: #999;
+}
+
+[data-theme='dark'] .backBtn:hover {
+  background: #4a3f60;
+  border-color: #5a4f70;
+  color: #9b8cff;
 }

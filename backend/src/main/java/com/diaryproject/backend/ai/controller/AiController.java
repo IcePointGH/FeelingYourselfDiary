@@ -54,7 +54,19 @@ public class AiController {
             HttpServletRequest httpRequest) {
         Long userId = (Long) httpRequest.getAttribute("userId");
         log.info("REST AI 分析请求 — 日期范围: {} ~ {}", request.getStartDate(), request.getEndDate());
-        return ApiResponse.success(aiService.analyzeTimeRange(userId, request.getStartDate(), request.getEndDate()));
+
+        AiDTO.AnalyzeResponse result = aiService.analyzeTimeRange(userId, request.getStartDate(), request.getEndDate());
+
+        // Persist as session for analysis history
+        if (result.getMarkdown() != null) {
+            try {
+                aiSessionService.saveRangeAnalysis(userId, result.getMarkdown(), request.getStartDate(), request.getEndDate());
+            } catch (Exception e) {
+                log.warn("保存时间区间分析会话失败", e);
+            }
+        }
+
+        return ApiResponse.success(result);
     }
 
     /** 删除单条 AI 消息（含所属会话归属权校验） */

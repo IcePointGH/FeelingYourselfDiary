@@ -62,13 +62,17 @@ public class AiSessionController {
     }
 
     /**
-     * 获取当前用户的所有会话列表
+     * 获取当前用户的所有会话列表（支持类型筛选 + 分页）
      */
     @GetMapping
-    public ApiResponse<List<AiDTO.SessionListItem>> listSessions(HttpServletRequest httpRequest) {
+    public ApiResponse<List<AiDTO.SessionListItem>> listSessions(
+            HttpServletRequest httpRequest,
+            @RequestParam(required = false) String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         Long userId = (Long) httpRequest.getAttribute("userId");
-        log.info("REST 查询 AI 会话列表 — userId: {}", userId);
-        return ApiResponse.success(aiSessionService.listUserSessions(userId));
+        log.info("REST 查询 AI 会话列表 — userId: {}, type: {}, page: {}, size: {}", userId, type, page, size);
+        return ApiResponse.success(aiSessionService.listUserSessions(userId, type, page, size));
     }
 
     /**
