@@ -96,6 +96,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # AI — 必须设置真实的 MiniMax API key，否则 AI 功能静默失效
+      MINIMAX_API_KEY: ${MINIMAX_API_KEY}
     ports:
       - "8080:8080"
     depends_on:
@@ -105,6 +107,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - backend_logs:/app/logs
     networks:
       - diary-network
 
@@ -125,6 +129,7 @@ volumes:
   mysql_data:
   minio_data:
   redis_data:
+  backend_logs:
 
 networks:
   diary-network:

@@ -148,7 +148,7 @@ public class MemoryService {
             log.info("Memory update completed for user {} — content len: {}", userId, newPortrait.length());
 
         } catch (Exception e) {
-            log.warn("Failed to update memory for user {}: {}", userId, e.getMessage());
+            log.warn("Failed to update memory for user {}", userId, e);
         }
     }
 

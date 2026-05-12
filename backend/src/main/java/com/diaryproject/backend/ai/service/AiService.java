@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +35,16 @@ public class AiService {
     private final DiaryRepository diaryRepository;
     private final PromptService promptService;
 
+    @Value("${spring.ai.minimax.chat.options.model}")
+    private String bigModel;
+
     public AiService(ChatModel chatModel, ScheduleRepository scheduleRepository, DiaryRepository diaryRepository, PromptService promptService) {
         this.chatModel = chatModel;
         this.chatClient = ChatClient.builder(chatModel).build();
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.promptService = promptService;
-        log.info("AiService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
+        log.info("AiService initialized — chatModel: {}, model: {}", chatModel.getClass().getSimpleName(), bigModel);
     }
 
     /**
@@ -61,7 +67,7 @@ public class AiService {
         log.info("MiniMax metadata: {}", chatResponse.getMetadata());
 
         AiDTO.TestPromptResponse response = new AiDTO.TestPromptResponse();
-        response.setModel("MiniMax-M2.7");
+        response.setModel(bigModel);
         response.setResponse(content);
         response.setStatus("success");
         return response;
@@ -88,7 +94,7 @@ public class AiService {
         log.info("Token estimation metadata: {}", chatResponse.getMetadata());
 
         AiDTO.TestPromptResponse response = new AiDTO.TestPromptResponse();
-        response.setModel("MiniMax-M2.7");
+        response.setModel(bigModel);
         response.setResponse(content);
         response.setStatus("success");
         return response;
@@ -99,7 +105,7 @@ public class AiService {
      */
     public AiDTO.HealthResponse health() {
         AiDTO.HealthResponse health = new AiDTO.HealthResponse();
-        health.setMinimaxModel("MiniMax-M2.7");
+        health.setBigModel(bigModel);
         health.setChatModelReady(chatModel != null);
         health.setSpringAiVersion("2.0.0-M6");
         return health;

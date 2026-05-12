@@ -25,7 +25,7 @@ public class AiDTO {
 
     @Data
     public static class HealthResponse {
-        private String minimaxModel;
+        private String bigModel;
         private boolean chatModelReady;
         private String springAiVersion;
     }

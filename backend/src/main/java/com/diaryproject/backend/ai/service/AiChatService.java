@@ -145,6 +145,11 @@ public class AiChatService {
         // 6-7. 创建 SseEmitter 并订阅流式响应
         SseEmitter sseEmitter = new SseEmitter(300_000L);
         StringBuilder fullResponse = new StringBuilder();
+        final int messageCount = messages.size();
+        final long startNanos = System.nanoTime();
+
+        log.info("▶ 开始 MiniMax 流式请求 — sessionId: {}, messages: {}, tokens~: {}",
+                sessionId, messageCount, estimateTokens(messages));
 
         chatClient.prompt()
                 .messages(messages)
@@ -160,7 +165,9 @@ public class AiChatService {
                             }
                         },
                         error -> {
-                            log.error("流式响应异常 — sessionId: {}", sessionId, error);
+                            long elapsed = (System.nanoTime() - startNanos) / 1_000_000;
+                            log.error("✕ MiniMax 流式异常 — sessionId: {}, elapsed: {}ms, error: {}",
+                                    sessionId, elapsed, error.toString(), error);
                             try {
                                 sseEmitter.completeWithError(error);
                             } catch (Exception ignored) {
@@ -169,8 +176,11 @@ public class AiChatService {
                         },
                         () -> {
                             try {
+                                long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000;
                                 String responseText = fullResponse.toString();
                                 if (!responseText.isEmpty()) {
+                                    log.info("✓ MiniMax 流完成 — sessionId: {}, chunks: {}, 长度: {}, 耗时: {}ms",
+                                            sessionId, fullResponse.length(), responseText.length(), elapsedMs);
                                     saveAssistantMessage(sessionId, seq + 1, responseText);
 
                                     // Async auto-title generation after first exchange
@@ -185,6 +195,9 @@ public class AiChatService {
                                     } catch (Exception memEx) {
                                         log.warn("Memory exchange counting failed — userId: {}", userId, memEx);
                                     }
+                                } else {
+                                    log.warn("⚠ MiniMax 返回空响应 — sessionId: {}, 耗时: {}ms. 可能原因: API key 无效/模型不可用/网络问题",
+                                            sessionId, elapsedMs);
                                 }
                                 sseEmitter.complete();
                             } catch (Exception e) {
@@ -198,6 +211,18 @@ public class AiChatService {
                 );
 
         return sseEmitter;
+    }
+
+    /**
+     * 粗粒度 token 估算（中文 ~1.5 字符/token，英文 ~4 字符/token）
+     */
+    private int estimateTokens(List<org.springframework.ai.chat.messages.Message> messages) {
+        int total = 0;
+        for (org.springframework.ai.chat.messages.Message m : messages) {
+            String text = m.getText();
+            if (text != null) total += text.length() * 2 / 3;
+        }
+        return total;
     }
 
     /**
@@ -344,7 +369,7 @@ public class AiChatService {
             log.info("auto-title: session {} renamed to \"{}\"", sessionId, title);
 
         } catch (Exception e) {
-            log.warn("auto-title: failed to generate title for sessionId: {} — {}", sessionId, e.getMessage());
+            log.warn("auto-title: failed to generate title for sessionId: {}", sessionId, e);
         }
     }
 }

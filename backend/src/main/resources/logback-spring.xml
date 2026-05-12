@@ -47,9 +47,15 @@
 
     <!-- Reduce noisy framework logging -->
     <logger name="org.springframework" level="WARN" />
+    <logger name="org.springframework.ai" level="INFO" />
+    <logger name="com.diaryproject.backend.ai" level="INFO" />
     <logger name="org.hibernate" level="WARN" />
     <logger name="com.zaxxer.hikari" level="WARN" />
 
     <!-- Redisson: WARN in production to suppress connection pool debug noise -->
     <logger name="org.redisson" level="WARN" />
+
+    <!-- MiniMax HTTP client — capture connection/auth errors at INFO -->
+    <logger name="org.springframework.web.reactive.function.client" level="INFO" />
+    <logger name="reactor.netty" level="INFO" />
 </configuration>
