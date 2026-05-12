@@ -65,19 +65,21 @@
 
 /* ── AI chat panel ── */
 .thoughts-ai-panel {
-  min-height: 300px;
+  min-height: 400px;
 }
 
-.ai-session-bar {
+.ai-layout {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  font-size: 13px;
+  gap: 0;
+  min-height: 400px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.ai-quota-text {
-  color: #999;
+.ai-chat-area {
+  flex: 1;
+  min-width: 0;
 }
 
 .ai-loading-state {

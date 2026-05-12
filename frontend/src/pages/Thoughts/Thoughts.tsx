@@ -4,6 +4,7 @@ import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
 import AIChatPanel from '../AI/AIChatPanel';
+import SessionSidebar from '../AI/SessionSidebar';
 import { DIARY_API, AI_API } from '../../services/api';
 import type { DiaryEntry } from '../../types';
 import './Thoughts.css';
@@ -22,6 +23,7 @@ export default function ThoughtsPage() {
   const [aiSessionId, setAiSessionId] = useState<number | null>(null);
   const [aiRateLimited, setAiRateLimited] = useState(false);
   const [aiQuota, setAiQuota] = useState(50);
+  const [sessionRefresh, setSessionRefresh] = useState(0);
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -47,7 +49,7 @@ export default function ThoughtsPage() {
             method: 'POST',
             body: JSON.stringify({ title: '新对话', sessionType: 'chat' }),
           });
-          if (!cancelled) setAiSessionId(session.id);
+          if (!cancelled) { setAiSessionId(session.id); setSessionRefresh(r => r + 1); }
         } catch {
           // fail silently — user can retry
         }
@@ -89,6 +91,7 @@ export default function ThoughtsPage() {
         body: JSON.stringify({ sessionType: 'chat' }),
       });
       setAiSessionId(session.id);
+      setSessionRefresh(r => r + 1);
     } catch {
       addToast('创建会话失败', 'error');
     }
@@ -150,25 +153,27 @@ export default function ThoughtsPage() {
 
         {activeTab === 'ai' && (
           <div className="thoughts-ai-panel">
-            {aiSessionId ? (
-              <>
-                <div className="ai-session-bar">
-                  <span className="ai-quota-text">今日剩余 {aiQuota} 次</span>
-                  <button className="btn-text" onClick={handleNewAiSession}>
-                    <i className="fas fa-plus" /> 新建会话
-                  </button>
-                </div>
-                <AIChatPanel
-                  sessionId={aiSessionId}
-                  rateLimited={aiRateLimited}
-                  onRateLimited={setAiRateLimited}
-                  onQuotaUpdate={(headers: Headers) => {
-                    const remaining = headers.get('X-RateLimit-Remaining');
-                    if (remaining) setAiQuota(Number(remaining));
-                  }}
-                  onComplete={() => {}}
+            {aiSessionId !== null ? (
+              <div className="ai-layout">
+                <SessionSidebar
+                  activeSessionId={aiSessionId}
+                  onSelect={(id) => setAiSessionId(id)}
+                  onNew={handleNewAiSession}
+                  refreshTrigger={sessionRefresh}
                 />
-              </>
+                <div className="ai-chat-area">
+                  <AIChatPanel
+                    sessionId={aiSessionId}
+                    rateLimited={aiRateLimited}
+                    onRateLimited={setAiRateLimited}
+                    onQuotaUpdate={(headers: Headers) => {
+                      const remaining = headers.get('X-RateLimit-Remaining');
+                      if (remaining) setAiQuota(Number(remaining));
+                    }}
+                    onComplete={() => {}}
+                  />
+                </div>
+              </div>
             ) : (
               <div className="ai-loading-state">
                 {aiRateLimited ? (
