@@ -2,6 +2,7 @@ package com.diaryproject.backend.ai.service;
 
 import com.diaryproject.backend.ai.entity.AiMessage;
 import com.diaryproject.backend.ai.entity.AiSessionSchedule;
+import com.diaryproject.backend.ai.entity.UserMemory;
 import com.diaryproject.backend.ai.repository.AiMessageRepository;
 import com.diaryproject.backend.ai.repository.AiSessionRepository;
 import com.diaryproject.backend.ai.repository.AiSessionScheduleRepository;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,8 @@ public class AiChatService {
     private final ScheduleRepository scheduleRepository;
     private final DiaryRepository diaryRepository;
     private final AiSessionService aiSessionService;
+    private final PromptService promptService;
+    private final MemoryService memoryService;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -48,6 +52,8 @@ public class AiChatService {
                          ScheduleRepository scheduleRepository,
                          DiaryRepository diaryRepository,
                          AiSessionService aiSessionService,
+                         PromptService promptService,
+                         MemoryService memoryService,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -55,6 +61,8 @@ public class AiChatService {
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.aiSessionService = aiSessionService;
+        this.promptService = promptService;
+        this.memoryService = memoryService;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -106,6 +114,17 @@ public class AiChatService {
                 核心原则：只基于提供的数据说话，绝不捏造信息。语气温和亲切。永远不要给出医疗建议或诊断。结尾加上："以上分析由AI生成，仅供参考 ❤️"
                 """;
 
+        // 注入用户记忆画像（如果存在）
+        try {
+            UserMemory memory = memoryService.getOrCreate(userId);
+            if (memory.getContent() != null && !memory.getContent().isBlank()) {
+                systemPrompt = systemPrompt + "\n\n## 关于用户（基于历史对话分析）\n" + memory.getContent();
+                log.debug("User memory injected into system prompt — userId: {}", userId);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to load user memory for prompt injection — userId: {}", userId, e);
+        }
+
         List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
         messages.add(new SystemMessage(systemPrompt));
 
@@ -153,8 +172,19 @@ public class AiChatService {
                                 String responseText = fullResponse.toString();
                                 if (!responseText.isEmpty()) {
                                     saveAssistantMessage(sessionId, seq + 1, responseText);
+
                                     // Async auto-title generation after first exchange
                                     generateTitle(sessionId, userMessage, responseText);
+
+                                    // Increment exchange count and trigger memory update if threshold reached
+                                    try {
+                                        if (memoryService.incrementExchange(userId)) {
+                                            log.info("Memory threshold reached, triggering async update for user {}", userId);
+                                            memoryService.updateMemory(userId);
+                                        }
+                                    } catch (Exception memEx) {
+                                        log.warn("Memory exchange counting failed — userId: {}", userId, memEx);
+                                    }
                                 }
                                 sseEmitter.complete();
                             } catch (Exception e) {
@@ -280,9 +310,8 @@ public class AiChatService {
 
             log.info("auto-title: generating title for sessionId: {}", sessionId);
 
-            String prompt = "用不超过15个字总结以下对话的主题，只返回标题，不要其他内容。\n\n"
-                    + "用户：" + firstUserMsg + "\n"
-                    + "助手：" + firstAssistantMsg;
+            String promptTemplate = promptService.get("title-generation");
+            String prompt = MessageFormat.format(promptTemplate, firstUserMsg, firstAssistantMsg);
 
             String response = chatClient.prompt()
                     .user(prompt)

@@ -45,6 +45,7 @@ public class AiAnalysisService {
     private final ScheduleRepository scheduleRepository;
     private final DiaryRepository diaryRepository;
     private final HistoryChunkingService chunkingService;
+    private final PromptService promptService;
     private final ChatClient chatClient;
 
     public AiAnalysisService(AiSessionRepository aiSessionRepository,
@@ -52,12 +53,14 @@ public class AiAnalysisService {
                              ScheduleRepository scheduleRepository,
                              DiaryRepository diaryRepository,
                              HistoryChunkingService chunkingService,
+                             PromptService promptService,
                              ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.chunkingService = chunkingService;
+        this.promptService = promptService;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiAnalysisService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -112,15 +115,7 @@ public class AiAnalysisService {
             List<HistoryChunkingService.Chunk> chunks = chunkingService.chunk(
                     allSchedules, allDiaries, MAX_TOKENS_PER_CHUNK);
 
-            String systemPrompt = """
-                    你是一个温暖而专业的情绪平衡助手，名字叫"小七"。
-                    你会收到用户一段时间内的全部历史日程记录和日记文本。
-                    请根据以下数据对用户在该时间段内的情绪状态进行全面分析：
-                    1. 整体情绪趋势 — 用户的情绪整体如何？波动大吗？
-                    2. 主要情绪事件 — 哪些日子或事件明显影响了情绪？
-                    3. 综合建议 — 针对用户的情绪模式给出温和的建议。
-                    核心原则：只基于提供的数据说话，绝不捏造信息。语气温和亲切。永远不要给出医疗建议或诊断。
-                    """;
+            String systemPrompt = promptService.get("full-analysis");
 
             int totalChunks = chunks.size();
 

@@ -38,6 +38,8 @@ class AiAnalysisServiceTest {
         ScheduleRepository scheduleRepo = mock(ScheduleRepository.class);
         DiaryRepository diaryRepo = mock(DiaryRepository.class);
         HistoryChunkingService chunkingService = mock(HistoryChunkingService.class);
+        PromptService promptService = mock(PromptService.class);
+        when(promptService.get(anyString())).thenReturn("你是一个温暖而专业的情绪平衡助手");
         ChatModel chatModel = mock(ChatModel.class);
 
         AiSession session = AiSession.builder().id(1L).userId(1L).status("active").progress(0).build();
@@ -47,7 +49,7 @@ class AiAnalysisServiceTest {
         when(diaryRepo.findByUserIdOrderByDateDesc(anyLong())).thenReturn(Collections.emptyList());
 
         AiAnalysisService service = mock(AiAnalysisService.class,
-                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, chatModel)
+                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
 
         // ── When ──
@@ -68,6 +70,8 @@ class AiAnalysisServiceTest {
         ScheduleRepository scheduleRepo = mock(ScheduleRepository.class);
         DiaryRepository diaryRepo = mock(DiaryRepository.class);
         HistoryChunkingService chunkingService = mock(HistoryChunkingService.class);
+        PromptService promptService = mock(PromptService.class);
+        when(promptService.get(anyString())).thenReturn("你是一个温暖而专业的情绪平衡助手");
         ChatModel chatModel = mock(ChatModel.class);
 
         AiSession session = AiSession.builder().id(1L).userId(1L).status("active").progress(0).build();
@@ -84,7 +88,7 @@ class AiAnalysisServiceTest {
         when(chunkingService.chunk(anyList(), anyList(), anyInt())).thenReturn(List.of(chunk));
 
         AiAnalysisService service = mock(AiAnalysisService.class,
-                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, chatModel)
+                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
         doReturn("分析结果：用户情绪状态良好。").when(service).callMiniMax(anyString(), anyString());
         doReturn("模拟的用户提示内容").when(service).buildUserPrompt(anyList(), anyList());
@@ -108,6 +112,8 @@ class AiAnalysisServiceTest {
         ScheduleRepository scheduleRepo = mock(ScheduleRepository.class);
         DiaryRepository diaryRepo = mock(DiaryRepository.class);
         HistoryChunkingService chunkingService = mock(HistoryChunkingService.class);
+        PromptService promptService = mock(PromptService.class);
+        when(promptService.get(anyString())).thenReturn("你是一个温暖而专业的情绪平衡助手");
         ChatModel chatModel = mock(ChatModel.class);
 
         AiSession session = AiSession.builder().id(1L).userId(1L).status("active").progress(0).build();
@@ -135,7 +141,7 @@ class AiAnalysisServiceTest {
         when(chunkingService.chunk(anyList(), anyList(), anyInt())).thenReturn(chunks);
 
         AiAnalysisService service = mock(AiAnalysisService.class,
-                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, chatModel)
+                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
         doReturn("分析结果").when(service).callMiniMax(anyString(), anyString());
         doReturn("提示内容").when(service).buildUserPrompt(anyList(), anyList());
@@ -167,6 +173,8 @@ class AiAnalysisServiceTest {
         ScheduleRepository scheduleRepo = mock(ScheduleRepository.class);
         DiaryRepository diaryRepo = mock(DiaryRepository.class);
         HistoryChunkingService chunkingService = mock(HistoryChunkingService.class);
+        PromptService promptService = mock(PromptService.class);
+        when(promptService.get(anyString())).thenReturn("你是一个温暖而专业的情绪平衡助手");
         ChatModel chatModel = mock(ChatModel.class);
 
         AiSession session = AiSession.builder().id(1L).userId(1L).status("active").progress(0).build();
@@ -182,7 +190,7 @@ class AiAnalysisServiceTest {
         when(chunkingService.chunk(anyList(), anyList(), anyInt())).thenReturn(List.of(chunk));
 
         AiAnalysisService service = mock(AiAnalysisService.class,
-                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, chatModel)
+                withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
         // Simulate MiniMax failure
         doThrow(new RuntimeException("API调用失败")).when(service).callMiniMax(anyString(), anyString());

@@ -1,3 +1,15 @@
 -- 情绪平衡日记数据库初始化
 -- 表结构由Spring Boot JPA自动创建 (ddl-auto=update)
 -- 此文件保留用于后续数据迁移或种子数据
+
+-- ===== 用户记忆画像表（因 ddl-auto=validate，需手动执行） =====
+-- CREATE TABLE IF NOT EXISTS user_memory (
+--   id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--   user_id BIGINT NOT NULL UNIQUE,
+--   content TEXT,
+--   version BIGINT NOT NULL DEFAULT 0,
+--   exchange_count INT NOT NULL DEFAULT 0,
+--   created_at DATETIME,
+--   updated_at DATETIME,
+--   INDEX idx_user_memory_user_id (user_id)
+-- );
