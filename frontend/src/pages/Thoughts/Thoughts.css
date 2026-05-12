@@ -68,23 +68,15 @@
   min-height: 300px;
 }
 
-.ai-chat-wrapper {
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.ai-chat-header {
+.ai-session-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
-  background: #fafafa;
-  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 12px;
   font-size: 13px;
 }
 
-.ai-quota {
+.ai-quota-text {
   color: #999;
 }
 

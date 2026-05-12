@@ -151,9 +151,9 @@ export default function ThoughtsPage() {
         {activeTab === 'ai' && (
           <div className="thoughts-ai-panel">
             {aiSessionId ? (
-              <div className="ai-chat-wrapper">
-                <div className="ai-chat-header">
-                  <span className="ai-quota">今日剩余 {aiQuota} 次</span>
+              <>
+                <div className="ai-session-bar">
+                  <span className="ai-quota-text">今日剩余 {aiQuota} 次</span>
                   <button className="btn-text" onClick={handleNewAiSession}>
                     <i className="fas fa-plus" /> 新建会话
                   </button>
@@ -165,7 +165,7 @@ export default function ThoughtsPage() {
                   onQuotaUpdate={setAiQuota}
                   onComplete={() => {}}
                 />
-              </div>
+              </>
             ) : (
               <div className="ai-loading-state">
                 {aiRateLimited ? (
