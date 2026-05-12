@@ -105,3 +105,8 @@ npm run preview   # Preview production build
 - `AuthContext.tsx` has TODO: switch JWT storage from localStorage to httpOnly cookies for production.
 - Dark mode uses `[data-theme='dark']` CSS selector, not CSS variables.
 - Font Awesome 6.5.1 loaded via CDN in `index.html`.
+
+## DEPLOYMENT
+- **API URL**: All endpoints use relative `/api` paths (`api.ts`). No build-time env var needed — works on any origin (localhost, IP, domain).
+- **Build**: `npm run build` outputs static files to `dist/`. Served by Nginx in production Docker stack.
+- **Proxy**: In Docker, Nginx (`nginx.conf`) proxies `/api` → `http://backend:8080`. Caddy handles external traffic + TLS.
