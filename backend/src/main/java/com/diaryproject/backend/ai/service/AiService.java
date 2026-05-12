@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * AI 服务 — 封装 MiniMax 模型调用
+ * AI 服务 — 封装 大模型 模型调用
  */
 @Service
 public class AiService {
@@ -63,8 +63,8 @@ public class AiService {
                 .chatResponse();
 
         String content = chatResponse.getResult().getOutput().getText();
-        log.info("MiniMax response (len={}): {}", content != null ? content.length() : 0, content);
-        log.info("MiniMax metadata: {}", chatResponse.getMetadata());
+        log.info("大模型 response (len={}): {}", content != null ? content.length() : 0, content);
+        log.info("大模型 metadata: {}", chatResponse.getMetadata());
 
         AiDTO.TestPromptResponse response = new AiDTO.TestPromptResponse();
         response.setModel(bigModel);
@@ -113,7 +113,7 @@ public class AiService {
 
     /**
      * Phase 2: 时间范围情绪分析
-     * 获取指定日期范围内的日程与日记数据，构建结构化 Prompt，调用 MiniMax 进行分析。
+     * 获取指定日期范围内的日程与日记数据，构建结构化 Prompt，调用 大模型 进行分析。
      */
     @Transactional(readOnly = true)
     public AiDTO.AnalyzeResponse analyzeTimeRange(Long userId, LocalDate startDate, LocalDate endDate) {
@@ -138,11 +138,11 @@ public class AiService {
                 .chatResponse();
 
         // Log token usage from response metadata
-        log.info("MiniMax analyze response metadata: {}", chatResponse.getMetadata());
+        log.info("大模型 analyze response metadata: {}", chatResponse.getMetadata());
 
         String content = chatResponse.getResult().getOutput().getText();
         if (content == null) {
-            log.error("MiniMax returned null content for analyzeTimeRange request");
+            log.error("大模型 returned null content for analyzeTimeRange request");
             AiDTO.AnalyzeResponse errorResponse = new AiDTO.AnalyzeResponse();
             errorResponse.setMarkdown("AI 分析暂时不可用，请稍后重试。");
             errorResponse.setScheduleCount(schedules.size());
@@ -151,7 +151,7 @@ public class AiService {
             return errorResponse;
         }
 
-        log.info("MiniMax analyze response (len={})", content.length());
+        log.info("大模型 analyze response (len={})", content.length());
 
         AiDTO.AnalyzeResponse response = new AiDTO.AnalyzeResponse();
         response.setMarkdown(content);

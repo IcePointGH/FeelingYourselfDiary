@@ -23,7 +23,7 @@ import java.util.List;
  * AI 全量历史分析服务 — Mode 3: 分析用户全部日程与日记数据.
  * <p>
  * 异步执行 {@link #analyzeFullHistory(Long, Long)}，通过 {@link HistoryChunkingService}
- * 将大量数据分块后逐一调用 MiniMax 分析，最后合成汇总报告。
+ * 将大量数据分块后逐一调用 大模型 分析，最后合成汇总报告。
  * 前端通过轮询会话详情接口获取进度 ({@code progress}) 和状态 ({@code status})。
  * </p>
  *
@@ -72,7 +72,7 @@ public class AiAnalysisService {
      *   <li>获取用户全部日程与日记数据</li>
      *   <li>无数据时直接完成并写入提示消息</li>
      *   <li>调用 {@link HistoryChunkingService#chunk} 分块</li>
-     *   <li>逐块调用 MiniMax 分析</li>
+     *   <li>逐块调用 大模型 分析</li>
      *   <li>多块时合成汇总报告</li>
      *   <li>设置状态为 "completed" 或 "failed"</li>
      * </ol>
@@ -123,7 +123,7 @@ public class AiAnalysisService {
                 HistoryChunkingService.Chunk chunk = chunks.get(i);
 
                 String userPrompt = buildUserPrompt(chunk.getSchedules(), chunk.getDiaries());
-                String response = callMiniMax(systemPrompt, userPrompt);
+                String response = callModel(systemPrompt, userPrompt);
 
                 int seqNum = i + 1;
                 saveAssistantMessage(sessionId, seqNum, "assistant", response);
@@ -141,7 +141,7 @@ public class AiAnalysisService {
             if (totalChunks > 1) {
                 String summaryPrompt = "请根据以上对用户全部历史情绪数据的分析结果，"
                         + "给出一个简洁的整体总结（300字以内），涵盖主要情绪趋势和核心建议。";
-                String summary = callMiniMax(systemPrompt, summaryPrompt);
+                String summary = callModel(systemPrompt, summaryPrompt);
 
                 int seqNum = totalChunks + 1;
                 saveAssistantMessage(sessionId, seqNum, "assistant",
@@ -171,9 +171,9 @@ public class AiAnalysisService {
     // ==================== Package-private for testability ====================
 
     /**
-     * 调用 MiniMax 模型。包级可见以便测试时 stub。
+     * 调用 AI 大模型。包级可见以便测试时 stub。
      */
-    String callMiniMax(String systemPrompt, String userPrompt) {
+    String callModel(String systemPrompt, String userPrompt) {
         ChatResponse cr = chatClient.prompt()
                 .system(systemPrompt)
                 .user(userPrompt)

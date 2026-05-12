@@ -29,7 +29,7 @@ public class AiController {
         this.aiSessionService = aiSessionService;
     }
 
-    /** Phase 0: 健康检查 — 验证 Spring AI + MiniMax 自动配置状态 */
+    /** Phase 0: 健康检查 — 验证 Spring AI 自动配置状态 */
     @GetMapping("/health")
     public ApiResponse<AiDTO.HealthResponse> health() {
         return ApiResponse.success(aiService.health());

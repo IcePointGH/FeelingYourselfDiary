@@ -148,7 +148,7 @@ public class AiChatService {
         final int messageCount = messages.size();
         final long startNanos = System.nanoTime();
 
-        log.info("▶ 开始 MiniMax 流式请求 — sessionId: {}, messages: {}, tokens~: {}",
+        log.info("▶ 开始 大模型 流式请求 — sessionId: {}, messages: {}, tokens~: {}",
                 sessionId, messageCount, estimateTokens(messages));
 
         chatClient.prompt()
@@ -166,7 +166,7 @@ public class AiChatService {
                         },
                         error -> {
                             long elapsed = (System.nanoTime() - startNanos) / 1_000_000;
-                            log.error("✕ MiniMax 流式异常 — sessionId: {}, elapsed: {}ms, error: {}",
+                            log.error("✕ 大模型 流式异常 — sessionId: {}, elapsed: {}ms, error: {}",
                                     sessionId, elapsed, error.toString(), error);
                             try {
                                 sseEmitter.completeWithError(error);
@@ -179,7 +179,7 @@ public class AiChatService {
                                 long elapsedMs = (System.nanoTime() - startNanos) / 1_000_000;
                                 String responseText = fullResponse.toString();
                                 if (!responseText.isEmpty()) {
-                                    log.info("✓ MiniMax 流完成 — sessionId: {}, chunks: {}, 长度: {}, 耗时: {}ms",
+                                    log.info("✓ 大模型 流完成 — sessionId: {}, chunks: {}, 长度: {}, 耗时: {}ms",
                                             sessionId, fullResponse.length(), responseText.length(), elapsedMs);
                                     saveAssistantMessage(sessionId, seq + 1, responseText);
 
@@ -196,7 +196,7 @@ public class AiChatService {
                                         log.warn("Memory exchange counting failed — userId: {}", userId, memEx);
                                     }
                                 } else {
-                                    log.warn("⚠ MiniMax 返回空响应 — sessionId: {}, 耗时: {}ms. 可能原因: API key 无效/模型不可用/网络问题",
+                                    log.warn("⚠ 大模型 返回空响应 — sessionId: {}, 耗时: {}ms. 可能原因: API key 无效/模型不可用/网络问题",
                                             sessionId, elapsedMs);
                                 }
                                 sseEmitter.complete();
@@ -308,7 +308,7 @@ public class AiChatService {
      * 异步生成会话标题 — 在第一轮对话完成后调用。
      * <p>
      * 条件：会话标题为"新对话"且消息数为 2（用户 + 助手各一条）。
-     * 调用 MiniMax 总结主题，生成 ≤15 字的标题，通过 renameSession 更新。
+     * 调用 大模型 总结主题，生成 ≤15 字的标题，通过 renameSession 更新。
      * 失败时静默保留默认标题。
      * </p>
      *
@@ -349,7 +349,7 @@ public class AiChatService {
                     .getText();
 
             if (response == null || response.isBlank()) {
-                log.warn("auto-title: empty response from MiniMax — sessionId: {}", sessionId);
+                log.warn("auto-title: empty response from 大模型 — sessionId: {}", sessionId);
                 return;
             }
 

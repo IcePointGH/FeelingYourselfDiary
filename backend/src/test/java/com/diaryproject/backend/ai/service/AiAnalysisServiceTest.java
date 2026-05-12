@@ -90,7 +90,7 @@ class AiAnalysisServiceTest {
         AiAnalysisService service = mock(AiAnalysisService.class,
                 withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
-        doReturn("分析结果：用户情绪状态良好。").when(service).callMiniMax(anyString(), anyString());
+        doReturn("分析结果：用户情绪状态良好。").when(service).callModel(anyString(), anyString());
         doReturn("模拟的用户提示内容").when(service).buildUserPrompt(anyList(), anyList());
 
         // ── When ──
@@ -100,7 +100,7 @@ class AiAnalysisServiceTest {
         assertEquals("completed", session.getStatus());
         assertEquals(100, session.getProgress());
         verify(aiMessageRepo, atLeast(1)).save(any(AiMessage.class));
-        verify(service, times(1)).callMiniMax(anyString(), anyString());
+        verify(service, times(1)).callModel(anyString(), anyString());
         verify(service, times(1)).buildUserPrompt(anyList(), anyList());
     }
 
@@ -143,7 +143,7 @@ class AiAnalysisServiceTest {
         AiAnalysisService service = mock(AiAnalysisService.class,
                 withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
-        doReturn("分析结果").when(service).callMiniMax(anyString(), anyString());
+        doReturn("分析结果").when(service).callModel(anyString(), anyString());
         doReturn("提示内容").when(service).buildUserPrompt(anyList(), anyList());
 
         // ── When ──
@@ -154,15 +154,15 @@ class AiAnalysisServiceTest {
         // First save: status=processing, progress=0
         // Then 3 saves (one per chunk): progress=33, 66, 100
         // But last save also sets status=completed
-        // With summary synthesis (totalChunks > 1), there's an extra callMiniMax
+        // With summary synthesis (totalChunks > 1), there's an extra callModel
         verify(aiSessionRepo, atLeast(5)).save(any(AiSession.class));
 
         // Verify final state
         assertEquals("completed", session.getStatus());
         assertEquals(100, session.getProgress());
 
-        // Verify callMiniMax called 4 times (3 chunks + 1 summary)
-        verify(service, times(4)).callMiniMax(anyString(), anyString());
+        // Verify callModel called 4 times (3 chunks + 1 summary)
+        verify(service, times(4)).callModel(anyString(), anyString());
     }
 
     @Test
@@ -193,7 +193,7 @@ class AiAnalysisServiceTest {
                 withSettings().useConstructor(aiSessionRepo, aiMessageRepo, scheduleRepo, diaryRepo, chunkingService, promptService, chatModel)
                               .defaultAnswer(CALLS_REAL_METHODS));
         // Simulate MiniMax failure
-        doThrow(new RuntimeException("API调用失败")).when(service).callMiniMax(anyString(), anyString());
+        doThrow(new RuntimeException("API调用失败")).when(service).callModel(anyString(), anyString());
         doReturn("提示内容").when(service).buildUserPrompt(anyList(), anyList());
 
         // ── When ──

@@ -108,7 +108,7 @@ public class MemoryService {
     }
 
     /**
-     * 异步更新用户记忆画像 — 获取最近对话记录，调用 MiniMax 生成新画像。
+     * 异步更新用户记忆画像 — 获取最近对话记录，调用大模型生成新画像。
      * <p>
      * 此方法为 fire-and-forget：失败仅记录警告，不影响主聊天流程。
      * </p>
@@ -135,11 +135,11 @@ public class MemoryService {
             // 3. 构建 Prompt
             String prompt = buildMemoryUpdatePrompt(currentPortrait, recentMessages);
 
-            // 4. 调用 MiniMax
-            String newPortrait = callMinimax(prompt);
+                // 4. 调用大模型
+            String newPortrait = callModel(prompt);
 
             if (newPortrait == null || newPortrait.isBlank()) {
-                log.warn("Empty response from MiniMax for memory update — userId: {}", userId);
+                log.warn("Empty response from AI model for memory update — userId: {}", userId);
                 return;
             }
 
@@ -205,9 +205,9 @@ public class MemoryService {
     }
 
     /**
-     * 调用 MiniMax 模型。
+     * 调用大模型。
      */
-    private String callMinimax(String prompt) {
+    private String callModel(String prompt) {
         var response = chatClient.prompt()
                 .user(prompt)
                 .call()
