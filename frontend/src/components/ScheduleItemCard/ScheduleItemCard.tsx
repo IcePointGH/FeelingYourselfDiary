@@ -175,7 +175,7 @@ export default function ScheduleItemCard({
                   <button
                     key={f}
                     type="button"
-                    className={`feeling-btn ${editFeeling === f ? 'active' : ''}`}
+                    className={`feeling-quick-btn ${editFeeling === f ? 'active' : ''}`}
                     onClick={(e) => { e.stopPropagation(); setEditFeeling(f); }}
                   >
                     {f > 0 ? `+${f}` : `${f}`}

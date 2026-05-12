@@ -255,11 +255,11 @@
   flex-wrap: wrap;
 }
 
-.feeling-btn {
-  width: 36px;
-  height: 36px;
+.feeling-quick-btn {
+  width: 32px;
+  height: 32px;
   border: 1px solid #d0d0d0;
-  border-radius: 6px;
+  border-radius: 50%;
   background: #fff;
   font-size: 13px;
   cursor: pointer;
@@ -267,12 +267,12 @@
   color: #666;
 }
 
-.feeling-btn:hover {
+.feeling-quick-btn:hover {
   border-color: #1686ee;
   color: #1686ee;
 }
 
-.feeling-btn.active {
+.feeling-quick-btn.active {
   background: #1686ee;
   color: #fff;
   border-color: #1686ee;

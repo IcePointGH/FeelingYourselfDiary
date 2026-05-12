@@ -130,14 +130,6 @@ export default function AnalysisPage() {
       <div className="card">
         <div className="analysis-header-row">
           <h2>数据分析</h2>
-          <button
-            className="view-toggle-btn"
-            onClick={() => { setViewMode(v => v === 'chart' ? 'ai' : 'chart'); setData(null); setAiResult(null); }}
-            title={viewMode === 'chart' ? '切换到AI智能分析' : '切换到图表分析'}
-          >
-            <i className="fas fa-exchange-alt" />
-            {viewMode === 'chart' ? 'AI智能分析' : '图表分析'}
-          </button>
         </div>
 
         <div className="tab-bar">
@@ -167,9 +159,18 @@ export default function AnalysisPage() {
             )}
 
             {tab !== 'full' && (
-              <button className="analyze-btn" onClick={handleAnalyze} disabled={loading}>
-                {loading ? '分析中...' : '图表分析'}
-              </button>
+              <div className="analyze-row">
+                <button className="analyze-btn" onClick={handleAnalyze} disabled={loading}>
+                  {loading ? '分析中...' : '图表分析'}
+                </button>
+                <button
+                  className="view-toggle-btn"
+                  onClick={() => { setViewMode('ai'); setData(null); setAiResult(null); }}
+                  title="切换到AI智能分析"
+                >
+                  <i className="fas fa-exchange-alt" />
+                </button>
+              </div>
             )}
           </>
         ) : (
@@ -188,9 +189,18 @@ export default function AnalysisPage() {
               </div>
             )}
 
-            <button className="analyze-btn ai-analyze-btn" onClick={handleAiAnalyze} disabled={aiLoading}>
-              {aiLoading ? 'AI分析中...' : 'AI智能分析'}
-            </button>
+            <div className="analyze-row">
+              <button className="analyze-btn ai-analyze-btn" onClick={handleAiAnalyze} disabled={aiLoading}>
+                {aiLoading ? 'AI分析中...' : 'AI智能分析'}
+              </button>
+              <button
+                className="view-toggle-btn"
+                onClick={() => { setViewMode('chart'); setData(null); setAiResult(null); }}
+                title="切换到图表分析"
+              >
+                <i className="fas fa-exchange-alt" />
+              </button>
+            </div>
 
             {aiResult && (
               <div className="ai-result-card">

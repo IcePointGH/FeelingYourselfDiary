@@ -57,18 +57,29 @@
 }
 
 .analyze-btn {
-  width: 100%;
-  padding: 14px;
-  background-color: #454545;
-  color: white;
+  flex: 1;
+  padding: 12px 24px;
   border: none;
   border-radius: 8px;
+  background: #1686ee;
+  color: white;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
+}
+
+.analyze-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
   margin-top: 16px;
+}
+
+.analyze-row .view-toggle-btn {
+  flex-shrink: 0;
+  margin-top: 0;
 }
 
 .analyze-btn:hover {
