@@ -1,4 +1,5 @@
 .schedule-item {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -88,4 +89,69 @@
   border: solid #fff;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
+}
+
+/* ── Future confirm overlay ── */
+.future-confirm-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  z-index: 5;
+  animation: fade-in 0.15s ease;
+}
+
+.future-confirm-popup {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 24px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  max-width: 280px;
+}
+
+.future-confirm-popup p {
+  font-size: 14px;
+  color: #454545;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+.future-confirm-popup p strong {
+  color: #e0884a;
+}
+
+.future-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.future-confirm-actions .btn {
+  padding: 6px 18px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.future-confirm-actions .btn-cancel {
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.future-confirm-actions .btn-cancel:hover {
+  background: #eee;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

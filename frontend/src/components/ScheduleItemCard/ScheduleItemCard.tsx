@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ScheduleItem } from '../../types';
 import { formatFeelingValue } from '../../utils/feeling';
 import './ScheduleItemCard.css';
@@ -29,6 +30,22 @@ export default function ScheduleItemCard({
   showDate = true,
 }: ScheduleItemCardProps) {
   const isFuture = new Date(item.date) > new Date(new Date().toDateString());
+  const [showFutureConfirm, setShowFutureConfirm] = useState(false);
+
+  /** 勾选框点击：未来+未完成→弹确认窗，否则直接切换 */
+  const handleCheckToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFuture && !item.completed) {
+      setShowFutureConfirm(true);
+    } else {
+      onToggleComplete?.(item.id);
+    }
+  };
+
+  const handleConfirmToggle = () => {
+    setShowFutureConfirm(false);
+    onToggleComplete?.(item.id);
+  };
 
   return (
     <div
@@ -41,11 +58,11 @@ export default function ScheduleItemCard({
       <div
         className={`schedule-checkbox ${item.completed ? 'checked' : ''}`}
         title={item.completed ? '已完成' : isFuture ? '待办，勾选后计入情绪统计' : '未完成'}
-        onClick={(e) => { e.stopPropagation(); onToggleComplete?.(item.id); }}
+        onClick={handleCheckToggle}
         role="checkbox"
         aria-checked={item.completed}
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onToggleComplete?.(item.id); } }}
+        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleCheckToggle(e as any); } }}
       >
         <span className="checkmark" />
       </div>
@@ -70,6 +87,19 @@ export default function ScheduleItemCard({
         >
           <i className="fas fa-trash" />
         </button>
+      )}
+
+      {/* 未来日程勾选确认弹窗 */}
+      {showFutureConfirm && (
+        <div className="future-confirm-overlay" onClick={(e) => e.stopPropagation()}>
+          <div className="future-confirm-popup">
+            <p>这是一个<strong>未来的日程</strong>，勾选后会计入当前情绪统计。</p>
+            <div className="future-confirm-actions">
+              <button className="btn btn-cancel" onClick={() => setShowFutureConfirm(false)}>取消</button>
+              <button className="btn submit-btn" onClick={handleConfirmToggle}>确定勾选</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

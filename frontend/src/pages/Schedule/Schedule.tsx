@@ -36,8 +36,32 @@ export default function SchedulePage() {
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
-  // 未来日程提醒弹窗
-  const [showFutureReminder, setShowFutureReminder] = useState(false);
+  // 批量操作
+  const [batchMode, setBatchMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => setSelectedIds(new Set(scheduleList.map(it => it.id)));
+  const deselectAll = () => setSelectedIds(new Set());
+
+  const batchToggle = async (completed: boolean) => {
+    const ids = Array.from(selectedIds);
+    for (const id of ids) {
+      try {
+        await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
+      } catch { /* 继续下一个 */ }
+    }
+    setSelectedIds(new Set());
+    setBatchMode(false);
+    refetch();
+  };
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const autoResize = useCallback(() => {
@@ -204,19 +228,50 @@ export default function SchedulePage() {
       </div>
 
       <div className="card list-card">
-        <h2>当日记录</h2>
+        <div className="list-card-header">
+          <h2>当日记录</h2>
+          {scheduleList.length > 0 && (
+            <button
+              className={`btn-batch-toggle ${batchMode ? 'active' : ''}`}
+              onClick={() => { setBatchMode(!batchMode); setSelectedIds(new Set()); }}
+            >
+              <i className="fas fa-check-double" />
+              {batchMode ? '退出批量' : '批量操作'}
+            </button>
+          )}
+        </div>
         {scheduleList.length === 0 ? (
           <p className="empty-text">今天还没有记录，添加第一条吧～</p>
         ) : (
           <div className="schedule-list">
             {scheduleList.map(item => (
-              <ScheduleItemCard
-                key={item.id}
-                item={item}
-                onDelete={handleDelete}
-                onToggleComplete={handleToggleComplete}
-              />
+              <div key={item.id} className="schedule-item-row">
+                {batchMode && (
+                  <div
+                    className={`batch-select-box ${selectedIds.has(item.id) ? 'selected' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+                  >
+                    {selectedIds.has(item.id) ? <i className="fas fa-check" /> : null}
+                  </div>
+                )}
+                <ScheduleItemCard
+                  item={item}
+                  onDelete={batchMode ? undefined : handleDelete}
+                  onToggleComplete={batchMode ? undefined : handleToggleComplete}
+                />
+              </div>
             ))}
+          </div>
+        )}
+
+        {/* 批量操作浮动栏 */}
+        {batchMode && selectedIds.size > 0 && (
+          <div className="batch-bar">
+            <button className="btn btn-text" onClick={selectAll}>全选</button>
+            <button className="btn btn-text" onClick={deselectAll}>取消选择</button>
+            <span className="batch-count">已选 {selectedIds.size} 项</span>
+            <button className="btn submit-btn" onClick={() => batchToggle(true)}>批量完成</button>
+            <button className="btn btn-cancel" onClick={() => batchToggle(false)}>批量取消</button>
           </div>
         )}
       </div>

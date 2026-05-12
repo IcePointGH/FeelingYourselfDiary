@@ -40,7 +40,7 @@ export default function HistoryPage() {
     return () => { cancelled = true; };
   }, [currentYear, currentMonth, apiFetch]);
 
-  const { data: pageData, loading, error } = useFetch<PageResponse<ScheduleItem>>(
+  const { data: pageData, loading, error, refetch } = useFetch<PageResponse<ScheduleItem>>(
     () => apiFetch(SCHEDULE_API.list(page, pageSize)),
     [apiFetch, page]
   );
@@ -57,6 +57,30 @@ export default function HistoryPage() {
     } catch {
       setSelectedSchedules([]);
       addToast('加载日程详情失败, 请刷新重试', 'error');
+    }
+  };
+
+  const handleToggleComplete = async (id: number) => {
+    // 乐观更新：立即翻转三处数据源
+    const flip = (prev: ScheduleItem[]) => prev.map(it =>
+      it.id === id ? { ...it, completed: !it.completed } : it
+    );
+    setOptimisticItems(flip);
+    setSelectedSchedules(flip);
+
+    try {
+      await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
+      // 后台静默刷新确保数据一致
+      refetch();
+      if (selectedDate) {
+        const data = await apiFetch(SCHEDULE_API.byDate(selectedDate));
+        setSelectedSchedules(data || []);
+      }
+    } catch (err) {
+      // 失败回滚
+      setOptimisticItems(flip);
+      setSelectedSchedules(flip);
+      addToast(err instanceof Error ? err.message : '操作失败', 'error');
     }
   };
 
@@ -80,6 +104,13 @@ export default function HistoryPage() {
 
   const calendarDays = generateCalendar(currentYear, currentMonth);
   const scheduleData = pageData?.content ?? [];
+  const [optimisticItems, setOptimisticItems] = useState<ScheduleItem[]>([]);
+
+  // 同步 pageData 到乐观列表
+  useEffect(() => {
+    if (pageData?.content) setOptimisticItems(pageData.content);
+  }, [pageData]);
+
   const totalPages = pageData?.totalPages ?? 1;
 
   const monthNames = [
@@ -90,7 +121,7 @@ export default function HistoryPage() {
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 
   const datesWithData = new Set(
-    scheduleData
+    optimisticItems
       .filter(s => {
         const d = new Date(s.date);
         return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
@@ -177,6 +208,7 @@ export default function HistoryPage() {
                   item={item}
                   showActions={false}
                   showDate={false}
+                  onToggleComplete={handleToggleComplete}
                 />
               ))}
             </div>
@@ -185,18 +217,19 @@ export default function HistoryPage() {
       ) : (
         <div className="card list-card">
           <h2>全部日程</h2>
-          {loading ? (
+          {loading && optimisticItems.length === 0 ? (
             <p className="empty-text">加载中...</p>
-          ) : scheduleData.length === 0 ? (
+          ) : optimisticItems.length === 0 ? (
             <p className="empty-text">暂无日程记录。</p>
           ) : (
             <>
               <div className="schedule-list">
-                {scheduleData.map(item => (
+                {optimisticItems.map(item => (
                   <ScheduleItemCard
                     key={item.id}
                     item={item}
                     onClick={(clickedItem) => handleSelectDate(clickedItem.date)}
+                    onToggleComplete={handleToggleComplete}
                   />
                 ))}
               </div>
