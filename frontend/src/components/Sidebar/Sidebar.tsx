@@ -9,6 +9,7 @@ const menuItems = [
   { path: '/thoughts', icon: 'fa-book', label: '我的思考' },
   { path: '/history', icon: 'fa-history', label: '历史记录' },
   { path: '/analysis', icon: 'fa-chart-line', label: '数据分析' },
+  { path: '/ai', icon: 'fa-robot', label: 'AI助手' },
   { path: '/settings', icon: 'fa-cog', label: '设置' },
 ];
 

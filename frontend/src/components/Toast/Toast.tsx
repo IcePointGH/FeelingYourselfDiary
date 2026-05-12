@@ -45,6 +45,7 @@ export default function Toast() {
             {toast.type === 'success' && '✓'}
             {toast.type === 'error' && '✕'}
             {toast.type === 'info' && 'ℹ'}
+            {toast.type === 'warning' && '⚠'}
           </span>
           <span className="toast-message">{toast.message}</span>
           <button

@@ -28,3 +28,10 @@ export const ANALYSIS_API = {
 export const SETTINGS_API = {
   base: `${API_BASE_URL}/settings`,
 };
+
+export const AI_API = {
+  analyze: `${API_BASE_URL}/ai/analyze`,
+  sessions: `${API_BASE_URL}/ai/sessions`,
+  chat: (sessionId: number) => `${API_BASE_URL}/ai/sessions/${sessionId}/chat`,
+  rename: (sessionId: number) => `${API_BASE_URL}/ai/sessions/${sessionId}`,
+};

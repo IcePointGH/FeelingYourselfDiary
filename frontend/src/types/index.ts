@@ -110,3 +110,47 @@ export interface AnalysisData {
   dailyTotals?: Record<string, number>;
   items?: ScheduleItem[];
 }
+
+export interface AnalyzeRequest {
+  startDate: string;
+  endDate: string;
+}
+
+export interface AnalyzeResponse {
+  markdown: string;
+  scheduleCount: number;
+  diaryCount: number;
+  dateRange: string;
+}
+
+export interface ChatRequest {
+  message: string;
+}
+
+export interface SessionListItem {
+  id: number;
+  title: string;
+  sessionType: string;
+  status: string;
+  createdAt: string;
+  messageCount: number;
+}
+
+export interface SessionResponse {
+  id: number;
+  title: string;
+  sessionType: string;
+  status: string;
+  progress: number;
+  createdAt: string;
+  messageCount: number;
+  messages: MessageResponse[];
+}
+
+export interface MessageResponse {
+  id: number;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  sequenceNum: number;
+  createdAt: string;
+}

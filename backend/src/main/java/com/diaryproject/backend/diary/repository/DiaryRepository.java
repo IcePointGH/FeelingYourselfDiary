@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface DiaryRepository extends JpaRepository<Diary, Long> {
     List<Diary> findByUserIdAndDateOrderByCreatedAtDesc(Long userId, LocalDate date);
+    List<Diary> findByUserIdAndDateBetweenOrderByDateAsc(Long userId, LocalDate start, LocalDate end);
     List<Diary> findByUserIdOrderByDateDesc(Long userId);
     Page<Diary> findByUserId(Long userId, Pageable pageable);
     Optional<Diary> findByUserIdAndId(Long userId, Long id);

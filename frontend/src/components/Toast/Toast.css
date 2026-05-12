@@ -60,6 +60,14 @@
   color: #1686ee;
 }
 
+.toast--warning {
+  border-left: 3px solid #f59e0b;
+}
+
+.toast--warning .toast-icon {
+  color: #f59e0b;
+}
+
 /* ── Icon ── */
 
 .toast-icon {

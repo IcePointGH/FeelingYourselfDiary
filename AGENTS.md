@@ -82,3 +82,14 @@ docker-compose -f docker-compose.prod.yml up -d   # Full production stack
 - Frontend has zero test infrastructure (no Vitest/Jest/Playwright).
 - `.env.production` exists in git (placeholder values) -- real secrets must be injected at deployment.
 - `schedule-app.html` is a standalone vanilla-JS prototype -- not imported by React app.
+
+## Agent skills
+
+### Issue tracker
+GitHub Issues — `IcePointGH/FeelingYourselfDiary`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+Default labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+Multi-context — root `AGENTS.md` + `backend/AGENTS.md` + `frontend/AGENTS.md`. See `docs/agents/domain.md`.
