@@ -177,7 +177,7 @@
 
 .desc-expanded textarea:focus {
   outline: none;
-  border-color: #1686ee;
+  border-color: #454545;
   box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.1);
 }
 
@@ -213,14 +213,14 @@
 }
 
 .btn-batch-toggle:hover {
-  border-color: #1686ee;
-  color: #1686ee;
+  border-color: #454545;
+  color: #454545;
 }
 
 .btn-batch-toggle.active {
-  background: #1686ee;
+  background: #454545;
   color: #fff;
-  border-color: #1686ee;
+  border-color: #454545;
 }
 
 .schedule-item-row {
@@ -247,12 +247,12 @@
 }
 
 .batch-select-box:hover {
-  border-color: #1686ee;
+  border-color: #454545;
 }
 
 .batch-select-box.selected {
-  background: #1686ee;
-  border-color: #1686ee;
+  background: #454545;
+  border-color: #454545;
 }
 
 .batch-select-box.selected i {
@@ -281,7 +281,7 @@
 .btn-text {
   background: none;
   border: none;
-  color: #1686ee;
+  color: #454545;
   font-size: 13px;
   cursor: pointer;
   padding: 4px 0;
@@ -345,7 +345,7 @@
 
 .future-reminder-icon {
   font-size: 32px;
-  color: #1686ee;
+  color: #454545;
   margin-bottom: 12px;
 }
 
@@ -378,7 +378,7 @@
 }
 
 .future-reminder-check input {
-  accent-color: #1686ee;
+  accent-color: #454545;
 }
 
 @keyframes fade-in {

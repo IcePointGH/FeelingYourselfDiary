@@ -52,7 +52,7 @@
 
 .date-input:focus {
   outline: none;
-  border-color: #1686ee;
+  border-color: #454545;
   box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.1);
 }
 
@@ -61,7 +61,7 @@
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  background: #1686ee;
+  background: #454545;
   color: white;
   font-size: 16px;
   font-weight: 600;
@@ -102,7 +102,7 @@
 }
 
 .chart-container.monthly {
-  /* width controlled by ResponsiveContainer — no min-width */
+  /* width controlled by ResponsiveContainer �?no min-width */
 }
 
 .chart-month-title {
@@ -221,7 +221,7 @@
 .detail-feeling.feel-0  { background: rgba(255,224,98,0.15); color: #c4a000; }
 .detail-feeling.feel-1  { background: rgba(60,223,233,0.12); color: #3cdfe9; }
 .detail-feeling.feel-2  { background: rgba(18,184,236,0.12); color: #12b8ec; }
-.detail-feeling.feel-3  { background: rgba(22,134,238,0.12); color: #1686ee; }
+.detail-feeling.feel-3  { background: rgba(22,134,238,0.12); color: #454545; }
 
 .details-empty {
   text-align: center;
@@ -278,17 +278,17 @@
   gap: 6px;
   font-size: 13px;
   padding: 6px 14px;
-  border: 1px solid #1686ee;
+  border: 1px solid #454545;
   border-radius: 20px;
   background: #fff;
-  color: #1686ee;
+  color: #454545;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
 .view-toggle-btn:hover {
-  background: #1686ee;
+  background: #454545;
   color: #fff;
 }
 
@@ -325,11 +325,11 @@
 }
 
 .ai-analyze-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #a69c97, #8a817c);
 }
 
 .ai-analyze-btn:hover {
-  background: linear-gradient(135deg, #5a6fd6, #6a4192);
+  background: linear-gradient(135deg, #8a817c, #6b6360);
 }
 
 .ai-result-card {

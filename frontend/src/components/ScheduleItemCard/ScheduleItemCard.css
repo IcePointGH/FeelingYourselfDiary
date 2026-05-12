@@ -75,8 +75,8 @@
 }
 
 .schedule-checkbox.checked .checkmark {
-  background: #1686ee;
-  border-color: #1686ee;
+  background: #454545;
+  border-color: #454545;
 }
 
 .schedule-checkbox.checked .checkmark::after {
@@ -177,8 +177,8 @@
 }
 
 .edit-btn:hover {
-  background: #e8f4fd;
-  color: #1686ee;
+  background: #eee;
+  color: #454545;
 }
 
 /* ── Edit overlay ── */
@@ -268,14 +268,14 @@
 }
 
 .feeling-quick-btn:hover {
-  border-color: #1686ee;
-  color: #1686ee;
+  border-color: #454545;
+  color: #454545;
 }
 
 .feeling-quick-btn.active {
-  background: #1686ee;
+  background: #454545;
   color: #fff;
-  border-color: #1686ee;
+  border-color: #454545;
 }
 
 .edit-actions {

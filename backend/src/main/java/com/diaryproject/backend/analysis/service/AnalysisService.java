@@ -99,14 +99,10 @@ public class AnalysisService {
 
     /**
      * Build dailyTotals map using a DB GROUP BY aggregation query.
-     * Initializes all dates in [start, end] to zero, then fills in
-     * actual sums from the query result.
+     * Only includes dates that have actual records (no zero-fill for empty days).
      */
     private Map<String, Integer> buildDailyTotals(Long userId, LocalDate start, LocalDate end) {
         Map<String, Integer> dailyTotals = new LinkedHashMap<>();
-        for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
-            dailyTotals.put(d.toString(), 0);
-        }
         List<DateFeelingTotal> totals = scheduleRepository.findDailyFeelingTotalsByUserIdAndDateBetween(userId, start, end);
         for (DateFeelingTotal dft : totals) {
             dailyTotals.put(dft.getDate().toString(), dft.getTotalFeeling().intValue());

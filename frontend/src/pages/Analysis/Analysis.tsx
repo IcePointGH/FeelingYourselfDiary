@@ -169,6 +169,7 @@ export default function AnalysisPage() {
                   title="切换到AI智能分析"
                 >
                   <i className="fas fa-exchange-alt" />
+                  <span>AI</span>
                 </button>
               </div>
             )}
@@ -199,6 +200,7 @@ export default function AnalysisPage() {
                 title="切换到图表分析"
               >
                 <i className="fas fa-exchange-alt" />
+                <span>图表</span>
               </button>
             </div>
 
