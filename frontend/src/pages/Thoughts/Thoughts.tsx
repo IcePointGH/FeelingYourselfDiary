@@ -162,7 +162,10 @@ export default function ThoughtsPage() {
                   sessionId={aiSessionId}
                   rateLimited={aiRateLimited}
                   onRateLimited={setAiRateLimited}
-                  onQuotaUpdate={setAiQuota}
+                  onQuotaUpdate={(headers: Headers) => {
+                    const remaining = headers.get('X-RateLimit-Remaining');
+                    if (remaining) setAiQuota(Number(remaining));
+                  }}
                   onComplete={() => {}}
                 />
               </>
