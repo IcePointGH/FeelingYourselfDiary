@@ -51,6 +51,7 @@ public class ScheduleDTO {
         private LocalDate date;
         private LocalTime time;
         private Integer feeling;
+        private Boolean completed;
         private String createdAt;
         private String updatedAt;
     }

@@ -32,6 +32,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
      */
     @Query("SELECT new com.diaryproject.backend.analysis.dto.DateFeelingTotal(s.date, SUM(s.feeling)) " +
            "FROM Schedule s WHERE s.userId = :userId AND s.date BETWEEN :start AND :end " +
+           "AND (s.date <= CURRENT_DATE OR s.completed = true) " +
            "GROUP BY s.date ORDER BY s.date")
     List<DateFeelingTotal> findDailyFeelingTotalsByUserIdAndDateBetween(
             @Param("userId") Long userId,

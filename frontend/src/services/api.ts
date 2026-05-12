@@ -11,6 +11,7 @@ export const SCHEDULE_API = {
   base: `${API_BASE_URL}/schedules`,
   byDate: (date: string) => `${API_BASE_URL}/schedules/date/${date}`,
   list: (page: number = 1, size: number = 20) => `${API_BASE_URL}/schedules?page=${page - 1}&size=${size}`,
+  toggleComplete: (id: number) => `${API_BASE_URL}/schedules/${id}/toggle-complete`,
 };
 
 export const DIARY_API = {

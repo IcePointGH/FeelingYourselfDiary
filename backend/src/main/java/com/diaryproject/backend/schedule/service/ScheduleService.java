@@ -50,6 +50,8 @@ public class ScheduleService {
     @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
     @Transactional(rollbackFor = Exception.class)
     public ScheduleDTO.Response create(Long userId, ScheduleDTO.CreateRequest request) {
+        // 未来日期的日程默认未完成（待办），当天及过去默认已完成
+        boolean isFuture = request.getDate().isAfter(LocalDate.now());
         Schedule schedule = Schedule.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -57,6 +59,7 @@ public class ScheduleService {
                 .time(request.getTime())
                 .feeling(request.getFeeling())
                 .userId(userId)
+                .completed(!isFuture)
                 .build();
 
         Schedule saved = scheduleRepository.save(schedule);
@@ -126,6 +129,28 @@ public class ScheduleService {
         log.warn("用户 {} 删除日程 id: {}", userId, id);
     }
 
+    /** 切换日程完成状态（勾选/取消勾选），检查用户权限 */
+    @org.springframework.cache.annotation.Caching(evict = {
+        @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false),
+        @CacheEvict(value = "analysis", allEntries = true, beforeInvocation = false)
+    })
+    @Transactional(rollbackFor = Exception.class)
+    public ScheduleDTO.Response toggleCompleted(Long userId, Long id) {
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("日程", id));
+
+        if (!schedule.getUserId().equals(userId)) {
+            throw new UnauthorizedException("无权操作该日程");
+        }
+
+        schedule.setCompleted(!Boolean.TRUE.equals(schedule.getCompleted()));
+        Schedule updated = scheduleRepository.save(schedule);
+        log.info("用户 {} 切换日程 {} 完成状态为: {}", userId, id, updated.getCompleted());
+        cacheService.evictByPattern(CacheKeys.analysisPattern(userId));
+        cacheService.evictByPattern(CacheKeys.schedulesPattern(userId));
+        return mapToResponse(updated);
+    }
+
     /** 查询指定日期范围内的日程，按日期和时间排序 */
     @Cacheable(value = "schedules", key = "'range:' + #userId + ':' + #start + ':' + #end")
     @Transactional(readOnly = true)
@@ -179,6 +204,7 @@ public class ScheduleService {
         response.setDate(schedule.getDate());
         response.setTime(schedule.getTime());
         response.setFeeling(schedule.getFeeling());
+        response.setCompleted(schedule.getCompleted());
         response.setCreatedAt(schedule.getCreatedAt().toString());
         response.setUpdatedAt(schedule.getUpdatedAt().toString());
         return response;

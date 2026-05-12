@@ -19,6 +19,8 @@ const quotes = [
   '接纳所有的情绪，它们都是你真实的一部分。',
 ];
 
+const REMINDER_KEY = 'schedule_future_reminder_dismissed';
+
 export default function SchedulePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -33,6 +35,10 @@ export default function SchedulePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  // 未来日程提醒弹窗
+  const [showFutureReminder, setShowFutureReminder] = useState(false);
+  const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const autoResize = useCallback(() => {
     const ta = textareaRef.current;
@@ -63,6 +69,19 @@ export default function SchedulePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 检查是否为未来日期，且用户未勾选"不再提示"
+    const isFutureDate = date > new Date().toISOString().split('T')[0];
+    if (isFutureDate && !localStorage.getItem(REMINDER_KEY)) {
+      setShowFutureReminder(true);
+      setDontShowAgain(false);
+      return;
+    }
+
+    await doSubmit();
+  };
+
+  const doSubmit = async () => {
     try {
       await apiFetch(SCHEDULE_API.base, {
         method: 'POST',
@@ -77,6 +96,14 @@ export default function SchedulePage() {
     }
   };
 
+  const confirmFutureReminder = () => {
+    if (dontShowAgain) {
+      localStorage.setItem(REMINDER_KEY, '1');
+    }
+    setShowFutureReminder(false);
+    doSubmit();
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm('确定要删除这条记录吗？')) return;
     try {
@@ -84,6 +111,15 @@ export default function SchedulePage() {
       refetch();
     } catch (err) {
       addToast(err instanceof Error ? err.message : '删除失败', 'error');
+    }
+  };
+
+  const handleToggleComplete = async (id: number) => {
+    try {
+      await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '操作失败', 'error');
     }
   };
 
@@ -164,11 +200,40 @@ export default function SchedulePage() {
                 key={item.id}
                 item={item}
                 onDelete={handleDelete}
+                onToggleComplete={handleToggleComplete}
               />
             ))}
           </div>
         )}
       </div>
+
+      {/* 未来日程提醒弹窗 */}
+      {showFutureReminder && (
+        <div className="future-reminder-overlay" onClick={() => setShowFutureReminder(false)}>
+          <div className="future-reminder-card" onClick={(e) => e.stopPropagation()}>
+            <div className="future-reminder-icon">
+              <i className="fas fa-calendar-alt" />
+            </div>
+            <p className="future-reminder-text">
+              您选择的是未来的日期，该日程将作为<strong>待办事项</strong>，默认不勾选，不计入当前情绪统计。
+            </p>
+            <p className="future-reminder-sub">
+              可在日程卡片左侧勾选完成，勾选后计入情绪分析。
+            </p>
+            <label className="future-reminder-check">
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+              />
+              <span>之后不再提示</span>
+            </label>
+            <button className="btn submit-btn" onClick={confirmFutureReminder}>
+              知道了
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

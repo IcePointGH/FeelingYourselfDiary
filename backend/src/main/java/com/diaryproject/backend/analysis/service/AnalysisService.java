@@ -49,8 +49,12 @@ public class AnalysisService {
         LocalDate end = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         List<ScheduleDTO.Response> items = scheduleService.getByDateRange(userId, start, end);
 
-        int total = items.stream().mapToInt(ScheduleDTO.Response::getFeeling).sum();
-        int count = items.size();
+        int total = items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .mapToInt(ScheduleDTO.Response::getFeeling).sum();
+        int count = (int) items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .count();
         double avg = count > 0 ? (double) total / count : 0;
 
         // DB-level GROUP BY aggregation replaces in-memory O(days × items) loop
@@ -73,8 +77,12 @@ public class AnalysisService {
         LocalDate end = date.with(TemporalAdjusters.lastDayOfMonth());
         List<ScheduleDTO.Response> items = scheduleService.getByDateRange(userId, start, end);
 
-        int total = items.stream().mapToInt(ScheduleDTO.Response::getFeeling).sum();
-        int count = items.size();
+        int total = items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .mapToInt(ScheduleDTO.Response::getFeeling).sum();
+        int count = (int) items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .count();
         double avg = count > 0 ? (double) total / count : 0;
 
         // DB-level GROUP BY aggregation replaces in-memory O(days × items) loop
@@ -107,8 +115,12 @@ public class AnalysisService {
     }
 
     private AnalysisDTO.DailyResponse calculateDaily(List<ScheduleDTO.Response> items) {
-        int total = items.stream().mapToInt(ScheduleDTO.Response::getFeeling).sum();
-        int count = items.size();
+        int total = items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .mapToInt(ScheduleDTO.Response::getFeeling).sum();
+        int count = (int) items.stream()
+                .filter(r -> r.getDate() == null || !r.getDate().isAfter(LocalDate.now()) || Boolean.TRUE.equals(r.getCompleted()))
+                .count();
         double avg = count > 0 ? (double) total / count : 0;
 
         AnalysisDTO.DailyResponse response = new AnalysisDTO.DailyResponse();

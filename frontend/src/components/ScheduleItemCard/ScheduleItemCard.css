@@ -47,7 +47,48 @@
   margin-right: 8px;
 }
 
-.schedule-time {
-  color: #999;
-  margin-right: 8px;
+/* ── Custom checkbox (left side) ── */
+.schedule-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.schedule-checkbox input {
+  display: none;
+}
+
+.schedule-checkbox .checkmark {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d0d0d0;
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.schedule-checkbox:hover .checkmark {
+  border-color: #b0b0b0;
+}
+
+.schedule-checkbox.checked .checkmark {
+  background: #1686ee;
+  border-color: #1686ee;
+}
+
+.schedule-checkbox.checked .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }

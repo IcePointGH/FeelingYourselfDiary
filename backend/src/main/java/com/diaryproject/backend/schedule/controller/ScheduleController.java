@@ -76,4 +76,13 @@ public class ScheduleController {
         scheduleService.delete(userId, id);
         return ApiResponse.success();
     }
+
+    @PatchMapping("/{id}/toggle-complete")
+    public ApiResponse<ScheduleDTO.Response> toggleComplete(
+            @PathVariable Long id,
+            HttpServletRequest httpRequest) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        log.info("REST 切换日程完成状态 id: {}", id);
+        return ApiResponse.success(scheduleService.toggleCompleted(userId, id));
+    }
 }

@@ -21,6 +21,7 @@ export interface ScheduleItem {
   date: string;
   time?: string;
   feeling: FeelingValue;
+  completed: boolean;
   userId: number;
   createdAt: string;
   updatedAt: string;

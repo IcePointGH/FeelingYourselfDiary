@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- ===== 2. 日程表 =====
 CREATE TABLE IF NOT EXISTS schedules (
     id BIGINT NOT NULL AUTO_INCREMENT,
+    completed BIT NOT NULL DEFAULT 1,
     created_at DATETIME(6) DEFAULT NULL,
     date DATE NOT NULL,
     description VARCHAR(2000) DEFAULT NULL,

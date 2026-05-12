@@ -56,6 +56,11 @@ public class Schedule {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /** 是否完成（勾选）。未来日期的日程默认 false，当天及过去默认 true。 */
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean completed = true;
+
     @Version
     @Column(nullable = false)
     private Long version = 0L;
