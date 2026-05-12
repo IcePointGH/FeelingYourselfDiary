@@ -62,6 +62,7 @@ export default function SchedulePage() {
     setBatchMode(false);
     refetch();
   };
+  const [showFutureReminder, setShowFutureReminder] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   const autoResize = useCallback(() => {
