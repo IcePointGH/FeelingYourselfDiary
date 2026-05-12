@@ -5,17 +5,100 @@
 
 .thoughts-page h2 {
   text-align: center;
-  margin: 0 0 8px;
+  margin: 0 0 20px;
   font-size: 24px;
   font-weight: 600;
   color: #454545;
 }
 
-.thoughts-desc {
-  text-align: center;
+/* ── Tab bar ── */
+.thoughts-tabs {
+  display: flex;
+  gap: 2px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.thoughts-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #888;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.thoughts-tab:hover {
+  color: #454545;
+  background: #eee;
+}
+
+.thoughts-tab.active {
+  background: #fff;
+  color: #1686ee;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+}
+
+.thoughts-tab i {
+  font-size: 13px;
+}
+
+/* ── Tab content ── */
+.thoughts-tab-content {
+  min-height: 200px;
+}
+
+.thoughts-form {
+  padding: 0;
+}
+
+/* ── AI chat panel ── */
+.thoughts-ai-panel {
+  min-height: 300px;
+}
+
+.ai-chat-wrapper {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ai-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 13px;
+}
+
+.ai-quota {
   color: #999;
-  margin-bottom: 30px;
-  font-size: 15px;
+}
+
+.ai-loading-state {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.ai-loading-state .submit-btn {
+  margin-top: 12px;
+}
+
+.thoughts-review {
+  padding: 0;
 }
 
 .review-date-row {

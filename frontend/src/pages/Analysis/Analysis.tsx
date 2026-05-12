@@ -5,11 +5,12 @@ import DateInput from '../../components/DateInput/DateInput';
 import StatCard from '../../components/StatCard/StatCard';
 import MoodTrendChart from './MoodTrendChart';
 import MoodSummary from './MoodSummary';
-import { ANALYSIS_API } from '../../services/api';
+import { ANALYSIS_API, AI_API } from '../../services/api';
 import type { DailyAnalysis, WeeklyAnalysis, MonthlyAnalysis, AnalysisData } from '../../types';
 import './Analysis.css';
 
-type TabType = 'daily' | 'weekly' | 'monthly';
+type TabType = 'daily' | 'weekly' | 'monthly' | 'full';
+type ViewMode = 'chart' | 'ai';
 
 function getWeekNumber(date: Date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -33,11 +34,19 @@ function isoWeekToDate(weekStr: string): string {
 
 export default function AnalysisPage() {
   const [tab, setTab] = useState<TabType>('daily');
+  const [viewMode, setViewMode] = useState<ViewMode>('chart');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  // Range dates for AI analysis
+  const [aiStartDate, setAiStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [aiEndDate, setAiEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [data, setData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // AI analysis state
+  const [aiResult, setAiResult] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiStats, setAiStats] = useState<{ scheduleCount: number; diaryCount: number; dateRange: string } | null>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
@@ -52,13 +61,9 @@ export default function AnalysisPage() {
     setError('');
     try {
       let url: string;
-      if (tab === 'daily') {
-        url = `${ANALYSIS_API.daily}?date=${date}`;
-      } else if (tab === 'weekly') {
-        url = `${ANALYSIS_API.weekly}?date=${isoWeekToDate(date)}`;
-      } else {
-        url = `${ANALYSIS_API.monthly}?month=${month}`;
-      }
+      if (tab === 'daily') url = `${ANALYSIS_API.daily}?date=${date}`;
+      else if (tab === 'weekly') url = `${ANALYSIS_API.weekly}?date=${isoWeekToDate(date)}`;
+      else url = `${ANALYSIS_API.monthly}?month=${month}`;
 
       const result = await apiFetch(url);
       if (tab === 'daily') {
@@ -80,9 +85,33 @@ export default function AnalysisPage() {
     }
   }, [apiFetch, tab, date, month]);
 
+  const handleAiAnalyze = async () => {
+    setAiLoading(true);
+    setAiResult(null);
+    setAiStats(null);
+    try {
+      const body: Record<string, string> = {};
+      if (tab !== 'full') {
+        body.startDate = aiStartDate;
+        body.endDate = aiEndDate;
+      }
+      const res = await apiFetch(AI_API.analyze, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      setAiResult(res.markdown || '分析完成');
+      setAiStats({ scheduleCount: res.scheduleCount ?? 0, diaryCount: res.diaryCount ?? 0, dateRange: res.dateRange ?? '' });
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : 'AI分析失败', 'error');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setData(null);
+    setAiResult(null);
+    setAiStats(null);
     const d = new Date();
     if (tab === 'daily') setDate(d.toISOString().split('T')[0]);
     else if (tab === 'weekly') setDate(getWeekString(d));
@@ -94,43 +123,92 @@ export default function AnalysisPage() {
     return Object.entries(data.dailyTotals).map(([date, value]) => ({ date, value }));
   }, [data?.dailyTotals]);
 
+  const tabLabels: Record<TabType, string> = { daily: '日分析', weekly: '周分析', monthly: '月分析', full: '全历史分析' };
+
   return (
     <div className="analysis-page">
       <div className="card">
-        <h2>数据分析</h2>
+        <div className="analysis-header-row">
+          <h2>数据分析</h2>
+          <button
+            className="view-toggle-btn"
+            onClick={() => { setViewMode(v => v === 'chart' ? 'ai' : 'chart'); setData(null); setAiResult(null); }}
+            title={viewMode === 'chart' ? '切换到AI智能分析' : '切换到图表分析'}
+          >
+            <i className="fas fa-exchange-alt" />
+            {viewMode === 'chart' ? 'AI智能分析' : '图表分析'}
+          </button>
+        </div>
 
         <div className="tab-bar">
-          {(['daily', 'weekly', 'monthly'] as TabType[]).map(t => (
+          {(Object.keys(tabLabels) as TabType[]).map(t => (
             <button
               key={t}
               className={`tab-btn ${tab === t ? 'active' : ''}`}
               onClick={() => setTab(t)}
             >
-              {t === 'daily' ? '日分析' : t === 'weekly' ? '周分析' : '月分析'}
+              {tabLabels[t]}
             </button>
           ))}
         </div>
 
-        <div className="form-group">
-          {tab === 'monthly' ? (
-            <DateInput type="month" value={month} onChange={v => setMonth(v)} />
-          ) : tab === 'weekly' ? (
-            <DateInput type="week" value={date} onChange={v => setDate(v)} />
-          ) : (
-            <DateInput type="date" value={date} onChange={v => setDate(v)} />
-          )}
-        </div>
+        {viewMode === 'chart' ? (
+          <>
+            {tab !== 'full' && (
+              <div className="form-group">
+                {tab === 'monthly' ? (
+                  <DateInput type="month" value={month} onChange={v => setMonth(v)} />
+                ) : tab === 'weekly' ? (
+                  <DateInput type="week" value={date} onChange={v => setDate(v)} />
+                ) : (
+                  <DateInput type="date" value={date} onChange={v => setDate(v)} />
+                )}
+              </div>
+            )}
 
-        <button
-          className="analyze-btn"
-          onClick={handleAnalyze}
-          disabled={loading}
-        >
-          {loading ? '分析中...' : '分析'}
-        </button>
+            {tab !== 'full' && (
+              <button className="analyze-btn" onClick={handleAnalyze} disabled={loading}>
+                {loading ? '分析中...' : '图表分析'}
+              </button>
+            )}
+          </>
+        ) : (
+          <>
+            {tab !== 'full' && (
+              <div className="ai-date-range">
+                <div className="form-group">
+                  <label>开始日期</label>
+                  <DateInput type="date" value={aiStartDate} onChange={v => setAiStartDate(v)} />
+                </div>
+                <span className="date-separator">至</span>
+                <div className="form-group">
+                  <label>结束日期</label>
+                  <DateInput type="date" value={aiEndDate} onChange={v => setAiEndDate(v)} />
+                </div>
+              </div>
+            )}
+
+            <button className="analyze-btn ai-analyze-btn" onClick={handleAiAnalyze} disabled={aiLoading}>
+              {aiLoading ? 'AI分析中...' : 'AI智能分析'}
+            </button>
+
+            {aiResult && (
+              <div className="ai-result-card">
+                {aiStats && (
+                  <div className="ai-stats">
+                    <span>日程 {aiStats.scheduleCount} 条</span>
+                    <span>日记 {aiStats.diaryCount} 条</span>
+                    {aiStats.dateRange && <span>{aiStats.dateRange}</span>}
+                  </div>
+                )}
+                <div className="ai-markdown" dangerouslySetInnerHTML={{ __html: aiResult.replace(/\n/g, '<br/>') }} />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
-      {data && (
+      {viewMode === 'chart' && data && (
         <>
           {error && <div className="error-message">{error}</div>}
           {data.itemCount === 0 && (
@@ -146,15 +224,11 @@ export default function AnalysisPage() {
           </div>
 
           {data.dailyTotals && data.itemCount > 0 && (
-            <MoodTrendChart
-              tab={tab}
-              chartData={chartData}
-              month={tab === 'monthly' ? month : undefined}
-            />
+            <MoodTrendChart tab={tab === 'full' ? 'monthly' : tab} chartData={chartData} month={tab === 'monthly' ? month : undefined} />
           )}
 
           {data.itemCount > 0 && (
-            <MoodSummary tab={tab} items={data.items} />
+            <MoodSummary tab={tab === 'full' ? 'monthly' : tab} items={data.items} />
           )}
         </>
       )}

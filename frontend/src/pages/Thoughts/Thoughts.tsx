@@ -1,19 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
-import CollapsiblePanel from '../../components/CollapsiblePanel/CollapsiblePanel';
-import { DIARY_API } from '../../services/api';
+import AIChatPanel from '../AI/AIChatPanel';
+import { DIARY_API, AI_API } from '../../services/api';
 import type { DiaryEntry } from '../../types';
 import './Thoughts.css';
 
+type ThoughtTab = 'write' | 'ai' | 'review';
+
 export default function ThoughtsPage() {
+  const [activeTab, setActiveTab] = useState<ThoughtTab>('write');
+  // Write tab
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-
+  // Review tab
   const [reviewDate, setReviewDate] = useState(new Date().toISOString().split('T')[0]);
+  // AI tab
+  const [aiSessionId, setAiSessionId] = useState<number | null>(null);
+  const [aiRateLimited, setAiRateLimited] = useState(false);
+  const [aiQuota, setAiQuota] = useState(50);
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -29,6 +37,25 @@ export default function ThoughtsPage() {
     if (error) addToast(error, 'error');
   }, [error, addToast]);
 
+  // AI tab: create session on first open
+  useEffect(() => {
+    if (activeTab === 'ai' && aiSessionId === null && !aiRateLimited) {
+      let cancelled = false;
+      (async () => {
+        try {
+          const session = await apiFetch(AI_API.sessions, {
+            method: 'POST',
+            body: JSON.stringify({ sessionType: 'chat' }),
+          });
+          if (!cancelled) setAiSessionId(session.id);
+        } catch {
+          // fail silently — user can retry
+        }
+      })();
+      return () => { cancelled = true; };
+    }
+  }, [activeTab, aiSessionId, aiRateLimited, apiFetch]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -38,9 +65,7 @@ export default function ThoughtsPage() {
       });
       setTitle('');
       setContent('');
-      if (date === reviewDate) {
-        refetch();
-      }
+      if (date === reviewDate) refetch();
     } catch (err) {
       addToast(err instanceof Error ? err.message : '保存失败', 'error');
     }
@@ -56,66 +81,132 @@ export default function ThoughtsPage() {
     }
   };
 
+  const handleNewAiSession = useCallback(async () => {
+    setAiSessionId(null);
+    try {
+      const session = await apiFetch(AI_API.sessions, {
+        method: 'POST',
+        body: JSON.stringify({ sessionType: 'chat' }),
+      });
+      setAiSessionId(session.id);
+    } catch {
+      addToast('创建会话失败', 'error');
+    }
+  }, [apiFetch, addToast]);
+
+  const tabs: { key: ThoughtTab; label: string; icon: string }[] = [
+    { key: 'write', label: '记录思考', icon: 'fa-pen' },
+    { key: 'ai', label: 'AI对话', icon: 'fa-robot' },
+    { key: 'review', label: '回顾日记', icon: 'fa-history' },
+  ];
+
   return (
     <div className="thoughts-page">
       <h2>我的思考</h2>
-      <p className="thoughts-desc">记录你的思考和感受</p>
 
-      <CollapsiblePanel title="写思考">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>标题</label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="给你的情绪起个名字"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>日期</label>
-            <DateInput value={date} onChange={v => setDate(v)} required />
-          </div>
-          <div className="form-group">
-            <label>内容</label>
-            <textarea
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              placeholder="在这里记录你的感受..."
-              rows={10}
-              required
-            />
-          </div>
-          <button type="submit" className="submit-btn">保存日记</button>
-        </form>
-      </CollapsiblePanel>
+      <div className="thoughts-tabs">
+        {tabs.map(t => (
+          <button
+            key={t.key}
+            className={`thoughts-tab ${activeTab === t.key ? 'active' : ''}`}
+            onClick={() => setActiveTab(t.key)}
+          >
+            <i className={`fas ${t.icon}`} />
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-      <div style={{ marginTop: '20px' }}>
-        <CollapsiblePanel title="回顾日记">
-          <div className="form-group review-date-row">
-            <label>选择日期</label>
-            <DateInput value={reviewDate} onChange={v => setReviewDate(v)} />
-          </div>
-          {entryList.length === 0 ? (
-            <p className="empty-text">请选择日期查找日记</p>
-          ) : (
-            <div className="diary-list">
-              {entryList.map(entry => (
-                <div key={entry.id} className="diary-item">
-                  <div className="diary-info">
-                    <div className="diary-title">{entry.title}</div>
-                    <div className="diary-content">{entry.content}</div>
-                    <div className="diary-meta">{entry.date}</div>
-                  </div>
-                  <button className="delete-btn-small" onClick={() => handleDelete(entry.id)} title="删除">
-                    <i className="fas fa-trash" />
+      <div className="thoughts-tab-content">
+        {activeTab === 'write' && (
+          <form onSubmit={handleSubmit} className="thoughts-form">
+            <div className="form-group">
+              <label>标题</label>
+              <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="给你的情绪起个名字"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>日期</label>
+              <DateInput value={date} onChange={v => setDate(v)} required />
+            </div>
+            <div className="form-group">
+              <label>内容</label>
+              <textarea
+                value={content}
+                onChange={e => setContent(e.target.value)}
+                placeholder="在这里记录你的感受..."
+                rows={10}
+                required
+              />
+            </div>
+            <button type="submit" className="submit-btn">保存日记</button>
+          </form>
+        )}
+
+        {activeTab === 'ai' && (
+          <div className="thoughts-ai-panel">
+            {aiSessionId ? (
+              <div className="ai-chat-wrapper">
+                <div className="ai-chat-header">
+                  <span className="ai-quota">今日剩余 {aiQuota} 次</span>
+                  <button className="btn-text" onClick={handleNewAiSession}>
+                    <i className="fas fa-plus" /> 新建会话
                   </button>
                 </div>
-              ))}
+                <AIChatPanel
+                  sessionId={aiSessionId}
+                  rateLimited={aiRateLimited}
+                  onRateLimited={setAiRateLimited}
+                  onQuotaUpdate={setAiQuota}
+                  onComplete={() => {}}
+                />
+              </div>
+            ) : (
+              <div className="ai-loading-state">
+                {aiRateLimited ? (
+                  <p className="empty-text">今日调用次数已用完，请明天再试</p>
+                ) : (
+                  <>
+                    <p className="empty-text">正在创建会话...</p>
+                    <button className="submit-btn" onClick={handleNewAiSession}>重试</button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'review' && (
+          <div className="thoughts-review">
+            <div className="form-group review-date-row">
+              <label>选择日期</label>
+              <DateInput value={reviewDate} onChange={v => setReviewDate(v)} />
             </div>
-          )}
-        </CollapsiblePanel>
+            {entryList.length === 0 ? (
+              <p className="empty-text">请选择日期查找日记</p>
+            ) : (
+              <div className="diary-list">
+                {entryList.map(entry => (
+                  <div key={entry.id} className="diary-item">
+                    <div className="diary-info">
+                      <div className="diary-title">{entry.title}</div>
+                      <div className="diary-content">{entry.content}</div>
+                      <div className="diary-meta">{entry.date}</div>
+                    </div>
+                    <button className="delete-btn-small" onClick={() => handleDelete(entry.id)} title="删除">
+                      <i className="fas fa-trash" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
