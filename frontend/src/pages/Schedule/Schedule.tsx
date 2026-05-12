@@ -93,10 +93,10 @@ export default function SchedulePage() {
 
   return (
     <div className="schedule-page">
+      <h2 className="schedule-page-title">添加新日程</h2>
       <div className="daily-quote">{quote}</div>
 
       <div className="card form-card">
-        <h2>添加新日程</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>事项 *</label>

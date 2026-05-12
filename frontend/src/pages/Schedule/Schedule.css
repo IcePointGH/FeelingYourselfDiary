@@ -3,6 +3,15 @@
   margin: 0 auto;
 }
 
+.schedule-page-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #454545;
+  margin: 0 0 24px 0;
+  letter-spacing: 0.5px;
+}
+
 /* ── Kaomoji showcase (slider mode only) ── */
 .kaomoji-showcase {
   text-align: center;
