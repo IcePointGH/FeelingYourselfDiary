@@ -38,19 +38,17 @@ export default function ScheduleItemCard({
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(item); } } : undefined}
     >
-      <label
+      <div
         className={`schedule-checkbox ${item.completed ? 'checked' : ''}`}
         title={item.completed ? '已完成' : isFuture ? '待办，勾选后计入情绪统计' : '未完成'}
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => { e.stopPropagation(); onToggleComplete?.(item.id); }}
+        role="checkbox"
+        aria-checked={item.completed}
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); onToggleComplete?.(item.id); } }}
       >
-        <input
-          type="checkbox"
-          checked={item.completed}
-          onChange={() => onToggleComplete?.(item.id)}
-          onClick={(e) => e.stopPropagation()}
-        />
         <span className="checkmark" />
-      </label>
+      </div>
       <div className="schedule-info">
         <div className="schedule-title">{item.title}</div>
         {item.description && <div className="schedule-desc">{item.description}</div>}

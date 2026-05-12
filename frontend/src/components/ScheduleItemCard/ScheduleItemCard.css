@@ -56,10 +56,7 @@
   margin-top: 2px;
   cursor: pointer;
   flex-shrink: 0;
-}
-
-.schedule-checkbox input {
-  display: none;
+  user-select: none;
 }
 
 .schedule-checkbox .checkmark {
