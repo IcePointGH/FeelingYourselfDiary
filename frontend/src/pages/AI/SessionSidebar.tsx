@@ -60,9 +60,14 @@ export default function SessionSidebar({ activeSessionId, onSelect, onNew, refre
     try {
       await apiFetch(`${AI_API.sessions}/${sessionId}`, { method: 'DELETE' });
       addToast('会话已删除', 'success');
-      // If deleting active session, notify parent (set to null)
+      // If deleting active session, select next available or trigger new
       if (activeSessionId === sessionId) {
-        onSelect(0); // dummy, parent should handle
+        const remaining = sessions.filter(s => s.id !== sessionId);
+        if (remaining.length > 0) {
+          onSelect(remaining[0].id);
+        } else {
+          onNew();
+        }
       }
       await fetchSessions();
     } catch (err) {

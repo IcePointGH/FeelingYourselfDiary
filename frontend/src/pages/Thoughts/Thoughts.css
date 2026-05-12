@@ -71,6 +71,7 @@
 .ai-layout {
   display: flex;
   gap: 0;
+  height: calc(100vh - 240px);
   min-height: 400px;
   border: 1px solid #e8e8e8;
   border-radius: 8px;

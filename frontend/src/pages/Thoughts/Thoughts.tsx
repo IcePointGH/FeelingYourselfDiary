@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
@@ -24,6 +24,7 @@ export default function ThoughtsPage() {
   const [aiRateLimited, setAiRateLimited] = useState(false);
   const [aiQuota, setAiQuota] = useState(50);
   const [sessionRefresh, setSessionRefresh] = useState(0);
+  const creatingRef = useRef(false);
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -41,7 +42,8 @@ export default function ThoughtsPage() {
 
   // AI tab: create session on first open
   useEffect(() => {
-    if (activeTab === 'ai' && aiSessionId === null && !aiRateLimited) {
+    if (activeTab === 'ai' && aiSessionId === null && !aiRateLimited && !creatingRef.current) {
+      creatingRef.current = true;
       let cancelled = false;
       (async () => {
         try {
@@ -52,48 +54,29 @@ export default function ThoughtsPage() {
           if (!cancelled) { setAiSessionId(session.id); setSessionRefresh(r => r + 1); }
         } catch {
           // fail silently — user can retry
+        } finally {
+          if (!cancelled) creatingRef.current = false;
         }
       })();
       return () => { cancelled = true; };
     }
   }, [activeTab, aiSessionId, aiRateLimited, apiFetch]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await apiFetch(DIARY_API.base, {
-        method: 'POST',
-        body: JSON.stringify({ title, content, date }),
-      });
-      setTitle('');
-      setContent('');
-      if (date === reviewDate) refetch();
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : '保存失败', 'error');
-    }
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('确定要删除这条日记吗？')) return;
-    try {
-      await apiFetch(`${DIARY_API.base}/${id}`, { method: 'DELETE' });
-      refetch();
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : '删除失败', 'error');
-    }
-  };
-
   const handleNewAiSession = useCallback(async () => {
+    if (creatingRef.current) return;
+    creatingRef.current = true;
     setAiSessionId(null);
     try {
       const session = await apiFetch(AI_API.sessions, {
         method: 'POST',
-        body: JSON.stringify({ sessionType: 'chat' }),
+        body: JSON.stringify({ title: '新对话', sessionType: 'chat' }),
       });
       setAiSessionId(session.id);
       setSessionRefresh(r => r + 1);
     } catch {
       addToast('创建会话失败', 'error');
+    } finally {
+      creatingRef.current = false;
     }
   }, [apiFetch, addToast]);
 
