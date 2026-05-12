@@ -80,6 +80,31 @@ export default function ThoughtsPage() {
     }
   }, [apiFetch, addToast]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiFetch(DIARY_API.base, {
+        method: 'POST',
+        body: JSON.stringify({ title, content, date }),
+      });
+      setTitle('');
+      setContent('');
+      if (date === reviewDate) refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '保存失败', 'error');
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('确定要删除这条日记吗？')) return;
+    try {
+      await apiFetch(`${DIARY_API.base}/${id}`, { method: 'DELETE' });
+      refetch();
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '删除失败', 'error');
+    }
+  };
+
   const tabs: { key: ThoughtTab; label: string; icon: string }[] = [
     { key: 'write', label: '记录思考', icon: 'fa-pen' },
     { key: 'ai', label: 'AI对话', icon: 'fa-robot' },
