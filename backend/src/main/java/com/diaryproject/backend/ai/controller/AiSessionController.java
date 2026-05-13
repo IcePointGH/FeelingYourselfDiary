@@ -3,6 +3,7 @@ package com.diaryproject.backend.ai.controller;
 import com.diaryproject.backend.ai.dto.AiDTO;
 import com.diaryproject.backend.ai.service.AiAnalysisService;
 import com.diaryproject.backend.ai.service.AiChatService;
+import com.diaryproject.backend.ai.service.AiDiarySummaryService;
 import com.diaryproject.backend.ai.service.AiSessionService;
 import com.diaryproject.backend.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,13 +28,16 @@ public class AiSessionController {
     private final AiSessionService aiSessionService;
     private final AiChatService aiChatService;
     private final AiAnalysisService aiAnalysisService;
+    private final AiDiarySummaryService aiDiarySummaryService;
 
     public AiSessionController(AiSessionService aiSessionService,
                                AiChatService aiChatService,
-                               AiAnalysisService aiAnalysisService) {
+                               AiAnalysisService aiAnalysisService,
+                               AiDiarySummaryService aiDiarySummaryService) {
         this.aiSessionService = aiSessionService;
         this.aiChatService = aiChatService;
         this.aiAnalysisService = aiAnalysisService;
+        this.aiDiarySummaryService = aiDiarySummaryService;
     }
 
     /**
@@ -145,6 +149,6 @@ public class AiSessionController {
             HttpServletRequest httpRequest) {
         Long userId = (Long) httpRequest.getAttribute("userId");
         log.info("REST 总结对话到日记 — userId: {}, sessionId: {}", userId, sessionId);
-        return ApiResponse.success(aiChatService.summarizeToDiary(userId, sessionId));
+        return ApiResponse.success(aiDiarySummaryService.summarizeToDiary(userId, sessionId));
     }
 }
