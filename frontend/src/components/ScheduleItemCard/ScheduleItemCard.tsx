@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ScheduleItem } from '../../types';
+import type { ScheduleItem, FeelingValue } from '../../types';
 import { formatFeelingValue } from '../../utils/feeling';
 import './ScheduleItemCard.css';
 
@@ -19,7 +19,7 @@ interface ScheduleItemCardProps {
   onDelete?: (id: number) => void;
   onClick?: (item: ScheduleItem) => void;
   onToggleComplete?: (id: number) => void;
-  onUpdate?: (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => void;
+  onUpdate?: (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => void;
   showActions?: boolean;
   showDate?: boolean;
 }
@@ -100,7 +100,7 @@ export default function ScheduleItemCard({
         role="checkbox"
         aria-checked={item.completed}
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); handleCheckToggle(e as any); } }}
+        onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
       >
         <span className="checkmark" />
       </div>

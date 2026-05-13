@@ -8,6 +8,10 @@
   animation: slider-shimmer 1.5s infinite;
 }
 
+.tuner-fallback {
+  height: 360px;
+}
+
 @keyframes slider-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }

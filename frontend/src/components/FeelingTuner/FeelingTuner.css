@@ -1,0 +1,359 @@
+/* ============================================
+   FeelingTuner — embodied mood dial selector
+   ============================================ */
+
+.feeling-tuner {
+  --tuner-color: #ffe062;
+  --tuner-ink: #202426;
+  --tuner-panel: #353b3c;
+  --tuner-muted: rgba(255, 255, 255, 0.62);
+  --tuner-rotation: 0deg;
+  --tuner-wave: 34px;
+  --tuner-focus: 0.3;
+
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(55, 64, 68, 0.14);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 26%, color-mix(in srgb, var(--tuner-color), transparent 84%), transparent 36%),
+    linear-gradient(180deg, #f6f0e5, #e7ddca);
+  box-shadow: 0 16px 42px rgba(55, 64, 68, 0.12);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tuner-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tuner-readout span {
+  color: #7b7470;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tuner-readout strong {
+  color: var(--tuner-color);
+  font-size: 32px;
+  line-height: 1;
+  text-shadow: 0 10px 22px color-mix(in srgb, var(--tuner-color), transparent 72%);
+}
+
+.tuner-device-live {
+  min-height: 292px;
+  padding: 16px 18px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.38), transparent 34%),
+    linear-gradient(180deg, var(--tuner-panel), #202426 52%, #171a1b);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.34),
+    0 28px 54px rgba(48, 54, 56, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.tuner-device-live::before {
+  content: "";
+  position: absolute;
+  inset: 72px 0 auto;
+  height: 66px;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px),
+    rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.tuner-topbar-live,
+.tuner-footer-live {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tuner-led-live {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, #fff 0 14%, var(--tuner-color) 15% 76%, rgba(0, 0, 0, 0.58) 100%);
+  box-shadow:
+    0 0 0 5px rgba(0, 0, 0, 0.22),
+    0 0 26px color-mix(in srgb, var(--tuner-color), transparent 50%);
+  opacity: calc(0.48 + var(--tuner-focus));
+  transition: background 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+}
+
+.tuner-badge-live {
+  min-height: 23px;
+  padding: 4px 10px 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tuner-screw-live {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background:
+    linear-gradient(45deg, transparent 42%, rgba(0, 0, 0, 0.28) 43% 57%, transparent 58%),
+    linear-gradient(180deg, #f8f0df, #9f9a90);
+  box-shadow:
+    inset 0 2px 2px rgba(255, 255, 255, 0.48),
+    0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+.tuner-window-live {
+  position: relative;
+  z-index: 2;
+  height: 82px;
+  margin: 20px 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.13), transparent 24%),
+    linear-gradient(180deg, #11181a, #060808);
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -18px 32px rgba(0, 0, 0, 0.34),
+    0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.tuner-window-live::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 34%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 5px);
+  pointer-events: none;
+}
+
+.tuner-wave-live {
+  position: absolute;
+  inset: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.tuner-wave-live span {
+  width: 5px;
+  height: calc(12px + var(--bar-phase) * var(--tuner-wave) * 0.13);
+  border-radius: 999px;
+  background: var(--tuner-color);
+  opacity: calc(0.28 + var(--tuner-focus));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--tuner-color), transparent 62%);
+  transform: scaleY(calc(0.55 + var(--tuner-focus))) translateY(var(--bar-offset));
+  transition:
+    height 420ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 220ms ease,
+    background 220ms ease,
+    transform 420ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.tuner-scanline-live {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--tuner-color);
+  opacity: 0.72;
+  box-shadow: 0 0 16px var(--tuner-color);
+  transform: translateY(-50%);
+}
+
+.tuner-dial-zone-live {
+  position: relative;
+  z-index: 3;
+  width: 220px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+.tuner-scale-live {
+  position: absolute;
+  inset: 0;
+}
+
+.tuner-scale-mark-live {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.54);
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--mark-angle))
+    translateY(-86px)
+    rotate(calc(var(--mark-angle) * -1));
+  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease, scale 180ms ease;
+}
+
+.tuner-scale-mark-live:disabled {
+  cursor: not-allowed;
+}
+
+.tuner-scale-mark-live span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.tuner-scale-mark-live:hover span,
+.tuner-scale-mark-live.active span {
+  background: var(--mark-color);
+  color: #fff;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--mark-color), transparent 82%),
+    0 10px 20px color-mix(in srgb, var(--mark-color), transparent 72%);
+}
+
+.tuner-knob-live {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  transform: translate(-50%, -50%);
+  outline: none;
+}
+
+.tuner-knob-live:active {
+  cursor: grabbing;
+}
+
+.tuner-knob-live:focus-visible {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tuner-color), transparent 54%);
+}
+
+.tuner-knob-face-live {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 36% 28%, rgba(255, 255, 255, 0.42), transparent 18%),
+    radial-gradient(circle at 50% 54%, #4d5658 0 35%, #22282a 36% 58%, #0f1213 59%),
+    conic-gradient(from 140deg, #0b0d0e, #444c4e, #15191a, #596063, #0b0d0e);
+  box-shadow:
+    inset 0 3px 8px rgba(255, 255, 255, 0.18),
+    inset 0 -12px 24px rgba(0, 0, 0, 0.46),
+    0 18px 36px rgba(0, 0, 0, 0.32);
+}
+
+.tuner-needle-live {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 52px;
+  border-radius: 999px;
+  background: var(--tuner-color);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--tuner-color), transparent 48%);
+  transform: translate(-50%, -94%) rotate(var(--tuner-rotation));
+  transform-origin: center 94%;
+  transition: transform 520ms cubic-bezier(0.19, 1, 0.22, 1), background 220ms ease;
+}
+
+.tuner-footer-live {
+  min-height: 30px;
+  margin-top: 4px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--tuner-muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.tuner-footer-live b {
+  width: 38px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--tuner-color);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--tuner-color), transparent 48%);
+}
+
+.feeling-tuner-disabled {
+  opacity: 0.54;
+  pointer-events: none;
+}
+
+[data-theme='dark'] .feeling-tuner {
+  border-color: rgba(96, 106, 110, 0.72);
+  background:
+    radial-gradient(circle at 50% 26%, color-mix(in srgb, var(--tuner-color), transparent 90%), transparent 38%),
+    linear-gradient(180deg, rgba(54, 63, 66, 0.96), rgba(41, 45, 48, 0.96));
+}
+
+[data-theme='dark'] .tuner-readout span {
+  color: #b7c0c3;
+}
+
+@media (max-width: 480px) {
+  .feeling-tuner {
+    padding: 12px;
+  }
+
+  .tuner-device-live {
+    min-height: 276px;
+    padding: 14px 14px 16px;
+  }
+
+  .tuner-dial-zone-live {
+    width: 200px;
+  }
+
+  .tuner-knob-live {
+    width: 116px;
+    height: 116px;
+  }
+
+  .tuner-scale-mark-live {
+    transform:
+      translate(-50%, -50%)
+      rotate(var(--mark-angle))
+      translateY(-80px)
+      rotate(calc(var(--mark-angle) * -1));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tuner-led-live,
+  .tuner-wave-live span,
+  .tuner-scale-mark-live,
+  .tuner-needle-live {
+    transition: none;
+  }
+}

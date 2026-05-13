@@ -6,12 +6,9 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  // eslint-disable-next-line no-unused-vars
   login: (data: LoginRequest) => Promise<void>;
-  // eslint-disable-next-line no-unused-vars
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
-  // eslint-disable-next-line no-unused-vars
   updateUser: (user: User) => void;
   loading: boolean;
 }

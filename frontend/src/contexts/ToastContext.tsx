@@ -10,9 +10,7 @@ export interface Toast {
 
 interface ToastContextType {
   toasts: Toast[];
-  // eslint-disable-next-line no-unused-vars
   addToast: (message: string, type?: ToastType) => void;
-  // eslint-disable-next-line no-unused-vars
   removeToast: (id: number) => void;
 }
 

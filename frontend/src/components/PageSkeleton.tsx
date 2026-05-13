@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 // Inject spinner keyframes once
 if (typeof document !== 'undefined') {

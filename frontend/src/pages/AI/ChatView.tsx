@@ -248,7 +248,7 @@ export default function ChatView() {
 
       if (!res.ok) {
         let msg = `请求失败 (${res.status})`;
-        try { const e = await res.json(); msg = e.message || msg; } catch {}
+        try { const e = await res.json(); msg = e.message || msg; } catch { /* ignore JSON parse errors */ }
         throw new Error(msg);
       }
 
@@ -372,7 +372,7 @@ export default function ChatView() {
     try {
       const data = await apiFetch(AI_API.sessionContext(activeId));
       setCtxEntries(data ?? []);
-    } catch {}
+    } catch { /* context fetch is optional — fail silently */ }
   }, [apiFetch, activeId]);
 
   useEffect(() => { fetchContext(); }, [fetchContext]);
@@ -385,8 +385,8 @@ export default function ChatView() {
     apiFetch(AI_API.contextDiaries).then(d => setDiaries(d ?? [])).catch(() => {}).finally(() => setCtxDiaryLoading(false));
   }, [apiFetch]);
 
-  const isSchedSelected = (id: number) => ctxEntries.some(e => e.scheduleId === id);
-  const isDiarySelected = (id: number) => ctxEntries.some(e => e.diaryId === id);
+  const isSchedSelected = useCallback((id: number) => ctxEntries.some(e => e.scheduleId === id), [ctxEntries]);
+  const isDiarySelected = useCallback((id: number) => ctxEntries.some(e => e.diaryId === id), [ctxEntries]);
 
   const toggleContext = useCallback(async (type: 'schedule' | 'diary', id: number) => {
     if (activeId === null) return;
@@ -407,7 +407,7 @@ export default function ChatView() {
     } catch (err) {
       addToast(err instanceof Error ? err.message : '操作失败', 'error');
     }
-  }, [activeId, ctxEntries, apiFetch, fetchContext, addToast]);
+  }, [activeId, ctxEntries, apiFetch, fetchContext, addToast, isSchedSelected, isDiarySelected]);
 
   const removeContext = useCallback(async (entryId: number) => {
     if (activeId === null) return;

@@ -1,6 +1,6 @@
 export type FeelingValue = -3 | -2 | -1 | 0 | 1 | 2 | 3;
 
-export type FeelingSelectorMode = 'buttons' | 'slider';
+export type FeelingSelectorMode = 'buttons' | 'slider' | 'tuner';
 
 export type ThemeType = 'morandi' | 'minimal' | 'dark';
 
@@ -146,6 +146,7 @@ export interface SessionResponse {
   createdAt: string;
   messageCount: number;
   messages: MessageResponse[];
+  diaryId?: number;
 }
 
 export interface MessageResponse {

@@ -80,7 +80,7 @@ export default function AnalysisPage() {
     } finally {
       setLoading(false);
     }
-  }, [apiFetch, tab, date, month]);
+  }, [apiFetch, tab, date, month, addToast]);
 
   const handleAiAnalyze = async () => {
     setAiLoading(true);
@@ -118,7 +118,7 @@ export default function AnalysisPage() {
   const chartData = useMemo(() => {
     if (!data?.dailyTotals) return [];
     return Object.entries(data.dailyTotals).map(([date, value]) => ({ date, value }));
-  }, [data?.dailyTotals]);
+  }, [data]);
 
   const tabLabels: Record<TabType, string> = { daily: '日分析', weekly: '周分析', monthly: '月分析', full: '全历史分析' };
 

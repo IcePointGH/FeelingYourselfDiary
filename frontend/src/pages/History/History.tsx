@@ -4,7 +4,7 @@ import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import { SCHEDULE_API, ANALYSIS_API } from '../../services/api';
 import { KAOMOJI } from '../../utils/feeling';
-import type { ScheduleItem, MonthlyAnalysis } from '../../types';
+import type { ScheduleItem, MonthlyAnalysis, FeelingValue } from '../../types';
 import { generateCalendar } from '../../utils/calendar';
 import './History.css';
 
@@ -18,12 +18,6 @@ export default function HistoryPage() {
   const [monthlyMood, setMonthlyMood] = useState<Record<string, number>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
-
-  // 默认加载当天日程 + 当日期变更时重新加载
-  useEffect(() => {
-    handleSelectDate(todayStr);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const fetchMonthlyMood = useCallback(async () => {
     try {
@@ -53,6 +47,12 @@ export default function HistoryPage() {
       addToast('加载日程详情失败, 请刷新重试', 'error');
     }
   };
+
+  // 默认加载当天日程
+  useEffect(() => {
+    handleSelectDate(todayStr);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleToggleComplete = async (id: number) => {
     // 乐观更新
@@ -84,7 +84,7 @@ export default function HistoryPage() {
     }
   };
 
-  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => {
+  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
     const updateItem = (prev: ScheduleItem[]) => prev.map(it => it.id === id ? { ...it, ...data } : it);
     setSelectedSchedules(updateItem);
     try {

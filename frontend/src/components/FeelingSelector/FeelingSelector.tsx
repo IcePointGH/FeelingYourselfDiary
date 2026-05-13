@@ -1,14 +1,15 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type Dispatch } from 'react';
 import { useEmotionLabels } from '../../contexts/EmotionLabelsContext';
-import { getFeelingClass, FEELING_VALUES } from '../../utils/feeling';
+import { FEELING_VALUES } from '../../utils/feeling';
 import type { FeelingSelectorMode } from '../../types';
 import './FeelingSelector.css';
 
 const FeelingSlider = lazy(() => import('../FeelingSlider/FeelingSlider'));
+const FeelingTuner = lazy(() => import('../FeelingTuner/FeelingTuner'));
 
 interface FeelingSelectorProps {
   value: number;
-  onChange: (value: number) => void;
+  onChange: Dispatch<number>;
   disabled?: boolean;
   mode?: FeelingSelectorMode;
 }
@@ -29,6 +30,14 @@ export default function FeelingSelector({
         {mode === 'slider' ? (
           <Suspense fallback={<div className="slider-fallback" />}>
             <FeelingSlider
+              value={value}
+              onChange={onChange}
+              disabled={disabled}
+            />
+          </Suspense>
+        ) : mode === 'tuner' ? (
+          <Suspense fallback={<div className="slider-fallback tuner-fallback" />}>
+            <FeelingTuner
               value={value}
               onChange={onChange}
               disabled={disabled}

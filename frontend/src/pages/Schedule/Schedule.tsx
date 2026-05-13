@@ -7,8 +7,8 @@ import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import { SCHEDULE_API } from '../../services/api';
-import { KAOMOJI, DEFAULT_KAOMOJI, getFeelingClass } from '../../utils/feeling';
-import type { ScheduleItem } from '../../types';
+import { KAOMOJI, DEFAULT_KAOMOJI } from '../../utils/feeling';
+import type { ScheduleItem, FeelingValue } from '../../types';
 import './Schedule.css';
 
 const quotes = [
@@ -43,7 +43,11 @@ export default function SchedulePage() {
   const toggleSelect = (id: number) => {
     setSelectedIds(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -51,7 +55,7 @@ export default function SchedulePage() {
   const selectAll = () => setSelectedIds(new Set(scheduleList.map(it => it.id)));
   const deselectAll = () => setSelectedIds(new Set());
 
-  const batchToggle = async (completed: boolean) => {
+  const batchToggle = async (_completed: boolean) => {
     const ids = Array.from(selectedIds);
     for (const id of ids) {
       try {
@@ -145,7 +149,7 @@ export default function SchedulePage() {
     }
   };
 
-  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: number }) => {
+  const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
     // 乐观更新
     setScheduleList(prev => prev.map(it => it.id === id ? { ...it, ...data } : it));
     try {
@@ -179,7 +183,6 @@ export default function SchedulePage() {
   };
 
   const displayKao = hasInteracted ? KAOMOJI[feeling] ?? DEFAULT_KAOMOJI : DEFAULT_KAOMOJI;
-  const kaoMood = hasInteracted ? getFeelingClass(feeling) : 'positive';
 
   return (
     <div className="schedule-page">

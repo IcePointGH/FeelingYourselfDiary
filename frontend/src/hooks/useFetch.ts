@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface UseFetchResult<T> {
   data: T | null;
@@ -9,28 +9,43 @@ interface UseFetchResult<T> {
 
 export function useFetch<T>(
   fetchFn: () => Promise<T>,
-  deps: any[] = []
+  deps: unknown[] = [],
 ): UseFetchResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const execute = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await fetchFn();
-      setData(result);
-    } catch (err: any) {
-      setError(err.message || '加载失败');
-    } finally {
-      setLoading(false);
-    }
-  }, deps);
+  const fetchFnRef = useRef(fetchFn);
 
   useEffect(() => {
-    execute();
-  }, [execute]);
+    fetchFnRef.current = fetchFn;
+  });
+
+  const execute = useCallback(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchFnRef.current()
+      .then(result => {
+        if (!cancelled) setData(result);
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          const e = err instanceof Error ? err : new Error(String(err));
+          setError(e.message || '加载失败');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Re-run when deps change, tracked via serialized key to satisfy array-literal rule
+  const depsKey = deps.join(',');
+  useEffect(() => {
+    const cancel = execute();
+    return cancel;
+  }, [depsKey, execute]);
 
   const refetch = useCallback(() => {
     execute();

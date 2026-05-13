@@ -41,7 +41,6 @@ export function EmotionLabelsProvider({ children }: { children: ReactNode }) {
   }, [apiFetch]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshLabels();
   }, [refreshLabels]);
 

@@ -35,14 +35,8 @@ export default function FeelingSlider({
   const trackRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [animKey, setAnimKey] = useState(0);
 
   const clampedValue = Math.max(MIN, Math.min(MAX, Math.round(value)));
-
-  // Trigger kaomoji display animation when value changes
-  useEffect(() => {
-    setAnimKey(k => k + 1);
-  }, [clampedValue]);
 
   const getValueFromClientX = useCallback(
     (clientX: number): number => {
@@ -157,7 +151,7 @@ export default function FeelingSlider({
   return (
     <div className={wrapperCls}>
       {/* Large animated kaomoji display — above slider */}
-      <div className="slider-kaomoji-stage" key={animKey}>
+      <div className="slider-kaomoji-stage" key={clampedValue}>
         <span className="stage-kaomoji">{KAOMOJI[clampedValue]}</span>
       </div>
 

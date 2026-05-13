@@ -20,6 +20,7 @@ import ThoughtsPage from './pages/Thoughts/Thoughts';
 const AnalysisPage = React.lazy(() => import('./pages/Analysis/Analysis'));
 const HistoryPage = React.lazy(() => import('./pages/History/History'));
 const SettingsPage = React.lazy(() => import('./pages/Settings/Settings'));
+const FeelingPrototypePage = React.lazy(() => import('./pages/FeelingPrototype/FeelingPrototype'));
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/feeling-prototype" element={<Suspense fallback={<PageSkeleton />}><FeelingPrototypePage /></Suspense>} />
                 <Route element={<Layout />}>
                   <Route path="/schedule" element={<SchedulePage />} />
                   <Route path="/thoughts" element={<ThoughtsPage />} />

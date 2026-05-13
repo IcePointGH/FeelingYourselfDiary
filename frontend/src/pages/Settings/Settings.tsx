@@ -97,7 +97,7 @@ export default function SettingsPage() {
     };
     loadProfile();
     loadSettings();
-  }, [apiFetch]);
+  }, [apiFetch, addToast, user]);
 
   const handleSaveProfile = async () => {
     try {
@@ -299,14 +299,14 @@ export default function SettingsPage() {
           {customSection === 'mode' && (
             <div className="custom-sub">
               <div className="theme-options">
-                {(['buttons', 'slider'] as FeelingSelectorMode[]).map(opt => (
+                {(['tuner', 'buttons', 'slider'] as FeelingSelectorMode[]).map(opt => (
                   <div
                     key={opt}
                     className={`theme-option ${feelingMode === opt ? 'active' : ''}`}
                     onClick={() => setFeelingMode(opt)}
                   >
-                    <div className={`theme-preview ${opt === 'slider' ? 'slider-preview' : 'buttons-preview'}`} />
-                    <span>{opt === 'buttons' ? '按钮式' : '滑动式'}</span>
+                    <div className={`theme-preview ${opt === 'tuner' ? 'tuner-preview' : opt === 'slider' ? 'slider-preview' : 'buttons-preview'}`} />
+                    <span>{opt === 'tuner' ? '调音器' : opt === 'buttons' ? '按钮式' : '滑动式'}</span>
                   </div>
                 ))}
               </div>
