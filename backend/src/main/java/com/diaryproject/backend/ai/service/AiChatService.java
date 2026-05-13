@@ -2,7 +2,6 @@ package com.diaryproject.backend.ai.service;
 
 import com.diaryproject.backend.ai.entity.AiMessage;
 import com.diaryproject.backend.ai.entity.AiSessionSchedule;
-import com.diaryproject.backend.ai.entity.UserMemory;
 import com.diaryproject.backend.ai.dto.AiDTO;
 import com.diaryproject.backend.ai.repository.AiMessageRepository;
 import com.diaryproject.backend.ai.repository.AiSessionRepository;
@@ -49,6 +48,7 @@ public class AiChatService {
     private final AiDiarySummaryParser diarySummaryParser;
     private final AiConversationBuilder conversationBuilder;
     private final AiTitleNormalizer titleNormalizer;
+    private final AiChatSystemPromptBuilder systemPromptBuilder;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -64,6 +64,7 @@ public class AiChatService {
                          AiDiarySummaryParser diarySummaryParser,
                          AiConversationBuilder conversationBuilder,
                          AiTitleNormalizer titleNormalizer,
+                         AiChatSystemPromptBuilder systemPromptBuilder,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -78,6 +79,7 @@ public class AiChatService {
         this.diarySummaryParser = diarySummaryParser;
         this.conversationBuilder = conversationBuilder;
         this.titleNormalizer = titleNormalizer;
+        this.systemPromptBuilder = systemPromptBuilder;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -117,27 +119,7 @@ public class AiChatService {
         String contextBlock = buildContextBlock(sessionId);
 
         // 6. 构建 ChatClient 消息列表
-        String systemPrompt = """
-                你是一个温暖而专业的情绪平衡助手，名字叫"小七"。
-                你会收到用户的日程记录（包含情绪值 -3 到 +3）和日记文本。
-                你的职责是：
-                1. 情绪分析 — 识别情绪波动模式，像朋友一样娓娓道来
-                2. 洞察建议 — 结合日程内容给出温和的建议
-                3. 情感支持 — 情绪低落时先共情再分析
-                核心原则：只基于提供的数据说话，绝不捏造信息。语气温和亲切。永远不要给出医疗建议或诊断。结尾加上："以上分析由AI生成，仅供参考 ❤️"
-                """;
-
-        // 注入用户记忆画像（如果存在）
-        try {
-            UserMemory memory = memoryService.getOrCreate(userId);
-            if (memory.getContent() != null && !memory.getContent().isBlank()) {
-                systemPrompt = systemPrompt + "\n\n## 关于用户（基于历史对话分析）\n" + memory.getContent();
-                log.debug("User memory injected into system prompt — userId: {}", userId);
-            }
-        } catch (Exception e) {
-            log.warn("Failed to load user memory for prompt injection — userId: {}", userId, e);
-        }
-
+        String systemPrompt = systemPromptBuilder.build(userId);
         List<org.springframework.ai.chat.messages.Message> messages =
                 conversationBuilder.buildChatMessages(systemPrompt, contextMessages, contextBlock);
 
