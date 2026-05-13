@@ -17,9 +17,6 @@ import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.AssistantMessage;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -29,7 +26,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +46,8 @@ public class AiChatService {
     private final PromptService promptService;
     private final MemoryService memoryService;
     private final AiPromptRecordFormatter recordFormatter;
+    private final AiDiarySummaryParser diarySummaryParser;
+    private final AiConversationBuilder conversationBuilder;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -62,6 +60,8 @@ public class AiChatService {
                          PromptService promptService,
                          MemoryService memoryService,
                          AiPromptRecordFormatter recordFormatter,
+                         AiDiarySummaryParser diarySummaryParser,
+                         AiConversationBuilder conversationBuilder,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -73,6 +73,8 @@ public class AiChatService {
         this.promptService = promptService;
         this.memoryService = memoryService;
         this.recordFormatter = recordFormatter;
+        this.diarySummaryParser = diarySummaryParser;
+        this.conversationBuilder = conversationBuilder;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -106,9 +108,7 @@ public class AiChatService {
 
         // 4. 重新获取完整消息列表（含刚保存的用户消息），取最近 40 条（20 轮对话）
         List<AiMessage> contextMessages = aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId);
-        if (contextMessages.size() > 40) {
-            contextMessages = contextMessages.subList(contextMessages.size() - 40, contextMessages.size());
-        }
+        contextMessages = conversationBuilder.recentWindow(contextMessages, 40);
 
         // 5. 加载上下文选择条目（日程/日记），构建上下文数据块
         String contextBlock = buildContextBlock(sessionId);
@@ -135,22 +135,8 @@ public class AiChatService {
             log.warn("Failed to load user memory for prompt injection — userId: {}", userId, e);
         }
 
-        List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
-        messages.add(new SystemMessage(systemPrompt));
-
-        for (int i = 0; i < contextMessages.size(); i++) {
-            AiMessage msg = contextMessages.get(i);
-            if ("user".equals(msg.getRole())) {
-                String content = msg.getContent();
-                // Augment the most recent user message (the one just sent) with context data
-                if (contextBlock != null && i == contextMessages.size() - 1) {
-                    content = contextBlock + "\n\n---\n\n" + content;
-                }
-                messages.add(new UserMessage(content));
-            } else if ("assistant".equals(msg.getRole())) {
-                messages.add(new AssistantMessage(msg.getContent()));
-            }
-        }
+        List<org.springframework.ai.chat.messages.Message> messages =
+                conversationBuilder.buildChatMessages(systemPrompt, contextMessages, contextBlock);
 
         // 6-7. 创建 SseEmitter 并订阅流式响应
         SseEmitter sseEmitter = new SseEmitter(300_000L);
@@ -305,17 +291,13 @@ public class AiChatService {
         }
 
         // 3. Build conversation text for AI
-        StringBuilder conversation = new StringBuilder();
-        for (AiMessage msg : messages) {
-            String role = "user".equals(msg.getRole()) ? "用户" : "小七";
-            conversation.append("【").append(role).append("】").append(msg.getContent()).append("\n");
-        }
+        String conversation = conversationBuilder.buildTranscript(messages);
 
         // 4. Call AI to summarize
         String systemPrompt = promptService.get("summarize-conversation");
         String aiResponse = chatClient.prompt()
                 .system(systemPrompt)
-                .user(conversation.toString())
+                .user(conversation)
                 .call()
                 .chatResponse()
                 .getResult()
@@ -326,30 +308,9 @@ public class AiChatService {
             throw new IllegalStateException("AI 总结失败，请稍后重试");
         }
 
-        // 5. Parse AI response: TITLE: xxx \n CONTENT: xxx
-        String title = null;
-        String content = null;
-        for (String line : aiResponse.split("\n")) {
-            String trimmed = line.trim();
-            if (trimmed.startsWith("TITLE:") || trimmed.startsWith("标题：")) {
-                title = trimmed.substring(trimmed.indexOf(":") + 1).trim();
-                if (title.isEmpty() && trimmed.length() > 7) title = trimmed.substring(6).trim();
-            } else if (trimmed.startsWith("CONTENT:") || trimmed.startsWith("内容：")) {
-                content = trimmed.substring(trimmed.indexOf(":") + 1).trim();
-            }
-        }
-
-        // Fallback if parsing fails
-        if (title == null || title.isBlank()) {
-            title = "AI 对话总结";
-        }
-        if (content == null || content.isBlank()) {
-            content = aiResponse.replace("TITLE:", "").replace("CONTENT:", "")
-                    .replace("标题：", "").replace("内容：", "").trim();
-        }
-        // Truncate to limits
-        if (title.length() > 255) title = title.substring(0, 255);
-        if (content.length() > 5000) content = content.substring(0, 5000);
+        AiDiarySummaryParser.ParsedSummary parsedSummary = diarySummaryParser.parse(aiResponse);
+        String title = parsedSummary.title();
+        String content = parsedSummary.content();
 
         LocalDate today = LocalDate.now();
         boolean updated;
