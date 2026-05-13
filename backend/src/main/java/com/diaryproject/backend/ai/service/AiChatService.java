@@ -17,13 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,8 +45,8 @@ public class AiChatService {
     private final AiPromptRecordFormatter recordFormatter;
     private final AiDiarySummaryParser diarySummaryParser;
     private final AiConversationBuilder conversationBuilder;
-    private final AiTitleNormalizer titleNormalizer;
     private final AiChatSystemPromptBuilder systemPromptBuilder;
+    private final AiTitleGenerationService titleGenerationService;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -63,8 +61,8 @@ public class AiChatService {
                          AiPromptRecordFormatter recordFormatter,
                          AiDiarySummaryParser diarySummaryParser,
                          AiConversationBuilder conversationBuilder,
-                         AiTitleNormalizer titleNormalizer,
                          AiChatSystemPromptBuilder systemPromptBuilder,
+                         AiTitleGenerationService titleGenerationService,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -78,8 +76,8 @@ public class AiChatService {
         this.recordFormatter = recordFormatter;
         this.diarySummaryParser = diarySummaryParser;
         this.conversationBuilder = conversationBuilder;
-        this.titleNormalizer = titleNormalizer;
         this.systemPromptBuilder = systemPromptBuilder;
+        this.titleGenerationService = titleGenerationService;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -165,7 +163,7 @@ public class AiChatService {
                                     saveAssistantMessage(sessionId, seq + 1, responseText);
 
                                     // Async auto-title generation after first exchange
-                                    generateTitle(sessionId, userMessage, responseText);
+                                    titleGenerationService.generateTitle(sessionId, userMessage, responseText);
 
                                     // Increment exchange count and trigger memory update if threshold reached
                                     try {
@@ -342,62 +340,4 @@ public class AiChatService {
         return response;
     }
 
-    /**
-     * 异步生成会话标题 — 在第一轮对话完成后调用。
-     * <p>
-     * 条件：会话标题为"新对话"且消息数为 2（用户 + 助手各一条）。
-     * 调用 大模型 总结主题，生成 ≤15 字的标题，通过 renameSession 更新。
-     * 失败时静默保留默认标题。
-     * </p>
-     *
-     * @param sessionId        会话 ID
-     * @param firstUserMsg     第一轮用户消息
-     * @param firstAssistantMsg 第一轮助手回复
-     */
-    @Async("aiTaskExecutor")
-    public void generateTitle(Long sessionId, String firstUserMsg, String firstAssistantMsg) {
-        try {
-            // Only generate title for sessions with default title "新对话"
-            com.diaryproject.backend.ai.entity.AiSession session = aiSessionRepository.findById(sessionId).orElse(null);
-            if (session == null) {
-                log.warn("generateTitle: session not found — sessionId: {}", sessionId);
-                return;
-            }
-
-            // Check condition: title is "新对话" AND this is the first complete exchange
-            if (!"新对话".equals(session.getTitle())) {
-                return;
-            }
-            long msgCount = aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId).size();
-            if (msgCount != 2) {
-                return;
-            }
-
-            log.info("auto-title: generating title for sessionId: {}", sessionId);
-
-            String promptTemplate = promptService.get("title-generation");
-            String prompt = MessageFormat.format(promptTemplate, firstUserMsg, firstAssistantMsg);
-
-            String response = chatClient.prompt()
-                    .user(prompt)
-                    .call()
-                    .chatResponse()
-                    .getResult()
-                    .getOutput()
-                    .getText();
-
-            if (response == null || response.isBlank()) {
-                log.warn("auto-title: empty response from 大模型 — sessionId: {}", sessionId);
-                return;
-            }
-
-            String title = titleNormalizer.normalize(response);
-
-            aiSessionService.renameSession(sessionId, title);
-            log.info("auto-title: session {} renamed to \"{}\"", sessionId, title);
-
-        } catch (Exception e) {
-            log.warn("auto-title: failed to generate title for sessionId: {}", sessionId, e);
-        }
-    }
 }
