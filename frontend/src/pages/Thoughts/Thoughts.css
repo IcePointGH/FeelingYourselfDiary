@@ -63,6 +63,30 @@
   padding: 0;
 }
 
+.edit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: #eef6ff;
+  border: 1px solid #cfe4ff;
+  border-radius: 8px;
+  color: #2d5f94;
+  font-size: 14px;
+}
+
+.edit-banner button {
+  border: none;
+  background: transparent;
+  color: #1686ee;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
 /* ── AI chat panel ── */
 .thoughts-ai-panel {
   min-height: 400px;
@@ -145,6 +169,7 @@
 
 .diary-info {
   flex: 1;
+  min-width: 0;
 }
 
 .diary-title {
@@ -165,6 +190,29 @@
 .diary-meta {
   font-size: 13px;
   color: #999;
+}
+
+.diary-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.edit-btn-small {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.edit-btn-small:hover {
+  color: #1686ee;
+  background: #eef6ff;
 }
 
 @media (max-width: 768px) {

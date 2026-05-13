@@ -10,14 +10,15 @@ import './Thoughts.css';
 
 type ThoughtTab = 'write' | 'ai' | 'review';
 
+const today = () => new Date().toISOString().split('T')[0];
+
 export default function ThoughtsPage() {
   const [activeTab, setActiveTab] = useState<ThoughtTab>('write');
-  // Write tab
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  // Review tab
-  const [reviewDate, setReviewDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(today());
+  const [editingEntryId, setEditingEntryId] = useState<number | null>(null);
+  const [reviewDate, setReviewDate] = useState(today());
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -33,19 +34,37 @@ export default function ThoughtsPage() {
     if (error) addToast(error, 'error');
   }, [error, addToast]);
 
+  const resetForm = () => {
+    setTitle('');
+    setContent('');
+    setDate(today());
+    setEditingEntryId(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const isEditing = editingEntryId !== null;
+
     try {
-      await apiFetch(DIARY_API.base, {
-        method: 'POST',
+      await apiFetch(isEditing ? `${DIARY_API.base}/${editingEntryId}` : DIARY_API.base, {
+        method: isEditing ? 'PUT' : 'POST',
         body: JSON.stringify({ title, content, date }),
       });
-      setTitle('');
-      setContent('');
-      if (date === reviewDate) refetch();
+      resetForm();
+      refetch();
+      addToast(isEditing ? '日记已更新' : '日记已保存', 'success');
+      if (isEditing) setActiveTab('review');
     } catch (err) {
       addToast(err instanceof Error ? err.message : '保存失败', 'error');
     }
+  };
+
+  const handleEdit = (entry: DiaryEntry) => {
+    setEditingEntryId(entry.id);
+    setTitle(entry.title);
+    setContent(entry.content);
+    setDate(entry.date);
+    setActiveTab('write');
   };
 
   const handleDelete = async (id: number) => {
@@ -53,6 +72,7 @@ export default function ThoughtsPage() {
     try {
       await apiFetch(`${DIARY_API.base}/${id}`, { method: 'DELETE' });
       refetch();
+      addToast('已删除', 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : '删除失败', 'error');
     }
@@ -84,6 +104,13 @@ export default function ThoughtsPage() {
       <div className="thoughts-tab-content">
         {activeTab === 'write' && (
           <form onSubmit={handleSubmit} className="thoughts-form">
+            {editingEntryId !== null && (
+              <div className="edit-banner">
+                <span>正在编辑回顾日记</span>
+                <button type="button" onClick={resetForm}>取消编辑</button>
+              </div>
+            )}
+
             <div className="form-group">
               <label>标题</label>
               <input
@@ -94,10 +121,12 @@ export default function ThoughtsPage() {
                 required
               />
             </div>
+
             <div className="form-group">
               <label>日期</label>
               <DateInput value={date} onChange={v => setDate(v)} required />
             </div>
+
             <div className="form-group">
               <label>内容</label>
               <textarea
@@ -108,7 +137,10 @@ export default function ThoughtsPage() {
                 required
               />
             </div>
-            <button type="submit" className="submit-btn">保存日记</button>
+
+            <button type="submit" className="submit-btn">
+              {editingEntryId !== null ? '更新日记' : '保存日记'}
+            </button>
           </form>
         )}
 
@@ -120,6 +152,7 @@ export default function ThoughtsPage() {
               <label>选择日期</label>
               <DateInput value={reviewDate} onChange={v => setReviewDate(v)} />
             </div>
+
             {entryList.length === 0 ? (
               <p className="empty-text">请选择日期查找日记</p>
             ) : (
@@ -131,9 +164,15 @@ export default function ThoughtsPage() {
                       <div className="diary-content">{entry.content}</div>
                       <div className="diary-meta">{entry.date}</div>
                     </div>
-                    <button className="delete-btn-small" onClick={() => handleDelete(entry.id)} title="删除">
-                      <i className="fas fa-trash" />
-                    </button>
+
+                    <div className="diary-actions">
+                      <button className="edit-btn-small" onClick={() => handleEdit(entry)} title="编辑">
+                        <i className="fas fa-pen" />
+                      </button>
+                      <button className="delete-btn-small" onClick={() => handleDelete(entry.id)} title="删除">
+                        <i className="fas fa-trash" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
