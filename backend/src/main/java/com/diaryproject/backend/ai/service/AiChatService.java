@@ -27,36 +27,33 @@ public class AiChatService {
     private final AiSessionRepository aiSessionRepository;
     private final AiMessageRepository aiMessageRepository;
     private final PromptService promptService;
-    private final MemoryService memoryService;
     private final AiDiarySummaryParser diarySummaryParser;
     private final AiDiarySummaryWriter diarySummaryWriter;
     private final AiConversationBuilder conversationBuilder;
     private final AiChatContextBlockBuilder contextBlockBuilder;
     private final AiChatSystemPromptBuilder systemPromptBuilder;
-    private final AiTitleGenerationService titleGenerationService;
+    private final AiChatCompletionService completionService;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
                          AiMessageRepository aiMessageRepository,
                          PromptService promptService,
-                         MemoryService memoryService,
                          AiDiarySummaryParser diarySummaryParser,
                          AiDiarySummaryWriter diarySummaryWriter,
                          AiConversationBuilder conversationBuilder,
                          AiChatContextBlockBuilder contextBlockBuilder,
                          AiChatSystemPromptBuilder systemPromptBuilder,
-                         AiTitleGenerationService titleGenerationService,
+                         AiChatCompletionService completionService,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
         this.promptService = promptService;
-        this.memoryService = memoryService;
         this.diarySummaryParser = diarySummaryParser;
         this.diarySummaryWriter = diarySummaryWriter;
         this.conversationBuilder = conversationBuilder;
         this.contextBlockBuilder = contextBlockBuilder;
         this.systemPromptBuilder = systemPromptBuilder;
-        this.titleGenerationService = titleGenerationService;
+        this.completionService = completionService;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized - chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -121,9 +118,7 @@ public class AiChatService {
                                 if (!responseText.isEmpty()) {
                                     log.info("AI chat stream completed - sessionId: {}, chars: {}, elapsed: {}ms",
                                             sessionId, responseText.length(), elapsedMs);
-                                    saveAssistantMessage(sessionId, seq + 1, responseText);
-                                    titleGenerationService.generateTitle(sessionId, userMessage, responseText);
-                                    updateMemoryAfterExchange(userId);
+                                    completionService.complete(userId, sessionId, seq + 1, userMessage, responseText);
                                 } else {
                                     log.warn("AI chat stream returned an empty response - sessionId: {}, elapsed: {}ms",
                                             sessionId, elapsedMs);
@@ -152,28 +147,6 @@ public class AiChatService {
             }
         }
         return total;
-    }
-
-    public void saveAssistantMessage(Long sessionId, int sequenceNum, String content) {
-        AiMessage assistantMsg = AiMessage.builder()
-                .sessionId(sessionId)
-                .role("assistant")
-                .content(content)
-                .sequenceNum(sequenceNum)
-                .build();
-        aiMessageRepository.save(assistantMsg);
-        log.info("Assistant message saved - sessionId: {}, seq: {}, len: {}", sessionId, sequenceNum, content.length());
-    }
-
-    private void updateMemoryAfterExchange(Long userId) {
-        try {
-            if (memoryService.incrementExchange(userId)) {
-                log.info("Memory threshold reached, triggering async update for user {}", userId);
-                memoryService.updateMemory(userId);
-            }
-        } catch (Exception memEx) {
-            log.warn("Memory exchange counting failed - userId: {}", userId, memEx);
-        }
     }
 
     @Transactional
