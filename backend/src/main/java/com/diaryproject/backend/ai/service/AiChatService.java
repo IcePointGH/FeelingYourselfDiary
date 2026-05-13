@@ -1,18 +1,14 @@
 package com.diaryproject.backend.ai.service;
 
 import com.diaryproject.backend.ai.entity.AiMessage;
-import com.diaryproject.backend.ai.entity.AiSessionSchedule;
 import com.diaryproject.backend.ai.dto.AiDTO;
 import com.diaryproject.backend.ai.repository.AiMessageRepository;
 import com.diaryproject.backend.ai.repository.AiSessionRepository;
-import com.diaryproject.backend.ai.repository.AiSessionScheduleRepository;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
 import com.diaryproject.backend.diary.entity.Diary;
 import com.diaryproject.backend.diary.repository.DiaryRepository;
 import com.diaryproject.backend.diary.service.DiaryService;
 import com.diaryproject.backend.diary.dto.DiaryDTO;
-import com.diaryproject.backend.schedule.entity.Schedule;
-import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -35,47 +31,41 @@ public class AiChatService {
 
     private final AiSessionRepository aiSessionRepository;
     private final AiMessageRepository aiMessageRepository;
-    private final AiSessionScheduleRepository aiSessionScheduleRepository;
-    private final ScheduleRepository scheduleRepository;
     private final DiaryRepository diaryRepository;
     private final DiaryService diaryService;
     private final AiSessionService aiSessionService;
     private final PromptService promptService;
     private final MemoryService memoryService;
-    private final AiPromptRecordFormatter recordFormatter;
     private final AiDiarySummaryParser diarySummaryParser;
     private final AiConversationBuilder conversationBuilder;
+    private final AiChatContextBlockBuilder contextBlockBuilder;
     private final AiChatSystemPromptBuilder systemPromptBuilder;
     private final AiTitleGenerationService titleGenerationService;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
                          AiMessageRepository aiMessageRepository,
-                         AiSessionScheduleRepository aiSessionScheduleRepository,
-                         ScheduleRepository scheduleRepository,
                          DiaryRepository diaryRepository,
                          DiaryService diaryService,
                          AiSessionService aiSessionService,
                          PromptService promptService,
                          MemoryService memoryService,
-                         AiPromptRecordFormatter recordFormatter,
                          AiDiarySummaryParser diarySummaryParser,
                          AiConversationBuilder conversationBuilder,
+                         AiChatContextBlockBuilder contextBlockBuilder,
                          AiChatSystemPromptBuilder systemPromptBuilder,
                          AiTitleGenerationService titleGenerationService,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
-        this.aiSessionScheduleRepository = aiSessionScheduleRepository;
-        this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.diaryService = diaryService;
         this.aiSessionService = aiSessionService;
         this.promptService = promptService;
         this.memoryService = memoryService;
-        this.recordFormatter = recordFormatter;
         this.diarySummaryParser = diarySummaryParser;
         this.conversationBuilder = conversationBuilder;
+        this.contextBlockBuilder = contextBlockBuilder;
         this.systemPromptBuilder = systemPromptBuilder;
         this.titleGenerationService = titleGenerationService;
         this.chatClient = ChatClient.builder(chatModel).build();
@@ -114,7 +104,7 @@ public class AiChatService {
         contextMessages = conversationBuilder.recentWindow(contextMessages, 40);
 
         // 5. 加载上下文选择条目（日程/日记），构建上下文数据块
-        String contextBlock = buildContextBlock(sessionId);
+        String contextBlock = contextBlockBuilder.build(sessionId);
 
         // 6. 构建 ChatClient 消息列表
         String systemPrompt = systemPromptBuilder.build(userId);
@@ -219,34 +209,6 @@ public class AiChatService {
                 .build();
         aiMessageRepository.save(assistantMsg);
         log.info("助手消息已保存 — sessionId: {}, seq: {}, len: {}", sessionId, sequenceNum, content.length());
-    }
-
-    /**
-     * 构建上下文数据块（用户选择的日程/日记数据）
-     * 返回 null 表示没有已选上下文
-     */
-    private String buildContextBlock(Long sessionId) {
-        List<AiSessionSchedule> contextEntries = aiSessionScheduleRepository.findBySessionId(sessionId);
-        if (contextEntries.isEmpty()) {
-            return null;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("以下是我选取的需要分析的数据：\n\n");
-
-        for (AiSessionSchedule entry : contextEntries) {
-            if (entry.getScheduleId() != null) {
-                scheduleRepository.findById(entry.getScheduleId())
-                        .ifPresent(schedule -> sb.append(recordFormatter.formatContextRecord(entry, schedule, null)));
-            } else if (entry.getDiaryId() != null) {
-                diaryRepository.findById(entry.getDiaryId())
-                        .ifPresent(diary -> sb.append(recordFormatter.formatContextRecord(entry, null, diary)));
-            }
-        }
-
-        String result = sb.toString();
-        log.info("上下文数据块已构建 — sessionId: {}, entries: {}, len: {}", sessionId, contextEntries.size(), result.length());
-        return result;
     }
 
     /**
