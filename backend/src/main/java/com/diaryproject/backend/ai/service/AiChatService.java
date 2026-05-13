@@ -49,6 +49,7 @@ public class AiChatService {
     private final AiSessionService aiSessionService;
     private final PromptService promptService;
     private final MemoryService memoryService;
+    private final AiPromptRecordFormatter recordFormatter;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -60,6 +61,7 @@ public class AiChatService {
                          AiSessionService aiSessionService,
                          PromptService promptService,
                          MemoryService memoryService,
+                         AiPromptRecordFormatter recordFormatter,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -70,6 +72,7 @@ public class AiChatService {
         this.aiSessionService = aiSessionService;
         this.promptService = promptService;
         this.memoryService = memoryService;
+        this.recordFormatter = recordFormatter;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -263,52 +266,18 @@ public class AiChatService {
         sb.append("以下是我选取的需要分析的数据：\n\n");
 
         for (AiSessionSchedule entry : contextEntries) {
-            if (entry.getTag() != null && !entry.getTag().isBlank()) {
-                sb.append("【标签：").append(entry.getTag()).append("】\n");
-            }
-
             if (entry.getScheduleId() != null) {
-                scheduleRepository.findById(entry.getScheduleId()).ifPresent(s -> {
-                    sb.append("【").append(s.getDate()).append("】");
-                    if (s.getTime() != null) {
-                        sb.append(" ").append(s.getTime());
-                    }
-                    sb.append("\n  标题：").append(s.getTitle());
-                    sb.append("\n  情绪：").append(s.getFeeling()).append(" (").append(getFeelingLabel(s.getFeeling())).append(")");
-                    if (s.getDescription() != null && !s.getDescription().isBlank()) {
-                        sb.append("\n  描述：").append(s.getDescription());
-                    }
-                    sb.append("\n\n");
-                });
+                scheduleRepository.findById(entry.getScheduleId())
+                        .ifPresent(schedule -> sb.append(recordFormatter.formatContextRecord(entry, schedule, null)));
             } else if (entry.getDiaryId() != null) {
-                diaryRepository.findById(entry.getDiaryId()).ifPresent(d -> {
-                    sb.append("【").append(d.getDate()).append("】");
-                    sb.append("\n  标题：").append(d.getTitle());
-                    sb.append("\n  内容：").append(d.getContent());
-                    sb.append("\n\n");
-                });
+                diaryRepository.findById(entry.getDiaryId())
+                        .ifPresent(diary -> sb.append(recordFormatter.formatContextRecord(entry, null, diary)));
             }
         }
 
         String result = sb.toString();
         log.info("上下文数据块已构建 — sessionId: {}, entries: {}, len: {}", sessionId, contextEntries.size(), result.length());
         return result;
-    }
-
-    /**
-     * 将情绪值映射为中文标签
-     */
-    private String getFeelingLabel(int feeling) {
-        switch (feeling) {
-            case -3: return "极差";
-            case -2: return "较差";
-            case -1: return "略差";
-            case 0:  return "一般";
-            case 1:  return "略好";
-            case 2:  return "较好";
-            case 3:  return "极好";
-            default: return "未知";
-        }
     }
 
     /**

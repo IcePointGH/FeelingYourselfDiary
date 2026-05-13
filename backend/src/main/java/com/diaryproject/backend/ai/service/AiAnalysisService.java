@@ -8,6 +8,7 @@ import com.diaryproject.backend.diary.entity.Diary;
 import com.diaryproject.backend.diary.repository.DiaryRepository;
 import com.diaryproject.backend.schedule.entity.Schedule;
 import com.diaryproject.backend.schedule.repository.ScheduleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -47,14 +48,17 @@ public class AiAnalysisService {
     private final HistoryChunkingService chunkingService;
     private final PromptService promptService;
     private final ChatClient chatClient;
+    private final AiPromptRecordFormatter recordFormatter;
 
+    @Autowired
     public AiAnalysisService(AiSessionRepository aiSessionRepository,
                              AiMessageRepository aiMessageRepository,
                              ScheduleRepository scheduleRepository,
                              DiaryRepository diaryRepository,
                              HistoryChunkingService chunkingService,
                              PromptService promptService,
-                             ChatModel chatModel) {
+                             ChatModel chatModel,
+                             AiPromptRecordFormatter recordFormatter) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
         this.scheduleRepository = scheduleRepository;
@@ -62,7 +66,19 @@ public class AiAnalysisService {
         this.chunkingService = chunkingService;
         this.promptService = promptService;
         this.chatClient = ChatClient.builder(chatModel).build();
+        this.recordFormatter = recordFormatter;
         log.info("AiAnalysisService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
+    }
+
+    AiAnalysisService(AiSessionRepository aiSessionRepository,
+                      AiMessageRepository aiMessageRepository,
+                      ScheduleRepository scheduleRepository,
+                      DiaryRepository diaryRepository,
+                      HistoryChunkingService chunkingService,
+                      PromptService promptService,
+                      ChatModel chatModel) {
+        this(aiSessionRepository, aiMessageRepository, scheduleRepository, diaryRepository,
+                chunkingService, promptService, chatModel, new AiPromptRecordFormatter());
     }
 
     /**
@@ -186,36 +202,7 @@ public class AiAnalysisService {
      * 构建用户提示文本（含日程和日记数据）。包级可见以便测试时 stub。
      */
     String buildUserPrompt(List<Schedule> schedules, List<Diary> diaries) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("以下是我在指定时间范围内的记录，请帮我分析：\n\n");
-
-        if (schedules != null && !schedules.isEmpty()) {
-            sb.append("===== 日程记录 =====\n");
-            for (Schedule s : schedules) {
-                sb.append("【").append(s.getDate()).append("】");
-                if (s.getTime() != null) {
-                    sb.append(" ").append(s.getTime());
-                }
-                sb.append("\n  标题：").append(s.getTitle());
-                sb.append("\n  情绪：").append(s.getFeeling()).append(" (").append(getFeelingLabel(s.getFeeling())).append(")");
-                if (s.getDescription() != null && !s.getDescription().isBlank()) {
-                    sb.append("\n  描述：").append(s.getDescription());
-                }
-                sb.append("\n\n");
-            }
-        }
-
-        if (diaries != null && !diaries.isEmpty()) {
-            sb.append("===== 日记记录 =====\n");
-            for (Diary d : diaries) {
-                sb.append("【").append(d.getDate()).append("】");
-                sb.append("\n  标题：").append(d.getTitle());
-                sb.append("\n  内容：").append(d.getContent());
-                sb.append("\n\n");
-            }
-        }
-
-        return sb.toString();
+        return recordFormatter.formatAnalysisRecords(schedules, diaries);
     }
 
     // ==================== Private helpers ====================
@@ -229,18 +216,5 @@ public class AiAnalysisService {
                 .build();
         aiMessageRepository.save(msg);
         log.debug("助手消息已保存 — sessionId: {}, seq: {}, role: {}, len: {}", sessionId, sequenceNum, role, content.length());
-    }
-
-    private String getFeelingLabel(int feeling) {
-        switch (feeling) {
-            case -3: return "极差";
-            case -2: return "较差";
-            case -1: return "略差";
-            case 0:  return "一般";
-            case 1:  return "略好";
-            case 2:  return "较好";
-            case 3:  return "极好";
-            default: return "未知";
-        }
     }
 }

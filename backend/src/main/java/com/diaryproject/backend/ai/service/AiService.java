@@ -34,16 +34,19 @@ public class AiService {
     private final ScheduleRepository scheduleRepository;
     private final DiaryRepository diaryRepository;
     private final PromptService promptService;
+    private final AiPromptRecordFormatter recordFormatter;
 
     @Value("${spring.ai.minimax.chat.options.model}")
     private String bigModel;
 
-    public AiService(ChatModel chatModel, ScheduleRepository scheduleRepository, DiaryRepository diaryRepository, PromptService promptService) {
+    public AiService(ChatModel chatModel, ScheduleRepository scheduleRepository, DiaryRepository diaryRepository,
+                     PromptService promptService, AiPromptRecordFormatter recordFormatter) {
         this.chatModel = chatModel;
         this.chatClient = ChatClient.builder(chatModel).build();
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.promptService = promptService;
+        this.recordFormatter = recordFormatter;
         log.info("AiService initialized — chatModel: {}, model: {}", chatModel.getClass().getSimpleName(), bigModel);
     }
 
@@ -127,7 +130,7 @@ public class AiService {
                     "在 " + startDate + " 至 " + endDate + " 范围内未找到日程或日记数据");
         }
 
-        String userPrompt = buildUserPrompt(schedules, diaries);
+        String userPrompt = recordFormatter.formatAnalysisRecords(schedules, diaries);
 
         String systemPrompt = promptService.get("range-analysis");
 
@@ -161,55 +164,4 @@ public class AiService {
         return response;
     }
 
-    /**
-     * 构建用户 Prompt，包含所有日程和日记数据
-     */
-    private String buildUserPrompt(List<Schedule> schedules, List<Diary> diaries) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("以下是我在指定时间范围内的记录，请帮我分析：\n\n");
-
-        if (!schedules.isEmpty()) {
-            sb.append("===== 日程记录 =====\n");
-            for (Schedule s : schedules) {
-                sb.append("【").append(s.getDate()).append("】");
-                if (s.getTime() != null) {
-                    sb.append(" ").append(s.getTime());
-                }
-                sb.append("\n  标题：").append(s.getTitle());
-                sb.append("\n  情绪：").append(s.getFeeling()).append(" (").append(getFeelingLabel(s.getFeeling())).append(")");
-                if (s.getDescription() != null && !s.getDescription().isBlank()) {
-                    sb.append("\n  描述：").append(s.getDescription());
-                }
-                sb.append("\n\n");
-            }
-        }
-
-        if (!diaries.isEmpty()) {
-            sb.append("===== 日记记录 =====\n");
-            for (Diary d : diaries) {
-                sb.append("【").append(d.getDate()).append("】");
-                sb.append("\n  标题：").append(d.getTitle());
-                sb.append("\n  内容：").append(d.getContent());
-                sb.append("\n\n");
-            }
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * 将情绪值映射为中文标签
-     */
-    private String getFeelingLabel(int feeling) {
-        switch (feeling) {
-            case -3: return "极差";
-            case -2: return "较差";
-            case -1: return "略差";
-            case 0:  return "一般";
-            case 1:  return "略好";
-            case 2:  return "较好";
-            case 3:  return "极好";
-            default: return "未知";
-        }
-    }
 }
