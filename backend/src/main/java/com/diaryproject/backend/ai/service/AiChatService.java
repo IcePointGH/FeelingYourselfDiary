@@ -48,6 +48,7 @@ public class AiChatService {
     private final AiPromptRecordFormatter recordFormatter;
     private final AiDiarySummaryParser diarySummaryParser;
     private final AiConversationBuilder conversationBuilder;
+    private final AiTitleNormalizer titleNormalizer;
     private final ChatClient chatClient;
 
     public AiChatService(AiSessionRepository aiSessionRepository,
@@ -62,6 +63,7 @@ public class AiChatService {
                          AiPromptRecordFormatter recordFormatter,
                          AiDiarySummaryParser diarySummaryParser,
                          AiConversationBuilder conversationBuilder,
+                         AiTitleNormalizer titleNormalizer,
                          ChatModel chatModel) {
         this.aiSessionRepository = aiSessionRepository;
         this.aiMessageRepository = aiMessageRepository;
@@ -75,6 +77,7 @@ public class AiChatService {
         this.recordFormatter = recordFormatter;
         this.diarySummaryParser = diarySummaryParser;
         this.conversationBuilder = conversationBuilder;
+        this.titleNormalizer = titleNormalizer;
         this.chatClient = ChatClient.builder(chatModel).build();
         log.info("AiChatService initialized — chatModel: {}", chatModel.getClass().getSimpleName());
     }
@@ -406,17 +409,7 @@ public class AiChatService {
                 return;
             }
 
-            // Clean up: trim, remove quotes, limit to 15 characters
-            String title = response.trim();
-            // Remove surrounding quotes if present
-            if ((title.startsWith("\"") && title.endsWith("\""))
-                    || (title.startsWith("'") && title.endsWith("'"))) {
-                title = title.substring(1, title.length() - 1);
-            }
-            title = title.trim();
-            if (title.length() > 15) {
-                title = title.substring(0, 15);
-            }
+            String title = titleNormalizer.normalize(response);
 
             aiSessionService.renameSession(sessionId, title);
             log.info("auto-title: session {} renamed to \"{}\"", sessionId, title);
