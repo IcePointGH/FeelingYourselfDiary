@@ -3,12 +3,15 @@ package com.diaryproject.backend.ai.service;
 import com.diaryproject.backend.ai.entity.AiMessage;
 import com.diaryproject.backend.ai.entity.AiSessionSchedule;
 import com.diaryproject.backend.ai.entity.UserMemory;
+import com.diaryproject.backend.ai.dto.AiDTO;
 import com.diaryproject.backend.ai.repository.AiMessageRepository;
 import com.diaryproject.backend.ai.repository.AiSessionRepository;
 import com.diaryproject.backend.ai.repository.AiSessionScheduleRepository;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
 import com.diaryproject.backend.diary.entity.Diary;
 import com.diaryproject.backend.diary.repository.DiaryRepository;
+import com.diaryproject.backend.diary.service.DiaryService;
+import com.diaryproject.backend.diary.dto.DiaryDTO;
 import com.diaryproject.backend.schedule.entity.Schedule;
 import com.diaryproject.backend.schedule.repository.ScheduleRepository;
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +45,7 @@ public class AiChatService {
     private final AiSessionScheduleRepository aiSessionScheduleRepository;
     private final ScheduleRepository scheduleRepository;
     private final DiaryRepository diaryRepository;
+    private final DiaryService diaryService;
     private final AiSessionService aiSessionService;
     private final PromptService promptService;
     private final MemoryService memoryService;
@@ -51,6 +56,7 @@ public class AiChatService {
                          AiSessionScheduleRepository aiSessionScheduleRepository,
                          ScheduleRepository scheduleRepository,
                          DiaryRepository diaryRepository,
+                         DiaryService diaryService,
                          AiSessionService aiSessionService,
                          PromptService promptService,
                          MemoryService memoryService,
@@ -60,6 +66,7 @@ public class AiChatService {
         this.aiSessionScheduleRepository = aiSessionScheduleRepository;
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
+        this.diaryService = diaryService;
         this.aiSessionService = aiSessionService;
         this.promptService = promptService;
         this.memoryService = memoryService;
@@ -302,6 +309,122 @@ public class AiChatService {
             case 3:  return "极好";
             default: return "未知";
         }
+    }
+
+    /**
+     * 将对话总结为回顾日记 — 调用 AI 生成标题和内容，创建或更新日记条目。
+     * <p>
+     * 如果会话已有关联日记（diaryId 不为空），则更新该日记；否则创建新日记。
+     * 日记日期取当前日期。
+     * </p>
+     *
+     * @param userId    用户 ID
+     * @param sessionId 会话 ID
+     * @return 包含日记 ID 和日期的响应
+     */
+    @Transactional
+    public AiDTO.SummarizeResponse summarizeToDiary(Long userId, Long sessionId) {
+        // 1. Validate session ownership
+        com.diaryproject.backend.ai.entity.AiSession session = aiSessionRepository
+                .findByUserIdAndId(userId, sessionId)
+                .orElseThrow(() -> new ResourceNotFoundException("AI 会话", sessionId));
+
+        // 2. Get all messages for the session
+        List<AiMessage> messages = aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId);
+        if (messages.isEmpty()) {
+            throw new IllegalArgumentException("会话无消息，无法生成日记");
+        }
+
+        // 3. Build conversation text for AI
+        StringBuilder conversation = new StringBuilder();
+        for (AiMessage msg : messages) {
+            String role = "user".equals(msg.getRole()) ? "用户" : "小七";
+            conversation.append("【").append(role).append("】").append(msg.getContent()).append("\n");
+        }
+
+        // 4. Call AI to summarize
+        String systemPrompt = promptService.get("summarize-conversation");
+        String aiResponse = chatClient.prompt()
+                .system(systemPrompt)
+                .user(conversation.toString())
+                .call()
+                .chatResponse()
+                .getResult()
+                .getOutput()
+                .getText();
+
+        if (aiResponse == null || aiResponse.isBlank()) {
+            throw new IllegalStateException("AI 总结失败，请稍后重试");
+        }
+
+        // 5. Parse AI response: TITLE: xxx \n CONTENT: xxx
+        String title = null;
+        String content = null;
+        for (String line : aiResponse.split("\n")) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith("TITLE:") || trimmed.startsWith("标题：")) {
+                title = trimmed.substring(trimmed.indexOf(":") + 1).trim();
+                if (title.isEmpty() && trimmed.length() > 7) title = trimmed.substring(6).trim();
+            } else if (trimmed.startsWith("CONTENT:") || trimmed.startsWith("内容：")) {
+                content = trimmed.substring(trimmed.indexOf(":") + 1).trim();
+            }
+        }
+
+        // Fallback if parsing fails
+        if (title == null || title.isBlank()) {
+            title = "AI 对话总结";
+        }
+        if (content == null || content.isBlank()) {
+            content = aiResponse.replace("TITLE:", "").replace("CONTENT:", "")
+                    .replace("标题：", "").replace("内容：", "").trim();
+        }
+        // Truncate to limits
+        if (title.length() > 255) title = title.substring(0, 255);
+        if (content.length() > 5000) content = content.substring(0, 5000);
+
+        LocalDate today = LocalDate.now();
+        boolean updated;
+
+        // 6. Create or update diary
+        if (session.getDiaryId() != null) {
+            // Update existing diary
+            Diary diary = diaryRepository.findByUserIdAndId(userId, session.getDiaryId())
+                    .orElse(null);
+            if (diary == null) {
+                // Diary was deleted externally — create new
+                DiaryDTO.CreateRequest createReq = new DiaryDTO.CreateRequest();
+                createReq.setTitle(title);
+                createReq.setContent(content);
+                createReq.setDate(today);
+                DiaryDTO.Response created = diaryService.create(userId, createReq);
+                session.setDiaryId(created.getId());
+                aiSessionRepository.save(session);
+                updated = false;
+            } else {
+                diary.setTitle(title);
+                diary.setContent(content);
+                diaryRepository.save(diary);
+                log.info("更新日记 — diaryId: {}, sessionId: {}", diary.getId(), sessionId);
+                updated = true;
+            }
+        } else {
+            // Create new diary
+            DiaryDTO.CreateRequest createReq = new DiaryDTO.CreateRequest();
+            createReq.setTitle(title);
+            createReq.setContent(content);
+            createReq.setDate(today);
+            DiaryDTO.Response created = diaryService.create(userId, createReq);
+            session.setDiaryId(created.getId());
+            aiSessionRepository.save(session);
+            log.info("创建日记 — diaryId: {}, sessionId: {}", created.getId(), sessionId);
+            updated = false;
+        }
+
+        AiDTO.SummarizeResponse response = new AiDTO.SummarizeResponse();
+        response.setDiaryId(session.getDiaryId());
+        response.setDiaryDate(today.toString());
+        response.setUpdated(updated);
+        return response;
     }
 
     /**

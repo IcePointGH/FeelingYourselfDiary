@@ -1,11 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
-import AIChatPanel from '../AI/AIChatPanel';
-import SessionSidebar from '../AI/SessionSidebar';
-import { DIARY_API, AI_API } from '../../services/api';
+import ChatView from '../AI/ChatView';
+import { DIARY_API } from '../../services/api';
 import type { DiaryEntry } from '../../types';
 import './Thoughts.css';
 
@@ -19,12 +18,6 @@ export default function ThoughtsPage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   // Review tab
   const [reviewDate, setReviewDate] = useState(new Date().toISOString().split('T')[0]);
-  // AI tab
-  const [aiSessionId, setAiSessionId] = useState<number | null>(null);
-  const [aiRateLimited, setAiRateLimited] = useState(false);
-  const [aiQuota, setAiQuota] = useState(50);
-  const [sessionRefresh, setSessionRefresh] = useState(0);
-  const creatingRef = useRef(false);
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
@@ -39,46 +32,6 @@ export default function ThoughtsPage() {
   useEffect(() => {
     if (error) addToast(error, 'error');
   }, [error, addToast]);
-
-  // AI tab: create session on first open
-  useEffect(() => {
-    if (activeTab === 'ai' && aiSessionId === null && !aiRateLimited && !creatingRef.current) {
-      creatingRef.current = true;
-      let cancelled = false;
-      (async () => {
-        try {
-          const session = await apiFetch(AI_API.sessions, {
-            method: 'POST',
-            body: JSON.stringify({ title: '新对话', sessionType: 'chat' }),
-          });
-          if (!cancelled) { setAiSessionId(session.id); setSessionRefresh(r => r + 1); }
-        } catch {
-          // fail silently — user can retry
-        } finally {
-          if (!cancelled) creatingRef.current = false;
-        }
-      })();
-      return () => { cancelled = true; };
-    }
-  }, [activeTab, aiSessionId, aiRateLimited, apiFetch]);
-
-  const handleNewAiSession = useCallback(async () => {
-    if (creatingRef.current) return;
-    creatingRef.current = true;
-    setAiSessionId(null);
-    try {
-      const session = await apiFetch(AI_API.sessions, {
-        method: 'POST',
-        body: JSON.stringify({ title: '新对话', sessionType: 'chat' }),
-      });
-      setAiSessionId(session.id);
-      setSessionRefresh(r => r + 1);
-    } catch {
-      addToast('创建会话失败', 'error');
-    } finally {
-      creatingRef.current = false;
-    }
-  }, [apiFetch, addToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,43 +112,7 @@ export default function ThoughtsPage() {
           </form>
         )}
 
-        {activeTab === 'ai' && (
-          <div className="thoughts-ai-panel">
-            {aiSessionId !== null ? (
-              <div className="ai-layout">
-                <SessionSidebar
-                  activeSessionId={aiSessionId}
-                  onSelect={(id) => setAiSessionId(id)}
-                  onNew={handleNewAiSession}
-                  refreshTrigger={sessionRefresh}
-                />
-                <div className="ai-chat-area">
-                  <AIChatPanel
-                    sessionId={aiSessionId}
-                    rateLimited={aiRateLimited}
-                    onRateLimited={setAiRateLimited}
-                    onQuotaUpdate={(headers: Headers) => {
-                      const remaining = headers.get('X-RateLimit-Remaining');
-                      if (remaining) setAiQuota(Number(remaining));
-                    }}
-                    onComplete={() => {}}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="ai-loading-state">
-                {aiRateLimited ? (
-                  <p className="empty-text">今日调用次数已用完，请明天再试</p>
-                ) : (
-                  <>
-                    <p className="empty-text">正在创建会话...</p>
-                    <button className="submit-btn" onClick={handleNewAiSession}>重试</button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+        {activeTab === 'ai' && <ChatView />}
 
         {activeTab === 'review' && (
           <div className="thoughts-review">

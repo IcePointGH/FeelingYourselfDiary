@@ -38,6 +38,8 @@ public class PromptService {
         FALLBACKS.put("title-generation",
                 "用不超过15个字总结以下对话的主题，只返回标题，不要其他内容。\n\n用户：{0}\n助手：{1}");
         FALLBACKS.put("memory-update", "你是一个情绪记录助手。");
+        FALLBACKS.put("summarize-conversation",
+                "请将以下对话总结为一篇简短日记。\n输出格式：\nTITLE: 标题\nCONTENT: 日记内容");
     }
 
     @PostConstruct

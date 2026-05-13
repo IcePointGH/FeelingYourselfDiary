@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
@@ -25,24 +25,23 @@ export default function HistoryPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch monthly mood analysis for calendar kaomoji
-  useEffect(() => {
-    let cancelled = false;
-    const fetchMonthlyMood = async () => {
-      try {
-        const yearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-        const data = await apiFetch(`${ANALYSIS_API.monthly}?month=${yearMonth}`);
-        const analysis = (data as MonthlyAnalysis) ?? data;
-        if (!cancelled && analysis?.dailyTotals) {
-          setMonthlyMood(analysis.dailyTotals);
-        }
-      } catch {
-        // Mood display is optional — fail silently
+  const fetchMonthlyMood = useCallback(async () => {
+    try {
+      const yearMonth = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+      const data = await apiFetch(`${ANALYSIS_API.monthly}?month=${yearMonth}`);
+      const analysis = (data as MonthlyAnalysis) ?? data;
+      if (analysis?.dailyTotals) {
+        setMonthlyMood(analysis.dailyTotals);
       }
-    };
-    fetchMonthlyMood();
-    return () => { cancelled = true; };
+    } catch {
+      // Mood display is optional — fail silently
+    }
   }, [currentYear, currentMonth, apiFetch]);
+
+  // Fetch monthly mood analysis on mount/month change
+  useEffect(() => {
+    fetchMonthlyMood();
+  }, [fetchMonthlyMood]);
 
   const handleSelectDate = async (dateStr: string) => {
     setSelectedDate(dateStr);
@@ -67,6 +66,7 @@ export default function HistoryPage() {
         const data = await apiFetch(SCHEDULE_API.byDate(selectedDate));
         setSelectedSchedules(data || []);
       }
+      fetchMonthlyMood(); // refresh calendar mood colors
     } catch (err) {
       setSelectedSchedules(flip);
       addToast(err instanceof Error ? err.message : '操作失败', 'error');
@@ -78,6 +78,7 @@ export default function HistoryPage() {
     try {
       await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
       setSelectedSchedules(prev => prev.filter(it => it.id !== id));
+      fetchMonthlyMood(); // refresh calendar mood colors
     } catch (err) {
       addToast(err instanceof Error ? err.message : '删除失败', 'error');
     }
@@ -92,6 +93,7 @@ export default function HistoryPage() {
         const fresh = await apiFetch(SCHEDULE_API.byDate(selectedDate));
         setSelectedSchedules(fresh || []);
       }
+      fetchMonthlyMood(); // refresh calendar mood colors
     } catch (err) {
       addToast(err instanceof Error ? err.message : '更新失败', 'error');
       if (selectedDate) {
@@ -170,8 +172,9 @@ export default function HistoryPage() {
             <div key={d} className="calendar-day-header">{d}</div>
           ))}
           {calendarDays.map((day, idx) => {
-            const hasData = monthlyMood[day.fullDate] !== undefined && day.isCurrentMonth;
             const dayTotal = monthlyMood[day.fullDate];
+            // Exclude 0: a day with net-zero feeling is visually neutral (no mood indicator)
+            const hasData = dayTotal !== undefined && dayTotal !== 0 && day.isCurrentMonth;
             const moodClass = hasData && dayTotal !== undefined ? `feel${dayTotal >= 0 ? '-' : '--'}${Math.abs(dayTotal)}` : '';
             return (
               <div
@@ -180,8 +183,8 @@ export default function HistoryPage() {
                 onClick={() => handleSelectDate(day.fullDate)}
               >
                 <span className="day-num">{day.date}</span>
-                {hasData && dayTotal !== undefined && (
-                  <span className="day-kaomoji">{pickKaomoji(dayTotal)}</span>
+                {hasData && (
+                  <span className="day-kaomoji">{pickKaomoji(dayTotal!)}</span>
                 )}
               </div>
             );

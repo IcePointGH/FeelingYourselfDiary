@@ -131,4 +131,20 @@ public class AiSessionController {
         log.info("REST 重命名会话 — userId: {}, sessionId: {}", userId, sessionId);
         return ApiResponse.success(aiSessionService.renameSession(userId, sessionId, request.getTitle()));
     }
+
+    /**
+     * 将对话总结为回顾日记 — 调用 AI 生成标题和内容，创建/更新日记。
+     * <p>
+     * 如果会话已有关联日记则更新，否则创建新的。
+     * 日记日期为当天。
+     * </p>
+     */
+    @PostMapping("/{sessionId}/summarize-to-diary")
+    public ApiResponse<AiDTO.SummarizeResponse> summarizeToDiary(
+            @PathVariable Long sessionId,
+            HttpServletRequest httpRequest) {
+        Long userId = (Long) httpRequest.getAttribute("userId");
+        log.info("REST 总结对话到日记 — userId: {}, sessionId: {}", userId, sessionId);
+        return ApiResponse.success(aiChatService.summarizeToDiary(userId, sessionId));
+    }
 }

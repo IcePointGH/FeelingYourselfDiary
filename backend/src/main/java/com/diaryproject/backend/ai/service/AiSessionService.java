@@ -43,10 +43,28 @@ public class AiSessionService {
     }
 
     /**
-     * 创建新会话
+     * 创建新会话（chat 类型有重复创建保护：若已存在空会话则复用）
      */
     @Transactional
     public AiDTO.SessionResponse createSession(Long userId, AiDTO.CreateSessionRequest req) {
+        // Duplicate prevention for chat sessions: reuse existing empty session
+        if ("chat".equals(req.getSessionType())) {
+            List<AiSession> existingSessions =
+                    aiSessionRepository.findByUserIdAndSessionTypeOrderByUpdatedAtDesc(userId, "chat");
+            for (AiSession existing : existingSessions) {
+                if ("active".equals(existing.getStatus())) {
+                    List<AiMessage> msgs =
+                            aiMessageRepository.findBySessionIdOrderBySequenceNumAsc(existing.getId());
+                    if (msgs.isEmpty()) {
+                        log.info("复用已有空会话 — sessionId: {}, userId: {}", existing.getId(), userId);
+                        AiDTO.SessionResponse response = toSessionResponse(existing, 0);
+                        response.setMessages(new ArrayList<>());
+                        return response;
+                    }
+                }
+            }
+        }
+
         // Auto-generate title if blank
         String title = req.getTitle();
         if (title == null || title.isBlank()) {
@@ -239,6 +257,7 @@ public class AiSessionService {
         response.setProgress(session.getProgress());
         response.setCreatedAt(session.getCreatedAt() != null ? session.getCreatedAt().format(DT_FMT) : null);
         response.setMessageCount(messageCount);
+        response.setDiaryId(session.getDiaryId());
         return response;
     }
 

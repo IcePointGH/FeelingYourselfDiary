@@ -69,6 +69,7 @@ public class AiDTO {
         private Integer progress;
         private String createdAt;
         private int messageCount;
+        private Long diaryId;
         private java.util.List<MessageResponse> messages;
     }
 
@@ -140,5 +141,14 @@ public class AiDTO {
         private String date;
         private String title;
         private String content;     // truncated to 50 chars for list view
+    }
+
+    // ==================== Summarize-to-Diary DTO ====================
+
+    @Data
+    public static class SummarizeResponse {
+        private Long diaryId;
+        private String diaryDate;
+        private boolean updated; // true = updated existing diary, false = created new
     }
 }

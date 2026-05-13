@@ -44,6 +44,10 @@ public class AiSession {
     @Builder.Default
     private Integer progress = 0;
 
+    /** 关联的日记 ID（用户点击"保存到日记"后创建/更新） */
+    @Column(name = "diary_id")
+    private Long diaryId;
+
     /** 创建时间 */
     @Column(name = "created_at")
     private LocalDateTime createdAt;

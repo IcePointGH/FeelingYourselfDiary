@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS ai_sessions (
     title VARCHAR(255) NOT NULL,
     updated_at DATETIME(6) DEFAULT NULL,
     user_id BIGINT NOT NULL,
+    diary_id BIGINT DEFAULT NULL,
     version BIGINT NOT NULL,
     PRIMARY KEY (id),
     KEY idx_ai_sessions_user_id (user_id),
