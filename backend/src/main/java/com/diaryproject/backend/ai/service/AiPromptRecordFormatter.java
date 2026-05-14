@@ -64,6 +64,7 @@ public class AiPromptRecordFormatter {
     }
 
     private void appendSchedule(StringBuilder sb, Schedule schedule) {
+        sb.append("【ID:").append(schedule.getId()).append("】");
         sb.append("【").append(schedule.getDate()).append("】");
         if (schedule.getTime() != null) {
             sb.append(" ").append(schedule.getTime());
@@ -77,6 +78,7 @@ public class AiPromptRecordFormatter {
     }
 
     private void appendDiary(StringBuilder sb, Diary diary) {
+        sb.append("【ID:").append(diary.getId()).append("】");
         sb.append("【").append(diary.getDate()).append("】");
         sb.append("\n  标题：").append(diary.getTitle());
         sb.append("\n  内容：").append(diary.getContent());

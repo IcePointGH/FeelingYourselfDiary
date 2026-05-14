@@ -1,6 +1,7 @@
 package com.diaryproject.backend.ai.controller;
 
 import com.diaryproject.backend.ai.dto.AiDTO;
+import com.diaryproject.backend.ai.exception.StructuredReportException;
 import com.diaryproject.backend.ai.service.AiService;
 import com.diaryproject.backend.ai.service.AiSessionService;
 import com.diaryproject.backend.common.dto.ApiResponse;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -49,13 +51,21 @@ public class AiController {
 
     /** Phase 2: 时间范围情绪分析 — 获取指定日期范围内的日程与日记数据，调用 AI 分析 */
     @PostMapping("/analyze")
-    public ApiResponse<AiDTO.AnalyzeResponse> analyze(
+    public ResponseEntity<ApiResponse<AiDTO.AnalyzeResponse>> analyze(
             @Valid @RequestBody AiDTO.AnalyzeRequest request,
             HttpServletRequest httpRequest) {
         Long userId = (Long) httpRequest.getAttribute("userId");
         log.info("REST AI 分析请求 — 日期范围: {} ~ {}", request.getStartDate(), request.getEndDate());
 
-        AiDTO.AnalyzeResponse result = aiService.analyzeTimeRange(userId, request.getStartDate(), request.getEndDate());
+        AiDTO.AnalyzeResponse result;
+        try {
+            result = aiService.analyzeTimeRange(userId, request.getStartDate(), request.getEndDate());
+        } catch (StructuredReportException e) {
+            log.warn("结构化报告生成失败: {}", e.getMessage());
+            ApiResponse<AiDTO.AnalyzeResponse> errorResponse =
+                    ApiResponse.error(422, "AI_STRUCTURED_REPORT_INVALID");
+            return ResponseEntity.status(422).body(errorResponse);
+        }
 
         // Persist as session for analysis history
         if (result.getMarkdown() != null) {
@@ -66,7 +76,7 @@ public class AiController {
             }
         }
 
-        return ApiResponse.success(result);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     /** 删除单条 AI 消息（含所属会话归属权校验） */

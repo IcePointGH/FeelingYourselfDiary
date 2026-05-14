@@ -33,6 +33,8 @@ public class PromptService {
                 "你是一个温暖而专业的情绪平衡助手。请用中文回复，语气亲切自然。");
         FALLBACKS.put("range-analysis",
                 "你是一个温暖而专业的情绪平衡助手。请根据以下日程数据分析用户的情绪状态。");
+        FALLBACKS.put("range-analysis-json",
+                "你是一个温暖而专业的情绪平衡助手。请根据数据输出严格JSON格式的情绪分析报告。");
         FALLBACKS.put("full-analysis",
                 "你是一个温暖而专业的情绪平衡助手。请根据以下数据对用户的情绪状态进行全面分析。");
         FALLBACKS.put("title-generation",
