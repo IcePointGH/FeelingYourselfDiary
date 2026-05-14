@@ -54,8 +54,31 @@ export default function SchedulePage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const tempIdRef = useRef(-1);
+  const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  const focusTitleInput = () => {
+    requestAnimationFrame(() => titleInputRef.current?.focus());
+  };
+
+  const revealRowIfNeeded = (id: number) => {
+    requestAnimationFrame(() => {
+      const el = rowRefs.current[id];
+      if (!el) {
+        focusTitleInput();
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      const visible = rect.top >= 0 && rect.bottom <= window.innerHeight;
+      if (!visible) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.setTimeout(focusTitleInput, 350);
+        return;
+      }
+      focusTitleInput();
+    });
+  };
 
   // 批量操作
   const [batchMode, setBatchMode] = useState(false);
@@ -172,7 +195,7 @@ export default function SchedulePage() {
     setHasInteracted(false);
     setShowDesc(false);
     setTime(submitted.date === todayValue() ? currentTimeValue() : submitted.time);
-    requestAnimationFrame(() => titleInputRef.current?.focus());
+    revealRowIfNeeded(tempId);
 
     try {
       const saved = await apiFetch(SCHEDULE_API.base, {
@@ -203,7 +226,7 @@ export default function SchedulePage() {
       setFeeling(submitted.feeling);
       setHasInteracted(true);
       setShowDesc(Boolean(submitted.description) || submitted.showDesc);
-      requestAnimationFrame(() => titleInputRef.current?.focus());
+      focusTitleInput();
       addToast(err instanceof Error ? err.message : '添加日程失败', 'error');
     }
   };
@@ -341,7 +364,7 @@ export default function SchedulePage() {
         ) : (
           <div className="schedule-list">
             {scheduleList.map(item => (
-              <div key={item.id} className="schedule-item-row">
+              <div key={item.id} ref={el => { rowRefs.current[item.id] = el; }} className="schedule-item-row">
                 {batchMode && !item.saving && (
                   <div
                     className={`batch-select-box ${selectedIds.has(item.id) ? 'selected' : ''}`}
