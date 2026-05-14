@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px 20px;
+  padding: 20px 24px;
   background: #fafafa;
   border-radius: 8px;
   border: 1px solid #e8e8e8;
@@ -25,18 +25,19 @@
   font-size: 17px;
   color: #454545;
   margin-bottom: 6px;
+  line-height: 1.4;
 }
 
 .schedule-desc {
   font-size: 14px;
   color: #999;
-  margin-bottom: 8px;
-  line-height: 1.5;
+  margin-bottom: 10px;
+  line-height: 1.6;
 }
 
 .schedule-meta {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
   font-size: 13px;
   color: #999;
@@ -53,8 +54,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 14px;
-  margin-top: 2px;
+  margin-right: 16px;
+  margin-top: 3px;
   cursor: pointer;
   flex-shrink: 0;
   user-select: none;
