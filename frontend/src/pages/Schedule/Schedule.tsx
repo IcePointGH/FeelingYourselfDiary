@@ -342,7 +342,7 @@ export default function SchedulePage() {
           <div className="schedule-list">
             {scheduleList.map(item => (
               <div key={item.id} className="schedule-item-row">
-                {batchMode && (
+                {batchMode && !item.saving && (
                   <div
                     className={`batch-select-box ${selectedIds.has(item.id) ? 'selected' : ''}`}
                     onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
@@ -352,9 +352,11 @@ export default function SchedulePage() {
                 )}
                 <ScheduleItemCard
                   item={item}
-                  onDelete={batchMode ? undefined : handleDelete}
-                  onToggleComplete={batchMode ? undefined : handleToggleComplete}
-                  onUpdate={batchMode ? undefined : handleUpdate}
+                  saving={item.saving}
+                  justAdded={item.justAdded}
+                  onDelete={batchMode || item.saving ? undefined : handleDelete}
+                  onToggleComplete={batchMode || item.saving ? undefined : handleToggleComplete}
+                  onUpdate={batchMode || item.saving ? undefined : handleUpdate}
                 />
               </div>
             ))}

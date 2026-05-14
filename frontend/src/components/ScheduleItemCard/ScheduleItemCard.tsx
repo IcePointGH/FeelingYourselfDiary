@@ -22,6 +22,8 @@ interface ScheduleItemCardProps {
   onUpdate?: (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => void;
   showActions?: boolean;
   showDate?: boolean;
+  saving?: boolean;
+  justAdded?: boolean;
 }
 
 /** Shallow-compare item fields that affect rendering — skip re-render if unchanged.
@@ -43,7 +45,9 @@ function arePropsEqual(
     a.feeling === b.feeling &&
     a.completed === b.completed &&
     prev.showActions === next.showActions &&
-    prev.showDate === next.showDate
+    prev.showDate === next.showDate &&
+    prev.saving === next.saving &&
+    prev.justAdded === next.justAdded
   );
 }
 
@@ -55,6 +59,8 @@ function ScheduleItemCard({
   onUpdate,
   showActions = true,
   showDate = true,
+  saving = false,
+  justAdded = false,
 }: ScheduleItemCardProps) {
   const isFuture = new Date(item.date) > new Date(new Date().toDateString());
   const [showFutureConfirm, setShowFutureConfirm] = useState(false);
@@ -68,6 +74,7 @@ function ScheduleItemCard({
   /** 勾选框点击：未来+未完成→弹确认窗，否则直接切换 */
   const handleCheckToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (saving) return;
     if (isFuture && !item.completed) {
       setShowFutureConfirm(true);
     } else {
@@ -111,11 +118,12 @@ function ScheduleItemCard({
   return (
     <>
       <div
-        className="schedule-item"
-        onClick={onClick ? () => onClick(item) : undefined}
-        role={onClick ? 'button' : undefined}
-        tabIndex={onClick ? 0 : undefined}
-        onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(item); } } : undefined}
+        className={`schedule-item ${saving ? 'is-saving' : ''} ${justAdded ? `just-added feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}` : ''}`}
+        onClick={onClick && !saving ? () => onClick(item) : undefined}
+        role={onClick && !saving ? 'button' : undefined}
+        tabIndex={onClick && !saving ? 0 : undefined}
+        aria-busy={saving || undefined}
+        onKeyDown={onClick && !saving ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(item); } } : undefined}
       >
         <div
           className={`schedule-checkbox ${item.completed ? 'checked' : ''}`}
@@ -124,7 +132,7 @@ function ScheduleItemCard({
           role="checkbox"
           aria-checked={item.completed}
           tabIndex={0}
-          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
+          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (saving) return; if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
         >
           <span className="checkmark" />
         </div>
@@ -141,7 +149,12 @@ function ScheduleItemCard({
             </span>
           </div>
         </div>
-        {showActions && (
+        {saving ? (
+          <div className="saving-indicator" aria-label="保存中">
+            <span className="saving-spinner" />
+            <span>保存中</span>
+          </div>
+        ) : showActions && (
           <div className="card-actions">
             {onUpdate && (
               <button className="action-btn edit-btn" onClick={startEdit} title="编辑">

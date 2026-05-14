@@ -294,3 +294,77 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ── Saving card state ── */
+.schedule-item.is-saving {
+  opacity: 0.72;
+  pointer-events: auto;
+}
+
+.schedule-item.is-saving .schedule-checkbox {
+  cursor: default;
+}
+
+.schedule-item.is-saving .schedule-checkbox .checkmark {
+  background: #f3f3f3;
+  border-color: #d8d8d8;
+}
+
+.saving-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: #888;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.saving-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #ddd;
+  border-top-color: #777;
+  border-radius: 50%;
+  animation: saving-spin 0.8s linear infinite;
+}
+
+.schedule-item.just-added {
+  animation: schedule-just-added 850ms ease-out both;
+}
+
+.schedule-item.just-added.feel--3 { --just-added-color: #d75772; }
+.schedule-item.just-added.feel--2 { --just-added-color: #f5867b; }
+.schedule-item.just-added.feel--1 { --just-added-color: #fea979; }
+.schedule-item.just-added.feel-0 { --just-added-color: #ffe062; }
+.schedule-item.just-added.feel-1 { --just-added-color: #3cdfe9; }
+.schedule-item.just-added.feel-2 { --just-added-color: #12b8ec; }
+.schedule-item.just-added.feel-3 { --just-added-color: #1686ee; }
+
+@keyframes saving-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes schedule-just-added {
+  0% {
+    transform: translateY(8px);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    border-color: var(--just-added-color, #1686ee);
+  }
+  35% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--just-added-color, #1686ee) 22%, transparent);
+    border-color: var(--just-added-color, #1686ee);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saving-spinner,
+  .schedule-item.just-added {
+    animation: none;
+  }
+}
