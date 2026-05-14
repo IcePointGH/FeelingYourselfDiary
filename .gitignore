@@ -76,3 +76,4 @@ application-local.properties
 /docs/plan/
 /.sisyphus/
 /.playwright-mcp/
+/.superpowers/
