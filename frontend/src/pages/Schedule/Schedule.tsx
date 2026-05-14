@@ -118,20 +118,6 @@ export default function SchedulePage() {
   };
   const [showFutureReminder, setShowFutureReminder] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const container = document.querySelector('.main-content');
-    if (!container) return;
-    const onScroll = () => setShowScrollTop(container.scrollTop > 400);
-    container.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => container.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const autoResize = useCallback(() => {
     const ta = textareaRef.current;
@@ -472,11 +458,6 @@ export default function SchedulePage() {
           onConfirm={confirmState.onConfirm}
           onCancel={() => setConfirmState(null)}
         />
-      )}
-      {showScrollTop && (
-        <button className="scroll-top-btn" onClick={scrollToTop} aria-label="回到顶部">
-          <i className="fas fa-arrow-up" />
-        </button>
       )}
     </div>
   );

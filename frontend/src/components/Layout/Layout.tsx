@@ -1,6 +1,7 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Sidebar from '../../components/Sidebar/Sidebar';
+import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 import './Layout.css';
 
 export default function Layout() {
@@ -16,6 +17,7 @@ export default function Layout() {
       <main className="main-content">
         <Outlet />
       </main>
+      <ScrollToTop />
     </div>
   );
 }

@@ -391,53 +391,6 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* ── Scroll to top button ── */
-.scroll-top-btn {
-  position: fixed;
-  bottom: 32px;
-  right: 32px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid #e0e0e0;
-  background: #fff;
-  color: #666;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
-  z-index: 100;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.25s ease,
-              background 0.25s ease;
-  animation: scroll-top-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.scroll-top-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  background: #454545;
-  color: #fff;
-  border-color: #454545;
-}
-
-.scroll-top-btn:active {
-  transform: translateY(-1px) scale(0.95);
-}
-
-@keyframes scroll-top-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .datetime-compact {
