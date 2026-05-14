@@ -8,6 +8,31 @@ import type { ScheduleItem, MonthlyAnalysis, FeelingValue } from '../../types';
 import { generateCalendar } from '../../utils/calendar';
 import './History.css';
 
+type MonthTransitionDirection = 'prev' | 'next';
+
+interface MonthSnapshot {
+  key: string;
+  direction: MonthTransitionDirection;
+  days: ReturnType<typeof generateCalendar>;
+  moods: Record<string, number>;
+}
+
+const FEELING_COLORS: Record<FeelingValue, string> = {
+  [-3]: '#d75772',
+  [-2]: '#f5867b',
+  [-1]: '#fea979',
+  0: '#ffe062',
+  1: '#3cdfe9',
+  2: '#12b8ec',
+  3: '#1686ee',
+};
+
+const clampFeeling = (value: number): FeelingValue => {
+  if (value <= -3) return -3;
+  if (value >= 3) return 3;
+  return Math.round(value) as FeelingValue;
+};
+
 export default function HistoryPage() {
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
@@ -16,6 +41,8 @@ export default function HistoryPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSchedules, setSelectedSchedules] = useState<ScheduleItem[]>([]);
   const [monthlyMood, setMonthlyMood] = useState<Record<string, number>>({});
+  const [transitionDirection, setTransitionDirection] = useState<MonthTransitionDirection | null>(null);
+  const [outgoingMonth, setOutgoingMonth] = useState<MonthSnapshot | null>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
@@ -103,25 +130,50 @@ export default function HistoryPage() {
     }
   };
 
+  const handleMonthSelection = (nextYear: number, nextMonth: number) => {
+    const currentIndex = currentYear * 12 + currentMonth;
+    const nextIndex = nextYear * 12 + nextMonth;
+    if (nextIndex === currentIndex) return;
+
+    const direction: MonthTransitionDirection = nextIndex < currentIndex ? 'prev' : 'next';
+    setTransitionDirection(direction);
+    setOutgoingMonth({
+      key: `${currentYear}-${currentMonth}`,
+      direction,
+      days: generateCalendar(currentYear, currentMonth),
+      moods: monthlyMood,
+    });
+    setCurrentYear(nextYear);
+    setCurrentMonth(nextMonth);
+  };
+
   const handlePrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(y => y - 1);
-    } else {
-      setCurrentMonth(m => m - 1);
-    }
+    const nextYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const nextMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    handleMonthSelection(nextYear, nextMonth);
   };
 
   const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(y => y + 1);
-    } else {
-      setCurrentMonth(m => m + 1);
-    }
+    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear;
+    const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1;
+    handleMonthSelection(nextYear, nextMonth);
   };
 
   const calendarDays = generateCalendar(currentYear, currentMonth);
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const currentMonthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+  const monthGradientStops = Array.from({ length: daysInMonth }, (_, idx) => {
+    const day = idx + 1;
+    const date = `${currentMonthPrefix}-${String(day).padStart(2, '0')}`;
+    if (!Object.prototype.hasOwnProperty.call(monthlyMood, date)) return null;
+
+    const position = daysInMonth === 1 ? 0 : (idx / (daysInMonth - 1)) * 100;
+    const color = FEELING_COLORS[clampFeeling(monthlyMood[date]!)];
+    return `${color} ${position.toFixed(2)}%`;
+  }).filter((stop): stop is string => Boolean(stop));
+  const monthGradient = monthGradientStops.length > 0
+    ? `linear-gradient(to right, transparent 0%, ${monthGradientStops.join(', ')}, transparent 100%)`
+    : null;
 
   const monthNames = [
     '一月', '二月', '三月', '四月', '五月', '六月',
@@ -136,6 +188,32 @@ export default function HistoryPage() {
     return KAOMOJI[0]!;
   };
 
+  const renderCalendarDays = (days: ReturnType<typeof generateCalendar>, moods: Record<string, number>) => (
+    <>
+      {weekDays.map(d => (
+        <div key={d} className="calendar-day-header">{d}</div>
+      ))}
+      {days.map((day, idx) => {
+        const hasMoodEntry = Object.prototype.hasOwnProperty.call(moods, day.fullDate);
+        const dayTotal = moods[day.fullDate];
+        const hasData = hasMoodEntry && day.isCurrentMonth;
+        const moodClass = hasData && dayTotal !== undefined ? `feel${clampFeeling(dayTotal) >= 0 ? '-' : '--'}${Math.abs(clampFeeling(dayTotal))}` : '';
+        return (
+          <div
+            key={idx}
+            className={`calendar-day ${day.isCurrentMonth ? '' : 'other-month'} ${hasData ? 'has-data' : ''} ${moodClass} ${selectedDate === day.fullDate ? 'selected' : ''}`}
+            onClick={() => handleSelectDate(day.fullDate)}
+          >
+            <span className="day-num">{day.date}</span>
+            {hasData && dayTotal !== undefined && (
+              <span className="day-kaomoji">{pickKaomoji(dayTotal)}</span>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+
   return (
     <div className="history-page">
       <div className="card calendar-card">
@@ -147,7 +225,7 @@ export default function HistoryPage() {
             <select
               className="year-select"
               value={currentYear}
-              onChange={e => setCurrentYear(Number(e.target.value))}
+              onChange={e => handleMonthSelection(Number(e.target.value), currentMonth)}
             >
               {Array.from({ length: 21 }, (_, i) => today.getFullYear() - 10 + i).map(y => (
                 <option key={y} value={y}>{y}年</option>
@@ -156,7 +234,7 @@ export default function HistoryPage() {
             <select
               className="month-select"
               value={currentMonth}
-              onChange={e => setCurrentMonth(Number(e.target.value))}
+              onChange={e => handleMonthSelection(currentYear, Number(e.target.value))}
             >
               {monthNames.map((name, idx) => (
                 <option key={idx} value={idx}>{name}</option>
@@ -167,29 +245,28 @@ export default function HistoryPage() {
             <i className="fas fa-chevron-right" />
           </button>
         </div>
-        <div className="calendar-grid">
-          {weekDays.map(d => (
-            <div key={d} className="calendar-day-header">{d}</div>
-          ))}
-          {calendarDays.map((day, idx) => {
-            const dayTotal = monthlyMood[day.fullDate];
-            // Exclude 0: a day with net-zero feeling is visually neutral (no mood indicator)
-            const hasData = dayTotal !== undefined && dayTotal !== 0 && day.isCurrentMonth;
-            const moodClass = hasData && dayTotal !== undefined ? `feel${dayTotal >= 0 ? '-' : '--'}${Math.abs(dayTotal)}` : '';
-            return (
-              <div
-                key={idx}
-                className={`calendar-day ${day.isCurrentMonth ? '' : 'other-month'} ${hasData ? 'has-data' : ''} ${moodClass} ${selectedDate === day.fullDate ? 'selected' : ''}`}
-                onClick={() => handleSelectDate(day.fullDate)}
-              >
-                <span className="day-num">{day.date}</span>
-                {hasData && (
-                  <span className="day-kaomoji">{pickKaomoji(dayTotal!)}</span>
-                )}
-              </div>
-            );
-          })}
+        <div className="calendar-transition-shell">
+          {outgoingMonth && (
+            <div
+              key={`out-${outgoingMonth.key}`}
+              className={`calendar-grid calendar-grid-layer calendar-grid-exit-${outgoingMonth.direction}`}
+              onAnimationEnd={() => setOutgoingMonth(null)}
+              aria-hidden="true"
+            >
+              {renderCalendarDays(outgoingMonth.days, outgoingMonth.moods)}
+            </div>
+          )}
+          <div
+            key={`${currentYear}-${currentMonth}`}
+            className={`calendar-grid calendar-grid-layer ${transitionDirection ? `calendar-grid-enter-${transitionDirection}` : ''}`}
+            onAnimationEnd={() => setTransitionDirection(null)}
+          >
+            {renderCalendarDays(calendarDays, monthlyMood)}
+          </div>
         </div>
+        {monthGradient && (
+          <div className="monthly-mood-gradient" style={{ background: monthGradient }} />
+        )}
       </div>
 
       {selectedDate && (
@@ -198,16 +275,21 @@ export default function HistoryPage() {
           {selectedSchedules.length === 0 ? (
             <p className="empty-text">这一天没有日程记录。</p>
           ) : (
-            <div className="schedule-list">
-              {selectedSchedules.map(item => (
-                <ScheduleItemCard
+            <div className="schedule-list history-schedule-list" key={selectedDate}>
+              {selectedSchedules.map((item, index) => (
+                <div
+                  className="schedule-entry"
                   key={item.id}
-                  item={item}
-                  showDate={false}
-                  onToggleComplete={handleToggleComplete}
-                  onDelete={handleDelete}
-                  onUpdate={handleUpdate}
-                />
+                  style={{ animationDelay: `${Math.min(index, 5) * 50}ms` }}
+                >
+                  <ScheduleItemCard
+                    item={item}
+                    showDate={false}
+                    onToggleComplete={handleToggleComplete}
+                    onDelete={handleDelete}
+                    onUpdate={handleUpdate}
+                  />
+                </div>
               ))}
             </div>
           )}
