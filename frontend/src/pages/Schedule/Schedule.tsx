@@ -59,7 +59,7 @@ export default function SchedulePage() {
   const { addToast } = useToast();
 
   const focusTitleInput = () => {
-    requestAnimationFrame(() => titleInputRef.current?.focus());
+    requestAnimationFrame(() => titleInputRef.current?.focus({ preventScroll: true }));
   };
 
   const revealRowIfNeeded = (id: number) => {
