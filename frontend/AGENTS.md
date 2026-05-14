@@ -33,7 +33,9 @@ frontend/src/
 ├── hooks/                # Custom hooks
 │   ├── useApi.ts         # Authenticated API request wrapper
 │   ├── useFetch.ts       # Generic data loading (loading/error/data)
-│   └── useFeelingMode.ts # Feeling input mode manager
+│   ├── useFeelingMode.ts # Feeling input mode manager
+│   ├── useAiAnalysis.ts  # AI analysis state machine (idle→progress→letter→report|error)
+│   └── useTabCache.ts    # Generic tab-state caching (save/restore across tab switches)
 ├── pages/                # Route page components
 │   ├── Welcome/          # Landing page (public)
 │   ├── Login/            # Login (public)
@@ -67,13 +69,17 @@ frontend/src/
 | Auth state (login/logout) | `contexts/AuthContext.tsx` | JWT in localStorage, API calls via `useApi` |
 | Theme toggle | `contexts/ThemeContext.tsx` | Sets `data-theme` attribute on `<html>` |
 | API calls | `hooks/useApi.ts` (authenticated), `hooks/useFetch.ts` (generic) | useFetch returns `{data, loading, error}` |
+| AI analysis flow | `hooks/useAiAnalysis.ts` | Idle→progress→letter→report|error state machine |
+| Tab state caching | `hooks/useTabCache.ts` | Generic save/restore per tab key |
 | Dark mode styles | `index.css` | Selector: `[data-theme='dark']` |
 | Route definitions | `App.tsx` lines 33-44 | 8 routes total, 3 lazy-loaded |
-| AI chat / SSE | `pages/AI/AIChatPanel.tsx` | SSE stream parsing, RAF rendering, plain text during streaming |
+| AI chat / SSE | `pages/AI/ChatView.tsx` | SSE stream parsing, RAF rendering, plain text during streaming |
 | AI analysis / modes | `pages/AI/AI.tsx` | Chat / Range / Full-history tabs, polling, consent |
 
 ## CONVENTIONS
 - **State**: React Context only (no Redux, Zustand, Recoil). Each context in its own file under `contexts/`.
+- **State machines**: Pages with 5+ related `useState` hooks managing a conceptual state machine should extract the machine into a custom hook (see `useAiAnalysis.ts`). The hook owns all transitions and guarantees internal consistency. Prevents bugs where scattered `setX()` calls drift out of sync.
+- **Tab/page caching**: For pages with tabs where data is fetched on-demand, use `useTabCache.ts` rather than ad-hoc `useRef` caches. Provides save/restore/remove primitives with a typed generic interface.
 - **Styling**: CSS Modules for component styles. `shared.css` for cross-component patterns. NO Tailwind, NO CSS-in-JS.
 - **Data fetching**: `useFetch` hook returns `{data, loading, error}` triplet. Components handle all three states.
 - **Auth**: JWT in localStorage. `useApi` hook auto-attaches `Authorization: Bearer` header. Logout adds token to Redis blacklist.
@@ -84,6 +90,7 @@ frontend/src/
 
 ## ANTI-PATTERNS
 - **Do NOT** add state management libraries (Redux, Zustand, etc.) -- React Context is intentional.
+- **Do NOT** manage a single conceptual state machine with 5+ independent `useState` hooks -- extract into a custom hook or `useReducer`. Scattered `setX()` calls cannot enforce invariants (e.g., "when aiPhase is `progress`, aiLoading must be `true`").
 - **Do NOT** add CSS frameworks (Tailwind, Bootstrap) -- plain CSS Modules + shared.css is the convention.
 - **Do NOT** add new charting libraries -- Recharts 3 is already used for Analysis page.
 - **Do NOT** use `alert()` or `confirm()` -- use ToastContext for user notifications.

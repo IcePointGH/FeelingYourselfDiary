@@ -62,7 +62,8 @@ function ScheduleItemCard({
   saving = false,
   justAdded = false,
 }: ScheduleItemCardProps) {
-  const isFuture = new Date(item.date) > new Date(new Date().toDateString());
+  // String comparison on YYYY-MM-DD is timezone-safe (Date object comparison is not)
+  const isFuture = item.date > new Date().toISOString().split('T')[0];
   const [showFutureConfirm, setShowFutureConfirm] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);

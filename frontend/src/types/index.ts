@@ -122,6 +122,80 @@ export interface AnalyzeResponse {
   scheduleCount: number;
   diaryCount: number;
   dateRange: string;
+  // Structured report fields (new API)
+  structured?: boolean;
+  schemaVersion?: string;
+  retryCount?: number;
+  evidenceSummary?: EvidenceSummary;
+  report?: StructuredReport;
+}
+
+// ── Structured AI Report types ──
+
+export interface EvidenceSummary {
+  schedules: ScheduleEvidence[];
+  diaries: DiaryEvidence[];
+}
+
+export interface ScheduleEvidence {
+  id: number;
+  date: string;
+  time: string | null;
+  title: string;
+  feeling: number;
+}
+
+export interface DiaryEvidence {
+  id: number;
+  date: string;
+  title: string;
+  excerpt: string;
+}
+
+export interface StructuredReport {
+  title: string;
+  overview: ReportOverview;
+  trend: ReportTrend;
+  patterns: ReportPattern[];
+  turningPoints: ReportTurningPoint[];
+  suggestions: ReportSuggestion[];
+  gentleNote: string;
+}
+
+export interface ReportOverview {
+  headline: string;
+  summary: string;
+  tone: 'positive' | 'stable' | 'mixed' | 'low' | 'unknown';
+}
+
+export interface ReportTrend {
+  direction: 'up' | 'down' | 'flat' | 'slightly_up' | 'slightly_down' | 'mixed' | 'unknown';
+  volatility: 'low' | 'medium' | 'high' | 'unknown';
+  highlights: string[];
+}
+
+export interface ReportPattern {
+  title: string;
+  description: string;
+  scheduleIds: number[];
+  diaryIds: number[];
+}
+
+export interface ReportTurningPoint {
+  date: string;
+  type: 'high' | 'low' | 'shift' | 'recovery' | 'unknown';
+  title: string;
+  reason: string;
+  scheduleIds: number[];
+  diaryIds: number[];
+}
+
+export interface ReportSuggestion {
+  title: string;
+  action: string;
+  difficulty: 'easy' | 'medium' | 'hard' | 'unknown';
+  scheduleIds: number[];
+  diaryIds: number[];
 }
 
 export interface ChatRequest {
