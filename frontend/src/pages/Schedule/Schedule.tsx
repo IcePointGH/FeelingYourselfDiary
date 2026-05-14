@@ -52,6 +52,8 @@ export default function SchedulePage() {
   const { mode } = useFeelingMode();
   const [showDesc, setShowDesc] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const tempIdRef = useRef(-1);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
@@ -125,6 +127,7 @@ export default function SchedulePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) return;
 
     // 检查是否为未来日期，且用户未勾选"不再提示"
     const isFutureDate = date > new Date().toISOString().split('T')[0];
@@ -138,16 +141,69 @@ export default function SchedulePage() {
   };
 
   const doSubmit = async () => {
+    const submitted = {
+      title: title.trim(),
+      description,
+      date,
+      time,
+      feeling: feeling as FeelingValue,
+      showDesc,
+    };
+    const tempId = tempIdRef.current--;
+    const temporaryItem: ScheduleListItem = {
+      id: tempId,
+      title: submitted.title,
+      description: submitted.description,
+      date: submitted.date,
+      time: submitted.time,
+      feeling: submitted.feeling,
+      completed: false,
+      userId: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      saving: true,
+      tempId,
+    };
+
+    setScheduleList(prev => sortScheduleItems([...prev, temporaryItem]));
+    setTitle('');
+    setDescription('');
+    setFeeling(0);
+    setHasInteracted(false);
+    setShowDesc(false);
+    setTime(submitted.date === todayValue() ? currentTimeValue() : submitted.time);
+    requestAnimationFrame(() => titleInputRef.current?.focus());
+
     try {
-      await apiFetch(SCHEDULE_API.base, {
+      const saved = await apiFetch(SCHEDULE_API.base, {
         method: 'POST',
-        body: JSON.stringify({ title, description, date, time, feeling }),
-      });
-      setTitle('');
-      setDescription('');
-      setFeeling(0);
-      refetch();
+        body: JSON.stringify({
+          title: submitted.title,
+          description: submitted.description,
+          date: submitted.date,
+          time: submitted.time,
+          feeling: submitted.feeling,
+        }),
+      }) as ScheduleItem;
+
+      setScheduleList(prev => sortScheduleItems(prev.map(item =>
+        item.tempId === tempId ? { ...saved, justAdded: true } : item
+      )));
+      window.setTimeout(() => {
+        setScheduleList(prev => prev.map(item =>
+          item.id === saved.id ? { ...item, justAdded: false } : item
+        ));
+      }, 900);
     } catch (err) {
+      setScheduleList(prev => prev.filter(item => item.tempId !== tempId));
+      setTitle(submitted.title);
+      setDescription(submitted.description);
+      setDate(submitted.date);
+      setTime(submitted.time);
+      setFeeling(submitted.feeling);
+      setHasInteracted(true);
+      setShowDesc(Boolean(submitted.description) || submitted.showDesc);
+      requestAnimationFrame(() => titleInputRef.current?.focus());
       addToast(err instanceof Error ? err.message : '添加日程失败', 'error');
     }
   };
@@ -214,6 +270,7 @@ export default function SchedulePage() {
           <div className="form-group">
             <label>事项 *</label>
             <input
+              ref={titleInputRef}
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
