@@ -1,3 +1,4 @@
+import { useEffect, useId, useRef } from 'react';
 import './ConfirmDialog.css';
 
 interface ConfirmDialogProps {
@@ -17,13 +18,56 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const messageId = useId();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousActive = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    cancelRef.current?.focus();
+
+    return () => {
+      previousActive?.focus();
+    };
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onCancel();
+      return;
+    }
+
+    if (e.key !== 'Tab') return;
+
+    const first = cancelRef.current;
+    const last = confirmRef.current;
+    if (!first || !last) return;
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
-    <div className="confirm-overlay" onClick={onCancel}>
+    <div
+      className="confirm-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={messageId}
+      onClick={onCancel}
+      onKeyDown={handleKeyDown}
+    >
       <div className="confirm-popup" onClick={(e) => e.stopPropagation()}>
-        <p>{message}</p>
+        <p id={messageId}>{message}</p>
         <div className="confirm-actions">
-          <button className="btn btn-cancel" onClick={onCancel}>{cancelLabel}</button>
+          <button ref={cancelRef} className="btn btn-cancel" onClick={onCancel}>{cancelLabel}</button>
           <button
+            ref={confirmRef}
             className={`btn submit-btn${danger ? ' btn-danger-confirm' : ''}`}
             onClick={onConfirm}
           >

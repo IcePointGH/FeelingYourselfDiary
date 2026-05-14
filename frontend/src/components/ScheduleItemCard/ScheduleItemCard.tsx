@@ -131,7 +131,8 @@ function ScheduleItemCard({
           onClick={handleCheckToggle}
           role="checkbox"
           aria-checked={item.completed}
-          tabIndex={0}
+          aria-disabled={saving || undefined}
+          tabIndex={saving ? -1 : 0}
           onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (saving) return; if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
         >
           <span className="checkmark" />
