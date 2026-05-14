@@ -7,6 +7,7 @@
   background: #fafafa;
   border-radius: 8px;
   border: 1px solid #e8e8e8;
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 
@@ -330,7 +331,7 @@
 }
 
 .schedule-item.just-added {
-  animation: schedule-just-added 850ms ease-out both;
+  animation: schedule-just-added 2000ms ease-out both;
 }
 
 .schedule-item.just-added.feel--3 { --just-added-color: #d75772; }
@@ -351,9 +352,14 @@
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
     border-color: var(--just-added-color, #1686ee);
   }
-  35% {
+  18% {
     transform: translateY(0);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--just-added-color, #1686ee) 22%, transparent);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, #1686ee) 25%, transparent);
+    border-color: var(--just-added-color, #1686ee);
+  }
+  65% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, #1686ee) 25%, transparent);
     border-color: var(--just-added-color, #1686ee);
   }
   100% {

@@ -216,7 +216,7 @@ export default function SchedulePage() {
         setScheduleList(prev => prev.map(item =>
           item.id === saved.id ? { ...item, justAdded: false } : item
         ));
-      }, 900);
+      }, 2500);
     } catch (err) {
       setScheduleList(prev => prev.filter(item => item.tempId !== tempId));
       setTitle(submitted.title);
