@@ -47,7 +47,10 @@ public class ScheduleService {
     }
 
     /** 创建新日程 */
-    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
+    @org.springframework.cache.annotation.Caching(evict = {
+        @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false),
+        @CacheEvict(value = "analysis", allEntries = true, beforeInvocation = false)
+    })
     @Transactional(rollbackFor = Exception.class)
     public ScheduleDTO.Response create(Long userId, ScheduleDTO.CreateRequest request) {
         // 未来日期的日程默认未完成（待办），当天及过去默认已完成
@@ -88,7 +91,10 @@ public class ScheduleService {
     }
 
     /** 更新日程，检查用户权限 */
-    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
+    @org.springframework.cache.annotation.Caching(evict = {
+        @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false),
+        @CacheEvict(value = "analysis", allEntries = true, beforeInvocation = false)
+    })
     @Transactional(rollbackFor = Exception.class)
     public ScheduleDTO.Response update(Long userId, Long id, ScheduleDTO.UpdateRequest request) {
         Schedule schedule = scheduleRepository.findById(id)
@@ -113,7 +119,10 @@ public class ScheduleService {
     }
 
     /** 删除日程，检查用户权限 */
-    @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false)
+    @org.springframework.cache.annotation.Caching(evict = {
+        @CacheEvict(value = "schedules", allEntries = true, beforeInvocation = false),
+        @CacheEvict(value = "analysis", allEntries = true, beforeInvocation = false)
+    })
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long userId, Long id) {
         Schedule schedule = scheduleRepository.findById(id)

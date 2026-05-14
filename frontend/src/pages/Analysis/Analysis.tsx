@@ -82,19 +82,33 @@ export default function AnalysisPage() {
     }
   }, [apiFetch, tab, date, month, addToast]);
 
+  const buildDateRange = (): { startDate: string; endDate: string } => {
+    if (tab === 'daily') return { startDate: date, endDate: date };
+    if (tab === 'weekly') {
+      const monday = isoWeekToDate(date);
+      const sun = new Date(monday);
+      sun.setDate(sun.getDate() + 6);
+      return { startDate: monday, endDate: sun.toISOString().split('T')[0] };
+    }
+    if (tab === 'monthly') {
+      const [y, m] = month.split('-').map(Number);
+      const first = `${month}-01`;
+      const last = new Date(y!, m!, 0).toISOString().split('T')[0];
+      return { startDate: first, endDate: last };
+    }
+    // full: wide range
+    return { startDate: '2000-01-01', endDate: new Date().toISOString().split('T')[0] };
+  };
+
   const handleAiAnalyze = async () => {
     setAiLoading(true);
     setAiResult(null);
     setAiStats(null);
     try {
-      const body: Record<string, string> = {};
-      if (tab === 'daily') body.date = date;
-      else if (tab === 'weekly') body.date = isoWeekToDate(date);
-      else if (tab === 'monthly') body.month = month;
-      // full: no body needed for full-history analysis
+      const range = buildDateRange();
       const res = await apiFetch(AI_API.analyze, {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: JSON.stringify(range),
       });
       setAiResult(res.markdown || '分析完成');
       setAiStats({ scheduleCount: res.scheduleCount ?? 0, diaryCount: res.diaryCount ?? 0, dateRange: res.dateRange ?? '' });

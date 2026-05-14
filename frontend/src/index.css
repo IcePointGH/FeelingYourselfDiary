@@ -473,6 +473,37 @@ input, textarea, select { font-family: 'Noto Sans SC', sans-serif; }
   color: #999;
 }
 
+/* Thoughts tab bar */
+[data-theme='dark'] .thoughts-tabs {
+  background: #3a3a3a;
+}
+
+[data-theme='dark'] .thoughts-tab {
+  color: #999;
+}
+
+[data-theme='dark'] .thoughts-tab:hover {
+  color: #ccc;
+  background: #4a4a4a;
+}
+
+[data-theme='dark'] .thoughts-tab.active {
+  background: #555;
+  color: #e0e0e0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Edit banner */
+[data-theme='dark'] .edit-banner {
+  background: #2a3340;
+  border-color: #3a5060;
+  color: #8ab4f8;
+}
+
+[data-theme='dark'] .edit-banner button {
+  color: #8ab4f8;
+}
+
 [data-theme='dark'] .diary-item {
   background: #3a3a3a;
   border-color: #555;
@@ -489,6 +520,84 @@ input, textarea, select { font-family: 'Noto Sans SC', sans-serif; }
 
 [data-theme='dark'] .diary-content {
   color: #bbb;
+}
+
+[data-theme='dark'] .diary-meta {
+  color: #888;
+}
+
+/* ── History page: calendar ── */
+[data-theme='dark'] .calendar-day {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #ccc;
+}
+
+[data-theme='dark'] .calendar-day:hover {
+  background: #4a4a4a;
+  border-color: #666;
+}
+
+[data-theme='dark'] .calendar-day.other-month {
+  color: #555;
+  background: transparent;
+}
+
+[data-theme='dark'] .calendar-day.selected {
+  background: #555;
+  color: #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Calendar mood-colored cells — higher alpha for dark bg readability */
+[data-theme='dark'] .calendar-day.has-data.feel--3 { background: rgba(215, 87, 114, 0.35); color: #f5d0d0; }
+[data-theme='dark'] .calendar-day.has-data.feel--2 { background: rgba(245, 134, 123, 0.35); color: #fce0dc; }
+[data-theme='dark'] .calendar-day.has-data.feel--1 { background: rgba(254, 169, 121, 0.35); color: #ffe0d0; }
+[data-theme='dark'] .calendar-day.has-data.feel-0  { background: rgba(255, 224, 98, 0.35); color: #ffe8a0; }
+[data-theme='dark'] .calendar-day.has-data.feel-1  { background: rgba(60, 223, 233, 0.35); color: #c0f8f8; }
+[data-theme='dark'] .calendar-day.has-data.feel-2  { background: rgba(18, 184, 236, 0.35); color: #b0e8f8; }
+[data-theme='dark'] .calendar-day.has-data.feel-3  { background: rgba(22, 134, 238, 0.35); color: #b0d8f8; }
+
+/* Selected + mood */
+[data-theme='dark'] .calendar-day.selected.feel--3 { background: #d75772; color: #fff; }
+[data-theme='dark'] .calendar-day.selected.feel--2 { background: #f5867b; color: #fff; }
+[data-theme='dark'] .calendar-day.selected.feel--1 { background: #fea979; color: #fff; }
+[data-theme='dark'] .calendar-day.selected.feel-0  { background: #e0c040; color: #333; }
+[data-theme='dark'] .calendar-day.selected.feel-1  { background: #30b8c0; color: #fff; }
+[data-theme='dark'] .calendar-day.selected.feel-2  { background: #12a0d0; color: #fff; }
+[data-theme='dark'] .calendar-day.selected.feel-3  { background: #1686ee; color: #fff; }
+
+[data-theme='dark'] .calendar-day-header {
+  color: #888;
+}
+
+[data-theme='dark'] .detail-card h2 {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .icon-btn {
+  color: #ccc;
+}
+
+[data-theme='dark'] .icon-btn:hover {
+  background: #4a4a4a;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .year-select,
+[data-theme='dark'] .month-select {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23999' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+}
+
+[data-theme='dark'] .year-select:hover,
+[data-theme='dark'] .month-select:hover,
+[data-theme='dark'] .year-select:focus,
+[data-theme='dark'] .month-select:focus {
+  background-color: #4a4a4a;
+  border-color: #666;
 }
 
 /* ── Analysis page ── */
@@ -654,3 +763,40 @@ input, textarea, select { font-family: 'Noto Sans SC', sans-serif; }
 [data-theme='dark'] .detail-feeling.feel-1  { background: rgba(60,223,233,0.18); }
 [data-theme='dark'] .detail-feeling.feel-2  { background: rgba(18,184,236,0.18); }
 [data-theme='dark'] .detail-feeling.feel-3  { background: rgba(22,134,238,0.18); }
+
+/* ── AI analysis result card ── */
+[data-theme='dark'] .ai-result-card {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+[data-theme='dark'] .ai-stats {
+  color: #888;
+}
+
+[data-theme='dark'] .ai-stats span {
+  background: #4a4a4a;
+}
+
+[data-theme='dark'] .ai-markdown {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .ai-analyze-btn {
+  background: linear-gradient(135deg, #6b6360, #555);
+}
+
+[data-theme='dark'] .ai-analyze-btn:hover {
+  background: linear-gradient(135deg, #555, #444);
+}
+
+[data-theme='dark'] .view-toggle-btn {
+  background: #3a3a3a;
+  border-color: #888;
+  color: #ccc;
+}
+
+[data-theme='dark'] .view-toggle-btn:hover {
+  background: #555;
+  color: #e0e0e0;
+}
