@@ -7,7 +7,6 @@
   background: #fafafa;
   border-radius: 8px;
   border: 1px solid #e8e8e8;
-  overflow: hidden;
   transition: all 0.3s ease;
 }
 
@@ -157,6 +156,7 @@
   display: flex;
   gap: 4px;
   flex-shrink: 0;
+  margin-left: 12px;
 }
 
 .action-btn {
@@ -180,6 +180,16 @@
 .edit-btn:hover {
   background: #eee;
   color: #454545;
+}
+
+.delete-btn-small {
+  background: transparent;
+  color: #999;
+}
+
+.delete-btn-small:hover {
+  background: #fce8e8;
+  color: #d75772;
 }
 
 /* ── Edit overlay ── */

@@ -6,6 +6,7 @@ import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { SCHEDULE_API } from '../../services/api';
 import { KAOMOJI, DEFAULT_KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, FeelingValue } from '../../types';
@@ -83,6 +84,9 @@ export default function SchedulePage() {
   // 批量操作
   const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [confirmState, setConfirmState] = useState<{
+    message: string; danger?: boolean; onConfirm: () => void;
+  } | null>(null);
 
   const toggleSelect = (id: number) => {
     setSelectedIds(prev => {
@@ -239,14 +243,20 @@ export default function SchedulePage() {
     doSubmit();
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('确定要删除这条记录吗？')) return;
-    try {
-      await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
-      refetch();
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : '删除失败', 'error');
-    }
+  const handleDelete = (id: number) => {
+    setConfirmState({
+      message: '确定要删除这条记录吗？',
+      danger: true,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
+          refetch();
+        } catch (err) {
+          addToast(err instanceof Error ? err.message : '删除失败', 'error');
+        }
+      },
+    });
   };
 
   const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
@@ -394,15 +404,21 @@ export default function SchedulePage() {
             <span className="batch-count">已选 {selectedIds.size} 项</span>
             <button className="btn submit-btn" onClick={() => batchToggle(true)}>批量完成</button>
             <button className="btn btn-cancel" onClick={() => batchToggle(false)}>批量取消</button>
-            <button className="btn btn-danger" onClick={async () => {
-              if (!confirm(`确定删除选中的 ${selectedIds.size} 条日程吗？此操作不可撤销。`)) return;
-              const ids = Array.from(selectedIds);
-              for (const id of ids) {
-                try { await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' }); } catch { /* continue */ }
-              }
-              setSelectedIds(new Set());
-              setBatchMode(false);
-              refetch();
+            <button className="btn btn-danger" onClick={() => {
+              setConfirmState({
+                message: `确定删除选中的 ${selectedIds.size} 条日程吗？此操作不可撤销。`,
+                danger: true,
+                onConfirm: async () => {
+                  setConfirmState(null);
+                  const ids = Array.from(selectedIds);
+                  for (const id of ids) {
+                    try { await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' }); } catch { /* continue */ }
+                  }
+                  setSelectedIds(new Set());
+                  setBatchMode(false);
+                  refetch();
+                },
+              });
             }}>批量删除</button>
           </div>
         )}
@@ -434,6 +450,14 @@ export default function SchedulePage() {
             </button>
           </div>
         </div>
+      )}
+      {confirmState && (
+        <ConfirmDialog
+          message={confirmState.message}
+          danger={confirmState.danger}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
       )}
     </div>
   );

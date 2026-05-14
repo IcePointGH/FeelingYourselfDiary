@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { SCHEDULE_API, ANALYSIS_API } from '../../services/api';
 import { KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, MonthlyAnalysis, FeelingValue } from '../../types';
@@ -43,6 +44,9 @@ export default function HistoryPage() {
   const [monthlyMood, setMonthlyMood] = useState<Record<string, number>>({});
   const [transitionDirection, setTransitionDirection] = useState<MonthTransitionDirection | null>(null);
   const [outgoingMonth, setOutgoingMonth] = useState<MonthSnapshot | null>(null);
+  const [confirmState, setConfirmState] = useState<{
+    message: string; danger?: boolean; onConfirm: () => void;
+  } | null>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
@@ -100,15 +104,21 @@ export default function HistoryPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('确定要删除这条记录吗？')) return;
-    try {
-      await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
-      setSelectedSchedules(prev => prev.filter(it => it.id !== id));
-      fetchMonthlyMood(); // refresh calendar mood colors
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : '删除失败', 'error');
-    }
+  const handleDelete = (id: number) => {
+    setConfirmState({
+      message: '确定要删除这条记录吗？',
+      danger: true,
+      onConfirm: async () => {
+        setConfirmState(null);
+        try {
+          await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
+          setSelectedSchedules(prev => prev.filter(it => it.id !== id));
+          fetchMonthlyMood(); // refresh calendar mood colors
+        } catch (err) {
+          addToast(err instanceof Error ? err.message : '删除失败', 'error');
+        }
+      },
+    });
   };
 
   const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
@@ -294,6 +304,14 @@ export default function HistoryPage() {
             </div>
           )}
         </div>
+      )}
+      {confirmState && (
+        <ConfirmDialog
+          message={confirmState.message}
+          danger={confirmState.danger}
+          onConfirm={confirmState.onConfirm}
+          onCancel={() => setConfirmState(null)}
+        />
       )}
     </div>
   );
