@@ -1,16 +1,40 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
+import { useAiAnalysis } from '../../hooks/useAiAnalysis';
+import { useTabCache } from '../../hooks/useTabCache';
 import DateInput from '../../components/DateInput/DateInput';
 import StatCard from '../../components/StatCard/StatCard';
 import MoodTrendChart from './MoodTrendChart';
 import MoodSummary from './MoodSummary';
-import { ANALYSIS_API, AI_API } from '../../services/api';
-import type { DailyAnalysis, WeeklyAnalysis, MonthlyAnalysis, AnalysisData } from '../../types';
+import StagedProgress from './StagedProgress';
+import LetterReveal from './LetterReveal';
+import StructuredReportView from './report/StructuredReportView';
+import { ANALYSIS_API } from '../../services/api';
+import type {
+  DailyAnalysis,
+  WeeklyAnalysis,
+  MonthlyAnalysis,
+  AnalysisData,
+} from '../../types';
+import type { AiAnalysisState } from '../../hooks/useAiAnalysis';
 import './Analysis.css';
+
+// ─── Types ───────────────────────────────────────────────
 
 type TabType = 'daily' | 'weekly' | 'monthly' | 'full';
 type ViewMode = 'chart' | 'ai';
+
+/** Lightweight per-tab snapshot (AI state is a single object from the hook) */
+interface TabSnapshot {
+  data: AnalysisData | null;
+  viewMode: ViewMode;
+  date: string;
+  month: string;
+  aiState: AiAnalysisState | null;
+}
+
+// ─── Pure helpers ────────────────────────────────────────
 
 function getWeekNumber(date: Date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -32,27 +56,53 @@ function isoWeekToDate(weekStr: string): string {
   return targetMonday.toISOString().split('T')[0];
 }
 
+function getWeekString(d: Date) {
+  const year = d.getFullYear();
+  const week = String(getWeekNumber(d)).padStart(2, '0');
+  return `${year}-W${week}`;
+}
+
+// ─── Component ───────────────────────────────────────────
+
 export default function AnalysisPage() {
+  // ── Tab + view state ──
   const [tab, setTab] = useState<TabType>('daily');
   const [viewMode, setViewMode] = useState<ViewMode>('chart');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+
+  // ── Chart analysis state ──
   const [data, setData] = useState<AnalysisData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  // AI analysis state
-  const [aiResult, setAiResult] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiStats, setAiStats] = useState<{ scheduleCount: number; diaryCount: number; dateRange: string } | null>(null);
+
+  // ── Dependencies ──
   const { apiFetch } = useApi();
   const { addToast } = useToast();
 
-  const getWeekString = (d: Date) => {
-    const year = d.getFullYear();
-    const week = String(getWeekNumber(d)).padStart(2, '0');
-    return `${year}-W${week}`;
+  // ── AI analysis state machine (extracted hook) ──
+  const ai = useAiAnalysis({ apiFetch, addToast });
+
+  // Track which tab started the current AI analysis — prevents cross-tab UI leakage
+  const [aiTab, setAiTab] = useState<TabType | null>(null);
+
+  // ── Tab cache ──
+  const cache = useTabCache<TabSnapshot>();
+
+  // ── Defaults factory ──
+  const getDefaultSnapshot = (t: TabType): TabSnapshot => {
+    const d = new Date();
+    return {
+      data: null,
+      viewMode: t === 'full' ? 'ai' : 'chart',
+      date: t === 'monthly' ? d.toISOString().slice(0, 7)
+        : (t === 'weekly' ? getWeekString(d) : d.toISOString().split('T')[0]),
+      month: d.toISOString().slice(0, 7),
+      aiState: null,
+    };
   };
 
+  // ── Chart analysis ──
   const handleAnalyze = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -74,7 +124,7 @@ export default function AnalysisPage() {
         setData({ totalFeeling: m.totalFeeling, itemCount: m.itemCount, averageFeeling: m.averageFeeling, dailyTotals: m.dailyTotals, items: m.items });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '分析失败, 请重试';
+      const msg = err instanceof Error ? err.message : '分析失败，请重试';
       setError(msg);
       addToast(msg, 'error');
     } finally {
@@ -82,7 +132,8 @@ export default function AnalysisPage() {
     }
   }, [apiFetch, tab, date, month, addToast]);
 
-  const buildDateRange = (): { startDate: string; endDate: string } => {
+  // ── AI analysis trigger ──
+  const buildDateRange = useCallback((): { startDate: string; endDate: string } => {
     if (tab === 'daily') return { startDate: date, endDate: date };
     if (tab === 'weekly') {
       const monday = isoWeekToDate(date);
@@ -96,49 +147,67 @@ export default function AnalysisPage() {
       const last = new Date(y!, m!, 0).toISOString().split('T')[0];
       return { startDate: first, endDate: last };
     }
-    // full: wide range
     return { startDate: '2000-01-01', endDate: new Date().toISOString().split('T')[0] };
-  };
+  }, [tab, date, month]);
 
-  const handleAiAnalyze = async () => {
-    setAiLoading(true);
-    setAiResult(null);
-    setAiStats(null);
-    try {
-      const range = buildDateRange();
-      const res = await apiFetch(AI_API.analyze, {
-        method: 'POST',
-        body: JSON.stringify(range),
-      });
-      setAiResult(res.markdown || '分析完成');
-      setAiStats({ scheduleCount: res.scheduleCount ?? 0, diaryCount: res.diaryCount ?? 0, dateRange: res.dateRange ?? '' });
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : 'AI分析失败', 'error');
-    } finally {
-      setAiLoading(false);
-    }
-  };
+  const handleAiAnalyze = useCallback(() => {
+    setAiTab(tab);
+    ai.analyze(buildDateRange());
+  }, [ai, buildDateRange, tab]);
 
+  // ── Tab switch: save → restore (do NOT abort AI — let it complete in background) ──
   useEffect(() => {
-    setData(null);
-    setAiResult(null);
-    setAiStats(null);
-    const d = new Date();
-    if (tab === 'daily') setDate(d.toISOString().split('T')[0]);
-    else if (tab === 'weekly') setDate(getWeekString(d));
-    else setMonth(d.toISOString().slice(0, 7));
+    const prev = cache.prevKey;
+    if (prev) {
+      // Save current tab state. If AI is in progress, save null to avoid
+      // caching transient progress — the analysis will complete and update
+      // the hook state directly.
+      const aiState: AiAnalysisState | null =
+        ai.state.phase === 'progress' ? null : { ...ai.state };
+      cache.save(prev, { data, viewMode, date, month, aiState });
+    }
+
+    // Restore target tab from cache, or use defaults
+    const cached = cache.get(tab);
+    if (cached) {
+      setData(cached.data);
+      setViewMode(cached.viewMode);
+      setDate(cached.date);
+      setMonth(cached.month);
+    } else {
+      const def = getDefaultSnapshot(tab);
+      setData(def.data);
+      setViewMode(def.viewMode);
+      setDate(def.date);
+      setMonth(def.month);
+    }
+    setError('');
+
+    cache.track(tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => ai.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ai.abort]);
+
+  // ── Derived ──
   const chartData = useMemo(() => {
     if (!data?.dailyTotals) return [];
-    return Object.entries(data.dailyTotals).map(([date, value]) => ({ date, value }));
+    return Object.entries(data.dailyTotals).map(([dateKey, value]) => ({ date: dateKey, value }));
   }, [data]);
 
   const tabLabels: Record<TabType, string> = { daily: '日分析', weekly: '周分析', monthly: '月分析', full: '全历史分析' };
 
+  // ── AI state shortcuts ──
+  const s = ai.state;
+
+  // ── Render ──
   return (
     <div className="analysis-page">
-      <div className="card">
+      <div className="card analysis-control-card">
         <div className="analysis-header-row">
           <h2>数据分析</h2>
         </div>
@@ -148,7 +217,7 @@ export default function AnalysisPage() {
             <button
               key={t}
               className={`tab-btn ${tab === t ? 'active' : ''}`}
-              onClick={() => { setTab(t); if (t === 'full') setViewMode('ai'); }}
+              onClick={() => setTab(t)}
             >
               {tabLabels[t]}
             </button>
@@ -158,11 +227,11 @@ export default function AnalysisPage() {
         {tab !== 'full' && (
           <div className="form-group">
             {tab === 'monthly' ? (
-              <DateInput type="month" value={month} onChange={v => setMonth(v)} />
+              <DateInput type="month" value={month} onChange={value => setMonth(value)} />
             ) : tab === 'weekly' ? (
-              <DateInput type="week" value={date} onChange={v => setDate(v)} />
+              <DateInput type="week" value={date} onChange={value => setDate(value)} />
             ) : (
-              <DateInput type="date" value={date} onChange={v => setDate(v)} />
+              <DateInput type="date" value={date} onChange={value => setDate(value)} />
             )}
           </div>
         )}
@@ -172,14 +241,19 @@ export default function AnalysisPage() {
             <button
               className={`analyze-btn ${viewMode === 'ai' ? 'ai-analyze-btn' : ''}`}
               onClick={viewMode === 'ai' ? handleAiAnalyze : handleAnalyze}
-              disabled={loading || aiLoading}
+              disabled={loading || s.loading}
             >
-              {loading || aiLoading ? '分析中...' : viewMode === 'ai' ? 'AI智能分析' : '图表分析'}
+              {loading || s.loading ? '分析中...' : viewMode === 'ai' ? 'AI 智能分析' : '图表分析'}
             </button>
             <button
               className="view-toggle-btn"
-              onClick={() => { setViewMode(v => v === 'chart' ? 'ai' : 'chart'); setData(null); setAiResult(null); }}
-              title={viewMode === 'chart' ? '切换到AI智能分析' : '切换到图表分析'}
+              onClick={() => {
+                ai.abort();
+                setViewMode(current => current === 'chart' ? 'ai' : 'chart');
+                setData(null);
+                cache.remove(tab);
+              }}
+              title={viewMode === 'chart' ? '切换到 AI 智能分析' : '切换到图表分析'}
             >
               <i className="fas fa-exchange-alt" />
               <span>{viewMode === 'chart' ? 'AI' : '图表'}</span>
@@ -192,25 +266,61 @@ export default function AnalysisPage() {
             <button
               className="analyze-btn ai-analyze-btn"
               onClick={handleAiAnalyze}
-              disabled={aiLoading}
+              disabled={s.loading}
             >
-              {aiLoading ? 'AI分析中...' : 'AI智能分析'}
+              {s.loading ? 'AI 分析中...' : 'AI 智能分析'}
             </button>
           </div>
         )}
 
-        {viewMode === 'ai' && aiResult && (
-              <div className="ai-result-card">
-                {aiStats && (
+        {viewMode === 'ai' && aiTab === tab && (
+          <>
+            {s.phase === 'progress' && <StagedProgress isRunning={s.loading || s.settling} settling={s.settling} startedAt={s.startedAt} />}
+
+            {s.phase === 'letter' && s.report && (
+              <LetterReveal
+                reportTitle={s.report.title}
+                onOpen={ai.openReport}
+                onViewDirect={ai.openReport}
+              />
+            )}
+
+            {s.phase === 'report' && s.report && s.evidence && (
+              <div className="ai-report-wrapper">
+                {s.stats && (
                   <div className="ai-stats">
-                    <span>日程 {aiStats.scheduleCount} 条</span>
-                    <span>日记 {aiStats.diaryCount} 条</span>
-                    {aiStats.dateRange && <span>{aiStats.dateRange}</span>}
+                    <span>日程 {s.stats.scheduleCount} 条</span>
+                    <span>日记 {s.stats.diaryCount} 条</span>
+                    {s.stats.dateRange && <span>{s.stats.dateRange}</span>}
                   </div>
                 )}
-                <div className="ai-markdown" dangerouslySetInnerHTML={{ __html: aiResult.replace(/\n/g, '<br/>') }} />
+                <StructuredReportView report={s.report} evidence={s.evidence} />
               </div>
             )}
+
+            {s.phase === 'error' && (
+              <div className="error-message">
+                <p>{s.errorMsg || 'AI 分析暂时无法完成'}</p>
+                <button className="analyze-btn ai-analyze-btn" onClick={handleAiAnalyze}>
+                  重试
+                </button>
+              </div>
+            )}
+
+            {s.phase === 'idle' && s.result && (
+              <div className="ai-result-card">
+                {s.stats && (
+                  <div className="ai-stats">
+                    <span>日程 {s.stats.scheduleCount} 条</span>
+                    <span>日记 {s.stats.diaryCount} 条</span>
+                    {s.stats.dateRange && <span>{s.stats.dateRange}</span>}
+                  </div>
+                )}
+                <div className="ai-markdown" dangerouslySetInnerHTML={{ __html: s.result.replace(/\n/g, '<br/>') }} />
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {viewMode === 'chart' && data && (
@@ -219,7 +329,7 @@ export default function AnalysisPage() {
           {data.itemCount === 0 && (
             <div className="empty-state">
               <p>暂无记录</p>
-              <span>该时间段内没有日程记录，快去添加吧～</span>
+              <span>该时间段内没有日程记录，去添加一些日程后再分析。</span>
             </div>
           )}
           <div className="stats-row">

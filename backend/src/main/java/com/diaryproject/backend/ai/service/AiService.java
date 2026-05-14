@@ -1,6 +1,8 @@
 package com.diaryproject.backend.ai.service;
 
 import com.diaryproject.backend.ai.dto.AiDTO;
+import com.diaryproject.backend.ai.dto.StructuredReportDTO;
+import com.diaryproject.backend.ai.exception.StructuredReportException;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
 import com.diaryproject.backend.diary.entity.Diary;
 import com.diaryproject.backend.diary.repository.DiaryRepository;
@@ -18,7 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,18 +40,21 @@ public class AiService {
     private final DiaryRepository diaryRepository;
     private final PromptService promptService;
     private final AiPromptRecordFormatter recordFormatter;
+    private final StructuredReportParser structuredReportParser;
 
     @Value("${spring.ai.minimax.chat.options.model}")
     private String bigModel;
 
     public AiService(ChatModel chatModel, ScheduleRepository scheduleRepository, DiaryRepository diaryRepository,
-                     PromptService promptService, AiPromptRecordFormatter recordFormatter) {
+                     PromptService promptService, AiPromptRecordFormatter recordFormatter,
+                     StructuredReportParser structuredReportParser) {
         this.chatModel = chatModel;
         this.chatClient = ChatClient.builder(chatModel).build();
         this.scheduleRepository = scheduleRepository;
         this.diaryRepository = diaryRepository;
         this.promptService = promptService;
         this.recordFormatter = recordFormatter;
+        this.structuredReportParser = structuredReportParser;
         log.info("AiService initialized — chatModel: {}, model: {}", chatModel.getClass().getSimpleName(), bigModel);
     }
 
@@ -115,8 +123,9 @@ public class AiService {
     }
 
     /**
-     * Phase 2: 时间范围情绪分析
-     * 获取指定日期范围内的日程与日记数据，构建结构化 Prompt，调用 大模型 进行分析。
+     * Phase 2+: 时间范围情绪分析 — 结构化 JSON 输出。
+     * 获取指定日期范围内的日程与日记数据，构建结构化 Prompt，调用大模型进行分析。
+     * 解析 JSON 报告，校验后返回结构化响应；解析失败时最多重试 3 次。
      */
     @Transactional(readOnly = true)
     public AiDTO.AnalyzeResponse analyzeTimeRange(Long userId, LocalDate startDate, LocalDate endDate) {
@@ -130,38 +139,187 @@ public class AiService {
                     "在 " + startDate + " 至 " + endDate + " 范围内未找到日程或日记数据");
         }
 
+        // Build valid ID sets
+        Set<Long> validScheduleIds = schedules.stream()
+                .map(Schedule::getId).collect(Collectors.toSet());
+        Set<Long> validDiaryIds = diaries.stream()
+                .map(Diary::getId).collect(Collectors.toSet());
+
         String userPrompt = recordFormatter.formatAnalysisRecords(schedules, diaries);
+        String systemPrompt = promptService.get("range-analysis-json");
 
-        String systemPrompt = promptService.get("range-analysis");
+        // Retry loop: up to 3 retries on parse/validation failure
+        int retryCount = 0;
+        StructuredReportDTO.StructuredReport parsedReport = null;
+        String lastJsonResponse = null;
 
-        ChatResponse chatResponse = chatClient.prompt()
-                .system(systemPrompt)
-                .user(userPrompt)
-                .call()
-                .chatResponse();
+        while (retryCount <= 3) {
+            String promptToSend;
+            if (retryCount == 0) {
+                promptToSend = userPrompt;
+            } else {
+                // Build repair prompt
+                promptToSend = buildRepairPrompt(userPrompt, lastJsonResponse, retryCount);
+            }
 
-        // Log token usage from response metadata
-        log.info("大模型 analyze response metadata: {}", chatResponse.getMetadata());
+            ChatResponse chatResponse = chatClient.prompt()
+                    .system(systemPrompt)
+                    .user(promptToSend)
+                    .call()
+                    .chatResponse();
 
-        String content = chatResponse.getResult().getOutput().getText();
-        if (content == null) {
-            log.error("大模型 returned null content for analyzeTimeRange request");
-            AiDTO.AnalyzeResponse errorResponse = new AiDTO.AnalyzeResponse();
-            errorResponse.setMarkdown("AI 分析暂时不可用，请稍后重试。");
-            errorResponse.setScheduleCount(schedules.size());
-            errorResponse.setDiaryCount(diaries.size());
-            errorResponse.setDateRange(startDate + " ~ " + endDate);
-            return errorResponse;
+            log.info("大模型 analyze response metadata (attempt {}): {}", retryCount, chatResponse.getMetadata());
+
+            String content = chatResponse.getResult().getOutput().getText();
+            if (content == null) {
+                log.warn("大模型 returned null content (attempt {})", retryCount);
+                retryCount++;
+                continue;
+            }
+
+            log.info("大模型 analyze response (attempt {}, len={})", retryCount, content.length());
+            lastJsonResponse = content;
+
+            try {
+                parsedReport = structuredReportParser.parseAndValidate(content, validScheduleIds, validDiaryIds);
+                break; // success
+            } catch (StructuredReportException e) {
+                log.warn("Report parse/validation failed (attempt {}): {}", retryCount, e.getMessage());
+                retryCount++;
+                if (retryCount > 3) {
+                    throw new StructuredReportException("Failed after 3 retries: " + e.getMessage(), e);
+                }
+            }
         }
 
-        log.info("大模型 analyze response (len={})", content.length());
+        if (parsedReport == null) {
+            throw new StructuredReportException("Failed after all retry attempts");
+        }
 
+        // Build evidence summary from fetched records
+        StructuredReportDTO.EvidenceSummary evidenceSummary = buildEvidenceSummary(schedules, diaries);
+
+        // Generate markdown summary for backward compatibility (session history)
+        String markdown = generateMarkdownSummary(parsedReport);
+
+        // Build response
         AiDTO.AnalyzeResponse response = new AiDTO.AnalyzeResponse();
-        response.setMarkdown(content);
+        response.setStructured(true);
+        response.setSchemaVersion("1.0");
+        response.setRetryCount(retryCount);
+        response.setReport(parsedReport);
+        response.setEvidenceSummary(evidenceSummary);
+        response.setMarkdown(markdown);
         response.setScheduleCount(schedules.size());
         response.setDiaryCount(diaries.size());
         response.setDateRange(startDate + " ~ " + endDate);
         return response;
+    }
+
+    /**
+     * 构建修复提示 — 告诉模型上次 JSON 有问题，请修复。
+     */
+    private String buildRepairPrompt(String originalPrompt, String lastResponse, int attempt) {
+        return originalPrompt + "\n\n---\n"
+                + "【重要】你上一次的输出 JSON 格式有误，无法解析。请严格按照 JSON Schema 重新输出。\n"
+                + "这是第 " + attempt + " 次重试。请确保：\n"
+                + "1. 只输出纯 JSON，不要包裹在 markdown 代码块中\n"
+                + "2. 所有枚举值严格使用指定选项\n"
+                + "3. scheduleIds 和 diaryIds 只使用输入数据中的 ID\n"
+                + "4. 所有必填字段都不能缺失\n"
+                + "5. 字符串长度不能超过限制";
+    }
+
+    /**
+     * 从数据库记录构建证据摘要。
+     */
+    private StructuredReportDTO.EvidenceSummary buildEvidenceSummary(List<Schedule> schedules, List<Diary> diaries) {
+        List<StructuredReportDTO.ScheduleEvidence> scheduleEvidence = new ArrayList<>();
+        for (Schedule s : schedules) {
+            StructuredReportDTO.ScheduleEvidence se = new StructuredReportDTO.ScheduleEvidence();
+            se.setId(s.getId());
+            se.setDate(s.getDate() != null ? s.getDate().toString() : null);
+            se.setTime(s.getTime() != null ? s.getTime().format(DateTimeFormatter.ofPattern("HH:mm")) : null);
+            se.setTitle(s.getTitle());
+            se.setFeeling(s.getFeeling());
+            scheduleEvidence.add(se);
+        }
+
+        List<StructuredReportDTO.DiaryEvidence> diaryEvidence = new ArrayList<>();
+        for (Diary d : diaries) {
+            StructuredReportDTO.DiaryEvidence de = new StructuredReportDTO.DiaryEvidence();
+            de.setId(d.getId());
+            de.setDate(d.getDate() != null ? d.getDate().toString() : null);
+            de.setTitle(d.getTitle());
+            String excerpt = d.getContent();
+            if (excerpt != null && excerpt.length() > 120) {
+                excerpt = excerpt.substring(0, 120);
+            }
+            de.setExcerpt(excerpt);
+            diaryEvidence.add(de);
+        }
+
+        StructuredReportDTO.EvidenceSummary summary = new StructuredReportDTO.EvidenceSummary();
+        summary.setSchedules(scheduleEvidence);
+        summary.setDiaries(diaryEvidence);
+        return summary;
+    }
+
+    /**
+     * 从结构化报告生成 Markdown 摘要（用于会话历史兼容）。
+     */
+    private String generateMarkdownSummary(StructuredReportDTO.StructuredReport report) {
+        StringBuilder md = new StringBuilder();
+        md.append("# ").append(report.getTitle()).append("\n\n");
+
+        if (report.getOverview() != null) {
+            md.append("## 概述\n");
+            md.append("**").append(report.getOverview().getHeadline()).append("**\n\n");
+            md.append(report.getOverview().getSummary()).append("\n\n");
+        }
+
+        if (report.getTrend() != null) {
+            md.append("## 情绪趋势\n");
+            md.append("- 方向：").append(report.getTrend().getDirection()).append("\n");
+            md.append("- 波动：").append(report.getTrend().getVolatility()).append("\n");
+            if (report.getTrend().getHighlights() != null) {
+                for (String h : report.getTrend().getHighlights()) {
+                    md.append("- ").append(h).append("\n");
+                }
+            }
+            md.append("\n");
+        }
+
+        if (report.getPatterns() != null && !report.getPatterns().isEmpty()) {
+            md.append("## 发现模式\n");
+            for (StructuredReportDTO.Pattern p : report.getPatterns()) {
+                md.append("### ").append(p.getTitle()).append("\n");
+                md.append(p.getDescription()).append("\n\n");
+            }
+        }
+
+        if (report.getTurningPoints() != null && !report.getTurningPoints().isEmpty()) {
+            md.append("## 关键转折\n");
+            for (StructuredReportDTO.TurningPoint tp : report.getTurningPoints()) {
+                md.append("- **").append(tp.getDate()).append("** ").append(tp.getTitle()).append("：").append(tp.getReason()).append("\n");
+            }
+            md.append("\n");
+        }
+
+        if (report.getSuggestions() != null && !report.getSuggestions().isEmpty()) {
+            md.append("## 建议\n");
+            for (StructuredReportDTO.Suggestion s : report.getSuggestions()) {
+                md.append("- **").append(s.getTitle()).append("**：").append(s.getAction()).append(" (").append(s.getDifficulty()).append(")\n");
+            }
+            md.append("\n");
+        }
+
+        if (report.getGentleNote() != null) {
+            md.append("> ").append(report.getGentleNote()).append("\n\n");
+        }
+
+        md.append("---\n*以上分析由AI生成，仅供参考 ❤️*");
+        return md.toString();
     }
 
 }

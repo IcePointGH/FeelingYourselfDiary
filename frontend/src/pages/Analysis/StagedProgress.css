@@ -1,0 +1,215 @@
+.staged-progress {
+  position: relative;
+  margin-top: 24px;
+  padding: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(185, 149, 118, 0.24);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 16% 8%, rgba(217, 185, 151, 0.26), transparent 30%),
+    linear-gradient(135deg, #fffaf4, #f4ece3);
+  box-shadow: 0 16px 38px rgba(76, 58, 44, 0.08);
+}
+
+.staged-progress::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  border: 1px solid rgba(143, 113, 86, 0.1);
+  border-radius: 6px;
+}
+
+.staged-progress-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.staged-progress-header h3 {
+  margin: 0;
+  color: #4f3f34;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.staged-kicker {
+  margin: 0 0 4px;
+  color: #9b7659;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.staged-orbit {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgba(155, 118, 89, 0.28);
+}
+
+.staged-orbit::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: inherit;
+  background: #9b7659;
+  opacity: 0.12;
+}
+
+.staged-orbit span {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #9b7659;
+  transform-origin: 4px 17px;
+  animation: stagedOrbit 1.4s linear infinite;
+}
+
+.staged-stages {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.staged-item {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: center;
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 1px solid rgba(185, 149, 118, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease,
+    border-color 260ms ease,
+    background-color 260ms ease;
+}
+
+.staged-item.waiting {
+  opacity: 0.48;
+}
+
+.staged-item.current {
+  border-color: rgba(155, 118, 89, 0.34);
+  background: rgba(255, 255, 255, 0.88);
+  transform: translateX(2px);
+}
+
+.staged-item.done {
+  background: rgba(226, 213, 199, 0.45);
+}
+
+.staged-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #9b7659;
+  background: rgba(155, 118, 89, 0.1);
+  font-size: 14px;
+}
+
+.staged-item.current .staged-icon {
+  color: #fffaf4;
+  background: #9b7659;
+  box-shadow: 0 8px 16px rgba(155, 118, 89, 0.2);
+}
+
+.staged-item.done .staged-icon {
+  color: #fffaf4;
+  background: #7f9078;
+}
+
+.staged-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.staged-label {
+  color: #4f3f34;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.staged-detail {
+  color: #7e6a5c;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@keyframes stagedOrbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staged-orbit span,
+  .staged-item {
+    animation: none;
+    transition: none;
+  }
+}
+
+[data-theme='dark'] .staged-progress {
+  border-color: rgba(166, 156, 151, 0.18);
+  background:
+    radial-gradient(circle at 16% 8%, rgba(166, 156, 151, 0.12), transparent 30%),
+    linear-gradient(135deg, #38332f, #302c29);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24);
+}
+
+[data-theme='dark'] .staged-progress-header h3 {
+  color: #eee7df;
+}
+
+[data-theme='dark'] .staged-kicker {
+  color: #c3a58e;
+}
+
+[data-theme='dark'] .staged-item {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme='dark'] .staged-item.current {
+  border-color: rgba(195, 165, 142, 0.28);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme='dark'] .staged-label {
+  color: #eee7df;
+}
+
+[data-theme='dark'] .staged-detail {
+  color: #b9ada4;
+}
+
+@media (max-width: 768px) {
+  .staged-progress {
+    padding: 20px 16px;
+  }
+
+  .staged-progress-header h3 {
+    font-size: 18px;
+  }
+}

@@ -47,6 +47,11 @@ public class AiDTO {
         private int scheduleCount;
         private int diaryCount;
         private String dateRange;
+        private Boolean structured;
+        private String schemaVersion;
+        private Integer retryCount;
+        private StructuredReportDTO.StructuredReport report;
+        private StructuredReportDTO.EvidenceSummary evidenceSummary;
     }
 
     // ==================== Session DTOs ====================

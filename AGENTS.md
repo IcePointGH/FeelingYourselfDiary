@@ -29,7 +29,10 @@ Full-stack emotion/mood diary app. Users record daily schedules with mood values
 | Schedule CRUD | `backend/.../schedule/`, `frontend/src/pages/Schedule/` | Mood values -3 to +3 per item |
 | Diary CRUD | `backend/.../diary/`, `frontend/src/pages/Thoughts/` | Free-form text per date |
 | Emotion analysis | `backend/.../analysis/`, `frontend/src/pages/Analysis/` | JPQL aggregate queries + Recharts |
+| AI analysis state machine | `frontend/src/hooks/useAiAnalysis.ts` | Idle→progress→letter→report|error lifecycle |
+| Tab state caching | `frontend/src/hooks/useTabCache.ts` | Generic per-tab save/restore helper |
 | User settings | `backend/.../settings/`, `frontend/src/pages/Settings/` | Theme, labels, data management |
+| Architecture decisions | `docs/adr/` | Records of architectural choices |
 | Caching layer | `backend/.../common/cache/` | Redisson + Spring Cache, Cache-Aside |
 | Exceptions | `backend/.../common/exception/` | BusinessException hierarchy => HTTP mapping |
 | Frontend state | `frontend/src/contexts/` | Auth, Theme, Toast, EmotionLabels (React Context) |
@@ -56,6 +59,7 @@ Full-stack emotion/mood diary app. Users record daily schedules with mood values
 
 ## ANTI-PATTERNS (THIS PROJECT)
 - **Do NOT refactor adjacent code** when fixing bugs or adding features. Surgical changes only.
+- **Do NOT manage a single state machine with 5+ independent `useState` hooks** — extract into a custom hook (see `useAiAnalysis.ts` as the canonical example). Scattered setters cannot enforce invariants.
 - **Do NOT add new dependencies** without explicit justification. No charting libraries (Recharts already used), no state management libs (React Context pattern is intentional).
 - **Do NOT mix `CacheService` direct keys with `@Cacheable` keys** -- different separators (`:` vs `::`).
 - **Do NOT instantiate utility classes** (`CacheKeys`, `CacheConstants`) -- private constructors throw.

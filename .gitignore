@@ -33,7 +33,6 @@ HELP.md
 .apt_generated
 .classpath
 .factorypath
-.factorypath
 .project
 .settings/
 .springBeans
@@ -76,3 +75,4 @@ application-local.properties
 /docs/plan/
 /.sisyphus/
 /.playwright-mcp/
+/.superpowers/

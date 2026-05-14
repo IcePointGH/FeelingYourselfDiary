@@ -1,13 +1,17 @@
 .analysis-page {
-  max-width: 800px;
+  max-width: 920px;
   margin: 0 auto;
+}
+
+.analysis-control-card {
+  overflow: visible;
 }
 
 .tab-bar {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
-  background: #f5f5f5;
+  background: #f6f1eb;
   border-radius: 8px;
   padding: 4px;
 }
@@ -22,19 +26,19 @@
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .tab-btn:hover {
-  color: #454545;
-  background: #fff;
+  color: #4f3f34;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .tab-btn.active {
   background: #fff;
-  color: #454545;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  color: #4f3f34;
+  box-shadow: 0 4px 14px rgba(79, 63, 52, 0.08);
 }
 
 .date-input {
@@ -52,8 +56,8 @@
 
 .date-input:focus {
   outline: none;
-  border-color: #454545;
-  box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.1);
+  border-color: #9b7659;
+  box-shadow: 0 0 0 3px rgba(155, 118, 89, 0.12);
 }
 
 .analyze-btn {
@@ -61,7 +65,7 @@
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
-  background: #454545;
+  background: #4f3f34;
   color: white;
   font-size: 16px;
   font-weight: 600;
@@ -83,7 +87,7 @@
 }
 
 .analyze-btn:hover {
-  background-color: #333;
+  background-color: #3e3028;
 }
 
 .analyze-btn:disabled {
@@ -278,17 +282,17 @@
   gap: 6px;
   font-size: 13px;
   padding: 6px 14px;
-  border: 1px solid #454545;
+  border: 1px solid #8f6f56;
   border-radius: 20px;
   background: #fff;
-  color: #454545;
+  color: #6f5b4d;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
 .view-toggle-btn:hover {
-  background: #454545;
+  background: #4f3f34;
   color: #fff;
 }
 
@@ -297,11 +301,11 @@
 }
 
 .ai-analyze-btn {
-  background: linear-gradient(135deg, #a69c97, #8a817c);
+  background: linear-gradient(135deg, #8f6f56, #4f3f34);
 }
 
 .ai-analyze-btn:hover {
-  background: linear-gradient(135deg, #8a817c, #6b6360);
+  background: linear-gradient(135deg, #7b5f4a, #3e3028);
 }
 
 .ai-result-card {
@@ -314,16 +318,19 @@
 
 .ai-stats {
   display: flex;
-  gap: 16px;
-  margin-bottom: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 18px 0 14px;
   font-size: 13px;
-  color: #999;
+  color: #806c5e;
 }
 
 .ai-stats span {
-  background: #f0f0f0;
-  padding: 2px 10px;
-  border-radius: 10px;
+  background: rgba(255, 250, 244, 0.8);
+  border: 1px solid rgba(185, 149, 118, 0.18);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 700;
 }
 
 .ai-markdown {
@@ -334,7 +341,32 @@
   word-break: break-word;
 }
 
+/* ── AI report wrapper ── */
+.ai-report-wrapper {
+  margin-top: 8px;
+}
+
+/* ── Error retry button ── */
+.error-message .analyze-btn {
+  margin-top: 12px;
+  width: auto;
+  padding: 8px 24px;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
+  .analysis-page {
+    max-width: 100%;
+  }
+
+  .tab-bar {
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    min-width: 86px;
+  }
+
   .stats-row {
     flex-direction: column;
   }
@@ -355,4 +387,38 @@
   .detail-time {
     font-size: 12px;
   }
+}
+
+[data-theme='dark'] .tab-bar {
+  background: #33302d;
+}
+
+[data-theme='dark'] .tab-btn:hover {
+  color: #eee7df;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .tab-btn.active {
+  color: #eee7df;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .view-toggle-btn {
+  color: #d8cabe;
+  border-color: rgba(216, 202, 190, 0.42);
+  background: transparent;
+}
+
+[data-theme='dark'] .view-toggle-btn:hover {
+  background: #d8cabe;
+  color: #302c29;
+}
+
+[data-theme='dark'] .ai-stats {
+  color: #d0b8a4;
+}
+
+[data-theme='dark'] .ai-stats span {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }

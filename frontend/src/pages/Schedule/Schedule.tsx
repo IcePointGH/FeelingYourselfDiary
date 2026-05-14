@@ -40,6 +40,10 @@ const sortScheduleItems = (items: ScheduleListItem[]): ScheduleListItem[] => {
 
 const currentTimeValue = () => new Date().toTimeString().slice(0, 5);
 const todayValue = () => new Date().toISOString().split('T')[0];
+const localToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 export default function SchedulePage() {
   const [title, setTitle] = useState('');
@@ -157,7 +161,7 @@ export default function SchedulePage() {
     if (!title.trim()) return;
 
     // 检查是否为未来日期，且用户未勾选"不再提示"
-    const isFutureDate = date > new Date().toISOString().split('T')[0];
+    const isFutureDate = date > localToday();
     if (isFutureDate && !localStorage.getItem(REMINDER_KEY)) {
       setShowFutureReminder(true);
       setDontShowAgain(false);
