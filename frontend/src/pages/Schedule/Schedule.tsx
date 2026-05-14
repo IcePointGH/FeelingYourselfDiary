@@ -150,16 +150,16 @@ export default function SchedulePage() {
   };
 
   const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
-    // 乐观更新
+    // 乐观更新：立即可见，不触发列表重取
     setScheduleList(prev => prev.map(it => it.id === id ? { ...it, ...data } : it));
     try {
       await apiFetch(`${SCHEDULE_API.base}/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       });
-      refetch();
+      // 成功：乐观更新已准确，无需 refetch（避免无意义的重渲染）
     } catch (err) {
-      refetch(); // 回滚
+      refetch(); // 失败回滚：从服务器恢复正确数据
       addToast(err instanceof Error ? err.message : '更新失败', 'error');
     }
   };
@@ -171,8 +171,7 @@ export default function SchedulePage() {
     ));
     try {
       await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
-      // 后台静默刷新确保数据一致
-      refetch();
+      // 成功：乐观更新已准确，无需 refetch
     } catch (err) {
       // 失败时回滚
       setScheduleList(prev => prev.map(it =>

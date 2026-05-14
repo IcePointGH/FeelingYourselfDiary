@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type { ScheduleItem, FeelingValue } from '../../types';
 import { formatFeelingValue } from '../../utils/feeling';
 import './ScheduleItemCard.css';
@@ -24,7 +24,30 @@ interface ScheduleItemCardProps {
   showDate?: boolean;
 }
 
-export default function ScheduleItemCard({
+/** Shallow-compare item fields that affect rendering — skip re-render if unchanged.
+ *  NOTE: intentionally does NOT compare callback props (onDelete/onUpdate/etc)
+ *  because they are recreated on every parent render. The callbacks are functionally
+ *  equivalent even with different references. */
+function arePropsEqual(
+  prev: ScheduleItemCardProps,
+  next: ScheduleItemCardProps,
+): boolean {
+  const a = prev.item;
+  const b = next.item;
+  return (
+    a.id === b.id &&
+    a.title === b.title &&
+    a.description === b.description &&
+    a.date === b.date &&
+    a.time === b.time &&
+    a.feeling === b.feeling &&
+    a.completed === b.completed &&
+    prev.showActions === next.showActions &&
+    prev.showDate === next.showDate
+  );
+}
+
+function ScheduleItemCard({
   item,
   onDelete,
   onClick,
@@ -86,66 +109,68 @@ export default function ScheduleItemCard({
   };
 
   return (
-    <div
-      className="schedule-item"
-      onClick={onClick ? () => onClick(item) : undefined}
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(item); } } : undefined}
-    >
+    <>
       <div
-        className={`schedule-checkbox ${item.completed ? 'checked' : ''}`}
-        title={item.completed ? '已完成' : isFuture ? '待办，勾选后计入情绪统计' : '未完成'}
-        onClick={handleCheckToggle}
-        role="checkbox"
-        aria-checked={item.completed}
-        tabIndex={0}
-        onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
+        className="schedule-item"
+        onClick={onClick ? () => onClick(item) : undefined}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(item); } } : undefined}
       >
-        <span className="checkmark" />
-      </div>
-      <div className="schedule-info">
-        <div className="schedule-title">{item.title}</div>
-        {item.description && <div className="schedule-desc">{item.description}</div>}
-        <div className="schedule-meta">
-          {showDate && (
-            <span className="schedule-date">{formatDateChinese(item.date)}</span>
-          )}
-          {item.time && <span className="schedule-time">{item.time}</span>}
-          <span className={`feeling-badge feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>
-            {formatFeelingValue(item.feeling)}
-          </span>
+        <div
+          className={`schedule-checkbox ${item.completed ? 'checked' : ''}`}
+          title={item.completed ? '已完成' : isFuture ? '待办，勾选后计入情绪统计' : '未完成'}
+          onClick={handleCheckToggle}
+          role="checkbox"
+          aria-checked={item.completed}
+          tabIndex={0}
+          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (isFuture && !item.completed) { setShowFutureConfirm(true); } else { onToggleComplete?.(item.id); } } }}
+        >
+          <span className="checkmark" />
         </div>
-      </div>
-      {showActions && (
-        <div className="card-actions">
-          {onUpdate && (
-            <button className="action-btn edit-btn" onClick={startEdit} title="编辑">
-              <i className="fas fa-pen" />
-            </button>
-          )}
-          {onDelete && (
-            <button className="action-btn delete-btn-small" onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} title="删除">
-              <i className="fas fa-trash" />
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* 未来日程勾选确认弹窗 */}
-      {showFutureConfirm && (
-        <div className="future-confirm-overlay" onClick={(e) => e.stopPropagation()}>
-          <div className="future-confirm-popup">
-            <p>这是一个<strong>未来的日程</strong>，勾选后会计入当前情绪统计。</p>
-            <div className="future-confirm-actions">
-              <button className="btn btn-cancel" onClick={() => setShowFutureConfirm(false)}>取消</button>
-              <button className="btn submit-btn" onClick={handleConfirmToggle}>确定勾选</button>
-            </div>
+        <div className="schedule-info">
+          <div className="schedule-title">{item.title}</div>
+          {item.description && <div className="schedule-desc">{item.description}</div>}
+          <div className="schedule-meta">
+            {showDate && (
+              <span className="schedule-date">{formatDateChinese(item.date)}</span>
+            )}
+            {item.time && <span className="schedule-time">{item.time}</span>}
+            <span className={`feeling-badge feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>
+              {formatFeelingValue(item.feeling)}
+            </span>
           </div>
         </div>
-      )}
+        {showActions && (
+          <div className="card-actions">
+            {onUpdate && (
+              <button className="action-btn edit-btn" onClick={startEdit} title="编辑">
+                <i className="fas fa-pen" />
+              </button>
+            )}
+            {onDelete && (
+              <button className="action-btn delete-btn-small" onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} title="删除">
+                <i className="fas fa-trash" />
+              </button>
+            )}
+          </div>
+        )}
 
-      {/* 编辑弹窗 */}
+        {/* 未来日程勾选确认弹窗 */}
+        {showFutureConfirm && (
+          <div className="future-confirm-overlay" onClick={(e) => e.stopPropagation()}>
+            <div className="future-confirm-popup">
+              <p>这是一个<strong>未来的日程</strong>，勾选后会计入当前情绪统计。</p>
+              <div className="future-confirm-actions">
+                <button className="btn btn-cancel" onClick={() => setShowFutureConfirm(false)}>取消</button>
+                <button className="btn submit-btn" onClick={handleConfirmToggle}>确定勾选</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 编辑弹窗 — 渲染在 .schedule-item 外部，避免其 CSS transition/hover 干扰 fixed overlay */}
       {editing && (
         <div className="edit-overlay" onClick={(e) => e.stopPropagation()}>
           <div className="edit-popup" onClick={(e) => e.stopPropagation()}>
@@ -190,6 +215,8 @@ export default function ScheduleItemCard({
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
+
+export default memo(ScheduleItemCard, arePropsEqual);
