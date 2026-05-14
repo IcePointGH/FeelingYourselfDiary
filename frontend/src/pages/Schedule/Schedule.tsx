@@ -21,11 +21,30 @@ const quotes = [
 
 const REMINDER_KEY = 'schedule_future_reminder_dismissed';
 
+type ScheduleListItem = ScheduleItem & {
+  saving?: boolean;
+  justAdded?: boolean;
+  tempId?: number;
+};
+
+const sortScheduleItems = (items: ScheduleListItem[]): ScheduleListItem[] => {
+  return items.map((item, index) => ({ item, index })).sort((a, b) => {
+    const aTime = a.item.time || '99:99';
+    const bTime = b.item.time || '99:99';
+    const byTime = aTime.localeCompare(bTime);
+    if (byTime !== 0) return byTime;
+    return a.index - b.index;
+  }).map(({ item }) => item);
+};
+
+const currentTimeValue = () => new Date().toTimeString().slice(0, 5);
+const todayValue = () => new Date().toISOString().split('T')[0];
+
 export default function SchedulePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [time, setTime] = useState(new Date().toTimeString().slice(0, 5));
+  const [date, setDate] = useState(todayValue());
+  const [time, setTime] = useState(currentTimeValue());
   const [feeling, setFeeling] = useState<number>(0);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [kaoAnimKey, setKaoAnimKey] = useState(0);
@@ -52,7 +71,9 @@ export default function SchedulePage() {
     });
   };
 
-  const selectAll = () => setSelectedIds(new Set(scheduleList.map(it => it.id)));
+  const selectAll = () => {
+    setSelectedIds(new Set(scheduleList.filter(it => !it.saving).map(it => it.id)));
+  };
   const deselectAll = () => setSelectedIds(new Set());
 
   const batchToggle = async (_completed: boolean) => {
@@ -87,9 +108,9 @@ export default function SchedulePage() {
   );
 
   // 本地乐观更新镜像：勾选时立即更新 UI，后台 API 同步
-  const [scheduleList, setScheduleList] = useState<ScheduleItem[]>([]);
+  const [scheduleList, setScheduleList] = useState<ScheduleListItem[]>([]);
   useEffect(() => {
-    if (items) setScheduleList(items);
+    if (items) setScheduleList(sortScheduleItems(items));
   }, [items]);
 
   useEffect(() => {
@@ -151,7 +172,7 @@ export default function SchedulePage() {
 
   const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
     // 乐观更新：立即可见，不触发列表重取
-    setScheduleList(prev => prev.map(it => it.id === id ? { ...it, ...data } : it));
+    setScheduleList(prev => sortScheduleItems(prev.map(it => it.id === id ? { ...it, ...data } : it)));
     try {
       await apiFetch(`${SCHEDULE_API.base}/${id}`, {
         method: 'PUT',
