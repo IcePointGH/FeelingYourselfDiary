@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import './StagedProgress.css';
 
 const STAGES = [
-  { label: '小七正在查看你的记录', detail: '把日程和日记里的线索轻轻摊开', icon: 'fa-book-open' },
-  { label: '小七正在分析你的情绪', detail: '寻找趋势、转折点和重复出现的感受', icon: 'fa-wand-magic-sparkles' },
-  { label: '小七正在整理报告结构', detail: '把洞察校验成可以安心阅读的格式', icon: 'fa-list-check' },
-  { label: '小七正在为你写信', detail: '把这段时间的发现装进信封里', icon: 'fa-envelope' },
+  { label: '调取记录', detail: '检索日程与日记中的关联条目', icon: 'fa-folder-open' },
+  { label: '比对情绪轨迹', detail: '核对趋势、转折与重复出现的感受', icon: 'fa-chart-line' },
+  { label: '整理关键发现', detail: '归纳可供查阅的重点线索', icon: 'fa-list-check' },
+  { label: '封存这份档案', detail: '将本次分析整理为完整档案', icon: 'fa-box-archive' },
 ] as const;
 
 const STAGE_INTERVAL = 1600;
@@ -80,8 +80,8 @@ export default function StagedProgress({ isRunning, settling = false, onComplete
           <span />
         </span>
         <div>
-          <p className="staged-kicker">AI Analysis</p>
-          <h3>{settling ? '信已经写好，正在递给你' : '正在准备你的情绪报告'}</h3>
+          <p className="staged-kicker">Archive Processing</p>
+          <h3>{settling ? '档案已封存，正在递交给你' : '正在处理你的情绪档案'}</h3>
         </div>
       </div>
 
