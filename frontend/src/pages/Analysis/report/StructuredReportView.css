@@ -4,14 +4,14 @@
 
 .sr-archive {
   overflow: hidden;
-  border: 1px solid var(--archive-line-strong, #181818);
+  border: 1px solid var(--archive-gray-200, #e8e8e8);
   border-radius: var(--archive-radius, 8px);
   background: var(--archive-paper, #fff);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .sr-archive-head {
-  border-bottom: 1px solid var(--archive-line-strong, #181818);
+  border-bottom: 1px solid var(--archive-line, #d0d0d0);
 }
 
 .sr-spectrum {
@@ -142,13 +142,13 @@
 }
 
 [data-theme='dark'] .sr-archive {
-  border-color: rgba(255, 255, 255, 0.28);
-  background: #1f1f1d;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+  border-color: #555;
+  background: #3d3d3d;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='dark'] .sr-archive-head {
-  border-bottom-color: rgba(255, 255, 255, 0.28);
+  border-bottom-color: #555;
 }
 
 [data-theme='dark'] .sr-spectrum,
