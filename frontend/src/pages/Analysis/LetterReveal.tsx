@@ -44,7 +44,7 @@ export default function LetterReveal({ reportTitle, onOpen, onViewDirect }: Lett
         </div>
 
         <div className="archive-tab" aria-hidden="true">Archive 014</div>
-        <div className="archive-stamp" aria-hidden="true">已阅</div>
+        <div className="archive-lid" aria-hidden="true" />
 
         <div className="archive-body">
           <div className="archive-header">
@@ -61,7 +61,7 @@ export default function LetterReveal({ reportTitle, onOpen, onViewDirect }: Lett
               aria-label="打开档案"
             >
               <i className="fas fa-folder-open" />
-              <span>{opening ? '正在打开' : '打开档案'}</span>
+              <span>{opening ? '正在展开' : '打开档案'}</span>
             </button>
             <button
               className="archive-btn archive-btn-secondary"
