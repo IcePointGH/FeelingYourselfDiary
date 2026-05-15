@@ -4,10 +4,13 @@
   --welcome-line: rgba(40, 40, 40, 0.14);
   --welcome-soft: #f6f6f4;
   --welcome-paper: #ffffff;
+  height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
   min-height: 100dvh;
   padding: 28px 24px 36px;
-  overflow: hidden auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background:
     radial-gradient(circle at 74% 12%, rgba(22, 134, 238, 0.08), transparent 24%),
     radial-gradient(circle at 15% 88%, rgba(215, 87, 114, 0.08), transparent 20%),
