@@ -6,9 +6,9 @@ interface GentleNoteProps {
 
 export default function GentleNote({ text }: GentleNoteProps) {
   return (
-    <p className="gentle-note">
-      <i className="fas fa-feather-alt" aria-hidden="true" />
-      <span>{text}</span>
-    </p>
+    <footer className="gentle-note">
+      <span><strong>小七批注：</strong>{text}</span>
+      <span className="archive-ref">Archive Ref.</span>
+    </footer>
   );
 }

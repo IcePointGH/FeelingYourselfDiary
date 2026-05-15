@@ -34,46 +34,39 @@ export default function LetterReveal({ reportTitle, onOpen, onViewDirect }: Lett
     <div
       className={`letter-reveal ${opening ? 'opening' : ''} ${revealed ? 'revealed' : ''}`}
       role="region"
-      aria-label="AI 分析报告"
+      aria-label="AI 分析档案"
     >
-      <div className="letter-envelope">
-        <div className="letter-flap letter-flap-top" />
-        <div className="letter-flap letter-flap-left" />
-        <div className="letter-flap letter-flap-right" />
-
-        <div className="letter-paper-preview" aria-hidden="true">
+      <div className="archive-sleeve">
+        <div className="archive-sheet-preview" aria-hidden="true">
           <span />
           <span />
           <span />
         </div>
 
-        <div className="letter-seal" aria-hidden="true">
-          <div className="letter-seal-inner">
-            <i className="fas fa-feather-alt" />
-          </div>
-        </div>
+        <div className="archive-tab" aria-hidden="true">Archive 014</div>
+        <div className="archive-stamp" aria-hidden="true">已阅</div>
 
-        <div className="letter-body">
-          <div className="letter-header">
-            <span className="letter-kicker">Seven Sense Report</span>
-            <h3 className="letter-title">你的情绪报告已经写好</h3>
-            <p className="letter-subtitle">{reportTitle}</p>
+        <div className="archive-body">
+          <div className="archive-header">
+            <span className="archive-kicker">Seven Sense Archive</span>
+            <h3 className="archive-title">你的情绪档案已经整理好</h3>
+            <p className="archive-subtitle">{reportTitle}</p>
           </div>
 
-          <div className="letter-actions">
+          <div className="archive-actions">
             <button
-              className="letter-btn letter-btn-primary"
+              className="archive-btn archive-btn-primary"
               onClick={handleOpen}
               disabled={opening || revealed}
-              aria-label="拆开报告"
+              aria-label="打开档案"
             >
-              <i className="fas fa-envelope-open-text" />
-              <span>{opening ? '正在拆开' : '拆开报告'}</span>
+              <i className="fas fa-folder-open" />
+              <span>{opening ? '正在打开' : '打开档案'}</span>
             </button>
             <button
-              className="letter-btn letter-btn-secondary"
+              className="archive-btn archive-btn-secondary"
               onClick={onViewDirect}
-              aria-label="直接查看报告"
+              aria-label="直接查看档案"
             >
               直接查看
             </button>
