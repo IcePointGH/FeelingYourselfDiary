@@ -38,7 +38,7 @@ export default function EvidenceView({ scheduleIds, diaryIds, evidence }: Eviden
 
   if (!hasEvidence && !hasMissing) return null;
 
-  const buttonLabel = expanded ? '收起依据' : '查看依据';
+  const buttonLabel = expanded ? '收起引用' : '查看引用';
 
   return (
     <div className="evidence-view">
@@ -57,12 +57,12 @@ export default function EvidenceView({ scheduleIds, diaryIds, evidence }: Eviden
       </button>
 
       {expanded && (
-        <div className="evidence-content" role="region" aria-label="依据详情">
+        <div className="evidence-content" role="region" aria-label="引用详情">
           {resolvedSchedules.length > 0 && (
             <div className="evidence-group">
               <h4 className="evidence-group-title">日程记录</h4>
               {resolvedSchedules.map(item => (
-                <div key={item.id} className="evidence-item">
+                <div key={item.id} className={`evidence-item feel-${item.feeling}`}>
                   <div className="evidence-item-info">
                     <span className="evidence-item-title">{item.title}</span>
                     <span className="evidence-item-date">
@@ -96,7 +96,7 @@ export default function EvidenceView({ scheduleIds, diaryIds, evidence }: Eviden
           {hasMissing && (
             <p className="evidence-missing">
               <i className="fas fa-info-circle" aria-hidden="true" />
-              部分依据暂时无法查看
+              部分引用暂时无法查看
             </p>
           )}
         </div>
