@@ -66,16 +66,64 @@
   line-height: 1.25;
 }
 
-.sr-reader-note {
+.sr-profile {
   padding: 20px 22px;
   border-top: 1px solid var(--archive-line, #d8d8d3);
 }
 
-.sr-reader-note p {
+.sr-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.sr-profile-grid div {
+  display: grid;
+  gap: 4px;
+}
+
+.sr-profile-grid dt {
+  color: var(--archive-muted, #676767);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.sr-profile-grid dd {
+  margin: 0;
+  color: var(--archive-ink, #151515);
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.sr-spectrum-profile {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  align-items: end;
+  gap: 6px;
+  height: 48px;
+  margin-bottom: 10px;
+}
+
+.sr-spectrum-profile span {
+  min-height: 4px;
+  height: var(--spectrum-height);
+  border-radius: 999px 999px 2px 2px;
+}
+
+.sr-spectrum-profile span:nth-child(1) { background: var(--sense-neg-3, #d75772); }
+.sr-spectrum-profile span:nth-child(2) { background: var(--sense-neg-2, #f5867b); }
+.sr-spectrum-profile span:nth-child(3) { background: var(--sense-neg-1, #fea979); }
+.sr-spectrum-profile span:nth-child(4) { background: var(--sense-zero, #ffe062); }
+.sr-spectrum-profile span:nth-child(5) { background: var(--sense-pos-1, #3cdfe9); }
+.sr-spectrum-profile span:nth-child(6) { background: var(--sense-pos-2, #12b8ec); }
+.sr-spectrum-profile span:nth-child(7) { background: var(--sense-pos-3, #1686ee); }
+
+.sr-profile-caption {
   margin: 0;
   color: var(--archive-muted, #676767);
-  font-size: 13px;
-  line-height: 1.8;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .sr-section {
@@ -153,7 +201,7 @@
 
 [data-theme='dark'] .sr-spectrum,
 [data-theme='dark'] .sr-rail,
-[data-theme='dark'] .sr-reader-note {
+[data-theme='dark'] .sr-profile {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -167,8 +215,13 @@
 }
 
 [data-theme='dark'] .sr-kicker,
-[data-theme='dark'] .sr-reader-note p {
+[data-theme='dark'] .sr-profile-grid dt,
+[data-theme='dark'] .sr-profile-caption {
   color: #b8b8b2;
+}
+
+[data-theme='dark'] .sr-profile-grid dd {
+  color: #f3f3f0;
 }
 
 @media (max-width: 768px) {
@@ -183,7 +236,7 @@
 
   .sr-title-row,
   .sr-section,
-  .sr-reader-note {
+  .sr-profile {
     padding-left: 16px;
     padding-right: 16px;
   }

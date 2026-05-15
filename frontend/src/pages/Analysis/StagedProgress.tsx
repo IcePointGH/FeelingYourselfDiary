@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import './StagedProgress.css';
 
 const STAGES = [
-  { label: '调取记录', detail: '检索日程与日记中的关联条目', icon: 'fa-folder-open' },
-  { label: '比对情绪轨迹', detail: '核对趋势、转折与重复出现的感受', icon: 'fa-chart-line' },
-  { label: '整理关键发现', detail: '归纳可供查阅的重点线索', icon: 'fa-list-check' },
-  { label: '封存这份档案', detail: '将本次分析整理为完整档案', icon: 'fa-box-archive' },
+  { label: '小七正在查看你的记录', detail: '检索日程与日记中的关联条目', icon: 'fa-folder-open' },
+  { label: '小七正在分析你的情绪', detail: '核对趋势、转折与重复出现的感受', icon: 'fa-chart-line' },
+  { label: '小七正在整理关键发现', detail: '归纳可供查阅的重点线索', icon: 'fa-list-check' },
+  { label: '小七正在为你封存这份档案', detail: '将本次分析整理为完整档案', icon: 'fa-box-archive' },
 ] as const;
 
 const STAGE_INTERVAL = 1600;
@@ -81,7 +81,7 @@ export default function StagedProgress({ isRunning, settling = false, onComplete
         </span>
         <div>
           <p className="staged-kicker">Archive Processing</p>
-          <h3>{settling ? '档案已封存，正在递交给你' : '正在处理你的情绪档案'}</h3>
+          <h3>{settling ? '档案已封存，正在递交给你' : STAGES[stageIndex].label}</h3>
         </div>
       </div>
 
