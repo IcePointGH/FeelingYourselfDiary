@@ -506,6 +506,18 @@
   color-scheme: dark;
 }
 
+[data-theme='dark'] .analysis-page .analyze-btn,
+[data-theme='dark'] .analysis-page .ai-analyze-btn {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+  color: #111111;
+}
+
+[data-theme='dark'] .analysis-page .analyze-btn:hover,
+[data-theme='dark'] .analysis-page .ai-analyze-btn:hover {
+  background: #dcdcdc;
+}
+
 [data-theme='dark'] .view-toggle-btn {
   color: #f0f0f0;
   border-color: #f0f0f0;
