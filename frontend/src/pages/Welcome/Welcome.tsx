@@ -178,7 +178,7 @@ export default function Welcome() {
                 <div className="preview-list">
                   {previewItems.map(item => (
                     <div className="preview-item" key={item.title}>
-                      <span className="preview-time">{item.time}</span>
+                      <span className="preview-time">{item.time.slice(0, 5)}</span>
                       <span className="preview-title">{item.title}</span>
                       <span className={`preview-mood ${item.className}`}>{item.mood}</span>
                     </div>

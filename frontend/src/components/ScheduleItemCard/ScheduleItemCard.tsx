@@ -145,7 +145,7 @@ function ScheduleItemCard({
             {showDate && (
               <span className="schedule-date">{formatDateChinese(item.date)}</span>
             )}
-            {item.time && <span className="schedule-time">{item.time}</span>}
+            {item.time && <span className="schedule-time">{item.time.slice(0, 5)}</span>}
             <span className={`feeling-badge feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>
               {formatFeelingValue(item.feeling)}
             </span>

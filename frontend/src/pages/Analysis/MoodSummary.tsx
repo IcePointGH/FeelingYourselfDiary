@@ -40,7 +40,7 @@ export default function MoodSummary({ tab, items }: MoodSummaryProps) {
                 <div className="detail-info">
                   <div className="detail-title">{item.title}</div>
                   <div className="detail-time">
-                    {item.date}{item.time ? ` ${item.time}` : ''}
+                    {item.date}{item.time ? ` ${item.time.slice(0, 5)}` : ''}
                   </div>
                 </div>
                 <div className={`detail-feeling feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling)}`}>

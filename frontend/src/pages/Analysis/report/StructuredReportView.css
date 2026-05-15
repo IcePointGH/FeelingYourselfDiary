@@ -1,3 +1,8 @@
+:root {
+  --spectrum-height: 4px;
+  --sr-delay: 0ms;
+}
+
 .sr-container {
   margin-top: 22px;
 }
@@ -107,7 +112,7 @@
 
 .sr-spectrum-profile span {
   min-height: 4px;
-  height: var(--spectrum-height);
+  height: var(--spectrum-height, 4px);
   border-radius: 999px 999px 2px 2px;
 }
 
@@ -164,7 +169,7 @@
 
 .sr-card--visible {
   animation: srCardIn 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  animation-delay: var(--sr-delay, 0ms);
+  animation-delay: var(--sr-delay, 0ms); /* set via JS */
 }
 
 @keyframes srCardIn {

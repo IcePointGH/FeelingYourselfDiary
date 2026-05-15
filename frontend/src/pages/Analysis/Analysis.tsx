@@ -45,6 +45,7 @@ function getWeekNumber(date: Date) {
 }
 
 function isoWeekToDate(weekStr: string): string {
+  if (!weekStr || !weekStr.includes('-W')) return '';
   const [yearStr, weekStrNum] = weekStr.split('-W');
   const year = parseInt(yearStr, 10);
   const week = parseInt(weekStrNum, 10);
@@ -207,6 +208,10 @@ export default function AnalysisPage() {
     }
 
     if (!data?.dailyTotals || (tab !== 'weekly' && tab !== 'monthly')) return [];
+
+    // Guard: stale date format from previous tab (e.g. monthly→weekly)
+    if (tab === 'weekly' && !date.includes('-W')) return [];
+    if (tab === 'monthly' && !month) return [];
 
     // Determine full date range
     let start: Date;

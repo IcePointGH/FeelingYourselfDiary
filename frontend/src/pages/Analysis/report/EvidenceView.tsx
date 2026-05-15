@@ -67,7 +67,7 @@ export default function EvidenceView({ scheduleIds, diaryIds, evidence }: Eviden
                     <span className="evidence-item-title">{item.title}</span>
                     <span className="evidence-item-date">
                       {item.date}
-                      {item.time ? ` ${item.time}` : ''}
+                      {item.time ? ` ${item.time.slice(0, 5)}` : ''}
                     </span>
                   </div>
                   <span className={`evidence-feeling feel-${item.feeling}`}>
