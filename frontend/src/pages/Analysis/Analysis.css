@@ -82,8 +82,8 @@
 
 .date-input:focus {
   outline: none;
-  border-color: var(--archive-black);
-  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+  border-color: #9b7659;
+  box-shadow: 0 0 0 3px rgba(155, 118, 89, 0.12);
 }
 
 .analyze-btn {
@@ -424,6 +424,11 @@
 [data-theme='dark'] .tab-bar {
   background: #171717;
   border-color: #f0f0f0;
+}
+
+[data-theme='dark'] .tab-btn {
+  background: #171717;
+  border-right-color: #f0f0f0;
 }
 
 [data-theme='dark'] .tab-btn:hover {
