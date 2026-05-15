@@ -58,7 +58,7 @@ backend/src/main/java/com/diaryproject/backend/
 ## DEPLOYMENT
 - **Database**: `ddl-auto=validate` — all tables MUST exist before Spring Boot starts. `init.sql` is auto-executed by MySQL on first container start via docker-entrypoint-initdb.d mount.
 - **CORS**: `CORS_ORIGINS` env var required. NEVER set `*` — conflicts with `allowCredentials(true)`. For IP-only deploy use `http://<server-ip>`.
-- **AI**: `MINIMAX_API_KEY` required for AI features. Default `placeholder` is not valid.
+- **AI**: `DEEPSEEK_API_KEY` required for AI features. Default `placeholder` is not valid.
 - **JWT**: `JWT_SECRET` required (≥32 chars). `JWT_EXPIRATION` defaults 24h.
 - **Redis**: Redisson auto-configures from `REDIS_HOST`/`REDIS_PORT`/`REDIS_PASSWORD` env vars.
 

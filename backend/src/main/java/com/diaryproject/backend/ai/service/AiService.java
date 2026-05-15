@@ -42,7 +42,7 @@ public class AiService {
     private final AiPromptRecordFormatter recordFormatter;
     private final StructuredReportParser structuredReportParser;
 
-    @Value("${spring.ai.minimax.chat.options.model}")
+    @Value("${spring.ai.deepseek.chat.options.model}")
     private String bigModel;
 
     public AiService(ChatModel chatModel, ScheduleRepository scheduleRepository, DiaryRepository diaryRepository,

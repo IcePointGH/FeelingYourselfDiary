@@ -195,11 +195,48 @@ export default function AnalysisPage() {
 
   // ── Derived ──
   const chartData = useMemo(() => {
-    if (!data?.dailyTotals) return [];
-    return Object.entries(data.dailyTotals).map(([dateKey, value]) => ({ date: dateKey, value }));
-  }, [data]);
+    // Daily: map items sorted by time, use time as X-axis label
+    if (tab === 'daily') {
+      if (!data?.items || data.items.length === 0) return [];
+      return [...data.items]
+        .sort((a, b) => (a.time || '').localeCompare(b.time || ''))
+        .map(item => ({
+          date: item.time?.slice(0, 5) || item.title || `#${item.id}`,
+          value: item.feeling,
+        }));
+    }
 
-  const tabLabels: Record<TabType, string> = { daily: '日分析', weekly: '周分析', monthly: '月分析', full: '全历史分析' };
+    if (!data?.dailyTotals || (tab !== 'weekly' && tab !== 'monthly')) return [];
+
+    // Determine full date range
+    let start: Date;
+    let end: Date;
+    if (tab === 'weekly') {
+      start = new Date(isoWeekToDate(date));
+      end = new Date(start);
+      end.setDate(end.getDate() + 6);
+    } else {
+      // monthly
+      start = new Date(`${month}-01`);
+      end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+    }
+
+    // Fill all dates in range; mark missing as filler
+    const result: { date: string; value: number; isFiller: boolean }[] = [];
+    const cursor = new Date(start);
+    while (cursor <= end) {
+      const dateKey = cursor.toISOString().split('T')[0];
+      if (dateKey in data.dailyTotals) {
+        result.push({ date: dateKey, value: data.dailyTotals[dateKey]!, isFiller: false });
+      } else {
+        result.push({ date: dateKey, value: 0, isFiller: true });
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return result;
+  }, [data, tab, date, month]);
+
+  const tabLabels: Record<TabType, string> = { daily: '日', weekly: '周', monthly: '月', full: '全部' };
 
   // ── AI state shortcuts ──
   const s = ai.state;
@@ -243,7 +280,7 @@ export default function AnalysisPage() {
               onClick={viewMode === 'ai' ? handleAiAnalyze : handleAnalyze}
               disabled={loading || s.loading}
             >
-              {loading || s.loading ? '分析中...' : viewMode === 'ai' ? 'AI 智能分析' : '图表分析'}
+              {loading || s.loading ? '分析中...' : viewMode === 'ai' ? '生成报告' : '图表分析'}
             </button>
             <button
               className="view-toggle-btn"
@@ -268,7 +305,7 @@ export default function AnalysisPage() {
               onClick={handleAiAnalyze}
               disabled={s.loading}
             >
-              {s.loading ? 'AI 分析中...' : 'AI 智能分析'}
+              {s.loading ? '分析中...' : '生成报告'}
             </button>
           </div>
         )}
@@ -338,7 +375,7 @@ export default function AnalysisPage() {
             <StatCard title="平均情绪" value={data.averageFeeling > 0 ? `+${data.averageFeeling.toFixed(1)}` : data.averageFeeling.toFixed(1)} />
           </div>
 
-          {data.dailyTotals && data.itemCount > 0 && (
+          {(data.dailyTotals || tab === 'daily') && data.itemCount > 0 && (
             <MoodTrendChart tab={tab === 'full' ? 'monthly' : tab} chartData={chartData} month={tab === 'monthly' ? month : undefined} />
           )}
 

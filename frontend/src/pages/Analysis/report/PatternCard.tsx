@@ -14,18 +14,15 @@ export default function PatternCard({ pattern, evidence, index }: PatternCardPro
   const hasEvidence = scheduleIds.length > 0 || diaryIds.length > 0;
 
   return (
-    <article className="report-card report-card--pattern">
-      <div className="report-card-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</div>
-      <div className="report-card-content">
+    <article className="archive-entry">
+      <div className="archive-entry-index" aria-hidden="true">
+        <span>Entry</span>
+        <b>{String(index + 1).padStart(2, '0')}</b>
+      </div>
+      <div className="archive-entry-body">
         <h3 className="report-card-item-title">{pattern.title}</h3>
         <p className="report-card-description">{pattern.description}</p>
-        {hasEvidence && (
-          <EvidenceView
-            scheduleIds={scheduleIds}
-            diaryIds={diaryIds}
-            evidence={evidence}
-          />
-        )}
+        {hasEvidence && <EvidenceView scheduleIds={scheduleIds} diaryIds={diaryIds} evidence={evidence} />}
       </div>
     </article>
   );

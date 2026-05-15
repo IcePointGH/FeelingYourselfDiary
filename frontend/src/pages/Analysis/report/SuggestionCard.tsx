@@ -21,9 +21,12 @@ export default function SuggestionCard({ suggestion, evidence, index }: Suggesti
   const hasEvidence = scheduleIds.length > 0 || diaryIds.length > 0;
 
   return (
-    <article className="report-card report-card--suggestion">
-      <div className="suggestion-index" aria-hidden="true">{index + 1}</div>
-      <div className="report-card-content">
+    <article className="archive-entry archive-entry--suggestion">
+      <div className="archive-entry-index" aria-hidden="true">
+        <span>Action</span>
+        <b>{String(index + 1).padStart(2, '0')}</b>
+      </div>
+      <div className="archive-entry-body">
         <div className="suggestion-header">
           <h3 className="report-card-item-title">{suggestion.title}</h3>
           <span className={`diff-badge diff--${suggestion.difficulty}`}>
@@ -31,13 +34,7 @@ export default function SuggestionCard({ suggestion, evidence, index }: Suggesti
           </span>
         </div>
         <p className="report-card-description">{suggestion.action}</p>
-        {hasEvidence && (
-          <EvidenceView
-            scheduleIds={scheduleIds}
-            diaryIds={diaryIds}
-            evidence={evidence}
-          />
-        )}
+        {hasEvidence && <EvidenceView scheduleIds={scheduleIds} diaryIds={diaryIds} evidence={evidence} />}
       </div>
     </article>
   );

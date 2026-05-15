@@ -15,37 +15,25 @@ const typeLabels: Record<ReportTurningPoint['type'], string> = {
   unknown: '节点',
 };
 
-const typeIcons: Record<ReportTurningPoint['type'], string> = {
-  high: 'fa-arrow-up',
-  low: 'fa-arrow-down',
-  shift: 'fa-route',
-  recovery: 'fa-seedling',
-  unknown: 'fa-location-dot',
-};
-
 export default function TurningPointCard({ point, evidence }: TurningPointCardProps) {
   const scheduleIds = point.scheduleIds ?? [];
   const diaryIds = point.diaryIds ?? [];
   const hasEvidence = scheduleIds.length > 0 || diaryIds.length > 0;
 
   return (
-    <article className={`report-card report-card--turning turning--${point.type}`}>
-      <div className="turning-header">
-        <span className="turning-date">{point.date}</span>
-        <span className="turning-type">
-          <i className={`fas ${typeIcons[point.type]}`} aria-hidden="true" />
-          {typeLabels[point.type]}
-        </span>
+    <article className={`archive-entry turning--${point.type}`}>
+      <div className="archive-entry-index" aria-hidden="true">
+        <span>Point</span>
+        <b>{point.date}</b>
       </div>
-      <h3 className="report-card-item-title">{point.title}</h3>
-      <p className="report-card-description">{point.reason}</p>
-      {hasEvidence && (
-          <EvidenceView
-            scheduleIds={scheduleIds}
-            diaryIds={diaryIds}
-            evidence={evidence}
-          />
-      )}
+      <div className="archive-entry-body">
+        <div className="turning-header">
+          <h3 className="report-card-item-title">{point.title}</h3>
+          <span className="turning-type">{typeLabels[point.type]}</span>
+        </div>
+        <p className="report-card-description">{point.reason}</p>
+        {hasEvidence && <EvidenceView scheduleIds={scheduleIds} diaryIds={diaryIds} evidence={evidence} />}
+      </div>
     </article>
   );
 }

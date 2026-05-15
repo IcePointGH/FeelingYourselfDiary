@@ -13,24 +13,22 @@ const toneLabels: Record<ReportOverview['tone'], string> = {
   unknown: '待观察',
 };
 
-const toneIcons: Record<ReportOverview['tone'], string> = {
-  positive: 'fa-sun',
-  stable: 'fa-water',
-  mixed: 'fa-cloud-sun',
-  low: 'fa-cloud-rain',
-  unknown: 'fa-circle-question',
-};
-
 export default function OverviewCard({ overview }: OverviewCardProps) {
   return (
-    <article className={`report-card report-card--overview tone-surface--${overview.tone}`}>
-      <div className="overview-orb" aria-hidden="true">
-        <i className={`fas ${toneIcons[overview.tone]}`} />
+    <article className="overview-archive">
+      <div className="overview-mark" aria-hidden="true">
+        <span />
       </div>
       <div className="overview-copy">
-        <span className={`tone-badge tone--${overview.tone}`}>{toneLabels[overview.tone]}</span>
+        <div className="overview-meta">
+          <span className="overview-index">Personal Mood Archive</span>
+          <span className={`tone-badge tone--${overview.tone}`}>{toneLabels[overview.tone]}</span>
+        </div>
         <h3 className="report-card-headline">{overview.headline}</h3>
         <p className="report-card-summary">{overview.summary}</p>
+      </div>
+      <div className="overview-stamp" aria-hidden="true">
+        Reviewed
       </div>
     </article>
   );
