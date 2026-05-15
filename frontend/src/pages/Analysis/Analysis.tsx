@@ -199,7 +199,7 @@ export default function AnalysisPage() {
     return Object.entries(data.dailyTotals).map(([dateKey, value]) => ({ date: dateKey, value }));
   }, [data]);
 
-  const tabLabels: Record<TabType, string> = { daily: '日分析', weekly: '周分析', monthly: '月分析', full: '全历史分析' };
+  const tabLabels: Record<TabType, string> = { daily: '日', weekly: '周', monthly: '月', full: '全部' };
 
   // ── AI state shortcuts ──
   const s = ai.state;
@@ -243,7 +243,7 @@ export default function AnalysisPage() {
               onClick={viewMode === 'ai' ? handleAiAnalyze : handleAnalyze}
               disabled={loading || s.loading}
             >
-              {loading || s.loading ? '分析中...' : viewMode === 'ai' ? 'AI 智能分析' : '图表分析'}
+              {loading || s.loading ? '分析中...' : viewMode === 'ai' ? '生成报告' : '图表分析'}
             </button>
             <button
               className="view-toggle-btn"
@@ -268,7 +268,7 @@ export default function AnalysisPage() {
               onClick={handleAiAnalyze}
               disabled={s.loading}
             >
-              {s.loading ? 'AI 分析中...' : 'AI 智能分析'}
+              {s.loading ? '分析中...' : '生成报告'}
             </button>
           </div>
         )}
