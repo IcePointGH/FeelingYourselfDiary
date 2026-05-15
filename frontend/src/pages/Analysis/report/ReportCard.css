@@ -189,7 +189,7 @@
   border-top: 1px solid var(--archive-line, #d8d8d3);
 }
 
-.archive-entry:first-child {
+.sr-section-grid .sr-card:first-child .archive-entry {
   border-top: 0;
 }
 

@@ -5,6 +5,7 @@
 .sr-archive {
   overflow: hidden;
   border: 1px solid var(--archive-line-strong, #181818);
+  border-radius: var(--archive-radius, 8px);
   background: var(--archive-paper, #fff);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.08);
 }

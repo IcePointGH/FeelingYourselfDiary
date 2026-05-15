@@ -7,6 +7,12 @@
   --archive-gray-300: #d4d4d4;
   --archive-gray-200: #e8e8e8;
   --archive-gray-100: #f5f5f5;
+  --archive-paper: var(--archive-white);
+  --archive-ink: var(--archive-black);
+  --archive-muted: var(--archive-gray-700);
+  --archive-line: var(--archive-gray-300);
+  --archive-line-strong: var(--archive-black);
+  --archive-radius: 8px;
   --sense-red: #d75772;
   --sense-coral: #f5867b;
   --sense-orange: #fea979;
@@ -14,6 +20,13 @@
   --sense-cyan: #3cdfe9;
   --sense-sky: #12b8ec;
   --sense-blue: #1686ee;
+  --sense-neg-3: var(--sense-red);
+  --sense-neg-2: var(--sense-coral);
+  --sense-neg-1: var(--sense-orange);
+  --sense-zero: var(--sense-yellow);
+  --sense-pos-1: var(--sense-cyan);
+  --sense-pos-2: var(--sense-sky);
+  --sense-pos-3: var(--sense-blue);
   max-width: 920px;
   margin: 0 auto;
 }
