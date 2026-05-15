@@ -55,7 +55,7 @@
     <!-- Redisson: WARN in production to suppress connection pool debug noise -->
     <logger name="org.redisson" level="WARN" />
 
-    <!-- MiniMax HTTP client — capture connection/auth errors at INFO -->
+    <!-- DeepSeek HTTP client — capture connection/auth errors at INFO -->
     <logger name="org.springframework.web.reactive.function.client" level="INFO" />
     <logger name="reactor.netty" level="INFO" />
 </configuration>

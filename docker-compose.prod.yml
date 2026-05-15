@@ -96,8 +96,8 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
-      # AI — 必须设置真实的 MiniMax API key，否则 AI 功能静默失效
-      MINIMAX_API_KEY: ${MINIMAX_API_KEY}
+      # AI — 必须设置真实的 DeepSeek API key，否则 AI 功能静默失效
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
     ports:
       - "8080:8080"
     depends_on:

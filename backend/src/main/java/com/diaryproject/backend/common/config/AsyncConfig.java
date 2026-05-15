@@ -17,7 +17,7 @@ import java.util.concurrent.Executor;
  * compete with the main request-processing threads.</p>
  *
  * <p>Thread pool size is deliberately small (2) to avoid overwhelming
- * the MiniMax API or database connection pool during analysis.</p>
+ * the DeepSeek API or database connection pool during analysis.</p>
  */
 @Configuration
 @EnableAsync

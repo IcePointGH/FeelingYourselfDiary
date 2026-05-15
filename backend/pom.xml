@@ -125,10 +125,10 @@
             <artifactId>redisson-spring-boot-starter</artifactId>
             <version>4.0.0</version>
         </dependency>
-        <!-- MiniMax AI (Spring AI) -->
+        <!-- DeepSeek AI (Spring AI) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-minimax</artifactId>
+            <artifactId>spring-ai-starter-model-deepseek</artifactId>
         </dependency>
         <!-- Spring Data Redis 核心依赖 -->
         <dependency>

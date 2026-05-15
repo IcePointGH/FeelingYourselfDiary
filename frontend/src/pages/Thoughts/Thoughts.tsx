@@ -68,7 +68,6 @@ export default function ThoughtsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('确定要删除这条日记吗？')) return;
     try {
       await apiFetch(`${DIARY_API.base}/${id}`, { method: 'DELETE' });
       refetch();

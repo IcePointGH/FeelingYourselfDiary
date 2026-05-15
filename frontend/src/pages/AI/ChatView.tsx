@@ -338,7 +338,6 @@ export default function ChatView() {
   }, [addToast]);
 
   const handleDeleteMsg = useCallback(async (id: number) => {
-    if (!window.confirm('确定删除这条消息？')) return;
     try {
       await apiFetch(AI_API.deleteMessage(id), { method: 'DELETE' });
       setMessages(prev => prev.filter(m => m.id !== id));

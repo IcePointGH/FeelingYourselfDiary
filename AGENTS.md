@@ -97,7 +97,7 @@ docker-compose -f docker-compose.prod.yml up -d   # Full production stack
 - **Database**: `ddl-auto=validate` — `init.sql` MUST contain `CREATE TABLE IF NOT EXISTS` for all 8 tables. MySQL Docker entrypoint auto-runs `init.sql` on first container start.
 - **Caddyfile**: Two versions exist — `Caddyfile` (domain + HTTPS, requires `sevensense.art`) and `Caddyfile.ip-only` (HTTP, no domain). `docker-compose.prod.yml` currently mounts `Caddyfile.ip-only`. Swap back for domain deployment.
 - **CORS**: Must set `CORS_ORIGINS` in `.env.production` to the client's actual origin (IP or domain). NEVER use `*` — it conflicts with `allowCredentials=true` in SecurityConfig.
-- **AI**: Set `MINIMAX_API_KEY` env var or AI features silently fail (default `placeholder` is not a valid key).
+- **AI**: Set `DEEPSEEK_API_KEY` env var or AI features silently fail (default `placeholder` is not a valid key).
 - **JWT**: `JWT_SECRET` is required (no default). Must be ≥32 chars. `JWT_EXPIRATION` defaults to 86400000 (24h).
 
 ## Agent skills
