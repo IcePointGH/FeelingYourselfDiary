@@ -209,7 +209,7 @@ export default function AnalysisPage() {
     <div className="analysis-page">
       <div className="card analysis-control-card">
         <div className="analysis-header-row">
-          <h2>个人情绪档案</h2>
+          <h2>数据分析</h2>
         </div>
 
         <div className="tab-bar">
