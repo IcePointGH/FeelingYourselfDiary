@@ -415,6 +415,7 @@
 }
 
 .story-step-visual {
+  display: grid;
   min-height: 210px;
   border: 1px solid var(--welcome-line);
   border-radius: 8px;
@@ -430,8 +431,8 @@
 }
 
 .record-visual,
+.observe-visual,
 .reflect-visual {
-  height: 100%;
   padding: 22px;
 }
 
