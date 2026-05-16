@@ -355,12 +355,51 @@
 }
 
 @media (max-width: 768px) {
+  .settings-page {
+    max-width: 100%;
+  }
+
   .theme-options {
     flex-direction: column;
   }
 
+  .theme-option {
+    flex-direction: row;
+    padding: 10px 14px;
+    gap: 12px;
+  }
+
+  .theme-preview {
+    width: 48px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
   .emotion-form-group {
     margin-bottom: 12px;
+  }
+
+  .toggle-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .avatar-upload {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .custom-nav {
+    flex-wrap: wrap;
+  }
+
+  .custom-nav-btn {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .data-options {
+    gap: 8px;
   }
 }
 
@@ -434,13 +473,6 @@
 
 .toggle-switch input:checked + .toggle-track::after {
   transform: translateX(22px);
-}
-
-@media (max-width: 768px) {
-  .toggle-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 /* ── Dark mode ── */
