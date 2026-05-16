@@ -44,7 +44,7 @@ Full-stack emotion/mood diary app. Users record daily schedules with mood values
 | Env config | `.env.example`, `backend/.../application.properties` | All sensitive values via env vars |
 | AI chat (SSE streaming) | `backend/.../ai/controller/AiSessionController.java`, `frontend/src/pages/AI/AIChatPanel.tsx` | SseEmitter → SSE → RAF rendering |
 | AI analysis | `backend/.../ai/service/AiService.java`, `frontend/src/pages/AI/AI.tsx` | Range/full-history modes |
-| AI system prompts | `backend/src/main/resources/prompts/*.md` | 5 prompt templates loaded by PromptService |
+| AI system prompts | `backend/src/main/resources/prompts/*.md` | 7 templates: chat-system, full-analysis, memory-update, range-analysis, range-analysis-json, summarize-conversation, title-generation |
 | AI memory (user portrait) | `backend/.../ai/service/MemoryService.java`, `user_memory` table | 5-exchange async portrait update |
 
 ## CONVENTIONS (Project-Specific)

@@ -16,4 +16,4 @@ The `improve-codebase-architecture`, `diagnose`, and `tdd` skills should:
 2. Read `/backend/AGENTS.md` or `/frontend/AGENTS.md` depending on which module they're working on
 3. Check `/docs/` for any planning or specification documents relevant to the current task
 
-There is currently no `docs/adr/` directory. Architectural decisions are documented inline in `/docs/AI-analysis-feasibility.md` and similar planning files.
+Architectural decisions live in `docs/adr/` (ADR format) and in planning files under `/docs/` (e.g., `AI-analysis-feasibility.md`, `prd-*.md`).

@@ -6,6 +6,7 @@ Spring Boot 4.0.5 REST API on Java 21. Feature-organized modular monolith with d
 ## STRUCTURE
 ```
 backend/src/main/java/com/diaryproject/backend/
+├── ai/             # AI chat (SSE streaming), analysis, memory (user portrait), prompts
 ├── auth/           # User auth (login, register, JWT, logout/blacklist)
 ├── schedule/       # Daily schedule CRUD with mood values
 ├── diary/          # Free-form diary entries per date
@@ -25,6 +26,10 @@ backend/src/main/java/com/diaryproject/backend/
 | Task | Location | Notes |
 |------|----------|-------|
 | Add new API module | Copy an existing module (controller/dto/entity/repository/service) | All follow identical Spring Boot pattern |
+| AI chat / SSE streaming | `ai/controller/AiSessionController.java`, `ai/service/AiChatService.java` | SseEmitter zero-buffer push, `SseEmitter.completeWithError()` on abort |
+| AI analysis | `ai/service/AiAnalysisService.java`, `ai/service/AiService.java` | Range/full-history modes, structured report parsing |
+| AI memory / user portrait | `ai/service/MemoryService.java`, `ai/entity/UserMemory.java` | 5-exchange async portrait update |
+| AI prompts | `src/main/resources/prompts/*.md` | 7 templates loaded by `ai/service/PromptService.java` |
 | Auth logic | `auth/controller/AuthController.java`, `common/filter/JwtAuthenticationFilter.java` | JWT validated per request, blacklist checked via Redis |
 | Cache operations | `common/cache/CacheService.java` (interface), impl in same package | Redis auto-degrades to DB on failure |
 | Add cache | `common/cache/CacheKeys.java` for manual keys, `@Cacheable` on service methods | `:` vs `::` separator -- do NOT mix |
