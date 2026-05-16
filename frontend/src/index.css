@@ -6,8 +6,8 @@
 
 body {
   font-family: 'Noto Sans SC', sans-serif;
-  background-color: #ffffff;
-  color: #454545;
+  background-color: var(--surface-page);
+  color: var(--text-default);
   line-height: 1.6;
   min-height: 100vh;
   font-size: 16px;
@@ -27,7 +27,7 @@ body {
 h1, h2, h3, h4 {
   font-family: 'Noto Sans SC', sans-serif;
   font-weight: 600;
-  color: #454545;
+  color: var(--text-default);
 }
 
 button { font-family: 'Noto Sans SC', sans-serif; cursor: pointer; }
@@ -37,38 +37,38 @@ input, textarea, select { font-family: 'Noto Sans SC', sans-serif; }
    Dark Mode (深夜模式)
    ============================================ */
 [data-theme='dark'] body {
-  background-color: #454545;
-  color: #e0e0e0;
+  background-color: var(--surface-page);
+  color: var(--text-default);
 }
 
 [data-theme='dark'] h1,
 [data-theme='dark'] h2,
 [data-theme='dark'] h3,
 [data-theme='dark'] h4 {
-  color: #e8e8e8;
+  color: var(--text-strong);
 }
 
 [data-theme='dark'] .card {
-  background: #3d3d3d;
-  border-color: #555;
+  background: var(--surface-card);
+  border-color: var(--border-default);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='dark'] .form-group label {
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .form-group input,
 [data-theme='dark'] .form-group textarea {
-  background-color: #3a3a3a;
-  border-color: #555;
-  color: #e0e0e0;
+  background-color: var(--surface-muted);
+  border-color: var(--border-default);
+  color: var(--text-default);
 }
 
 [data-theme='dark'] .form-group input:focus,
 [data-theme='dark'] .form-group textarea:focus {
-  border-color: #1686ee;
-  box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.25);
+  border-color: var(--accent-positive-3);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 [data-theme='dark'] .submit-btn,

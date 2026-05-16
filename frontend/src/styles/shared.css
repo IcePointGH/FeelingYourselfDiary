@@ -5,10 +5,10 @@
 
 /* ── Card ── */
 .card {
-  background: #ffffff;
+  background: var(--surface-card);
   padding: 30px;
-  border: 1px solid #e8e8e8;
-  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   margin-bottom: 30px;
 }
@@ -16,7 +16,7 @@
 .card h2 {
   text-align: center;
   margin-bottom: 25px;
-  color: #454545;
+  color: var(--text-default);
   font-size: 22px;
 }
 
@@ -29,7 +29,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #454545;
+  color: var(--text-default);
   font-size: 15px;
 }
 
@@ -37,45 +37,45 @@
 .form-group textarea {
   width: 100%;
   padding: 12px 16px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   font-size: 15px;
-  background-color: #fafafa;
-  transition: all 0.3s ease;
+  background-color: var(--surface-muted);
+  transition: all var(--motion-base) var(--ease-standard);
   font-family: inherit;
   box-sizing: border-box;
-  color: #454545;
+  color: var(--text-default);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #1686ee;
-  box-shadow: 0 0 0 3px rgba(22, 134, 238, 0.1);
+  border-color: var(--accent-positive-3);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* ── Submit / Save button ── */
 .submit-btn {
   width: 100%;
   padding: 14px;
-  background-color: #454545;
-  color: white;
+  background-color: var(--text-default);
+  color: var(--surface-page);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--motion-base) var(--ease-standard);
   font-family: inherit;
 }
 
 .submit-btn:hover {
-  background-color: #333;
+  filter: brightness(0.9);
 }
 
 /* ── Inline field validation ── */
 .field-error {
-  color: #d75772;
+  color: var(--accent-negative-3);
   font-size: 12px;
   margin-top: 4px;
   line-height: 1.4;
@@ -83,13 +83,13 @@
 
 .form-group.has-error input,
 .form-group.has-error textarea {
-  border-color: #d75772;
+  border-color: var(--accent-negative-3);
   background-color: #fef6f7;
 }
 
 .form-group.has-error input:focus,
 .form-group.has-error textarea:focus {
-  box-shadow: 0 0 0 3px rgba(215, 87, 114, 0.1);
+  box-shadow: 0 0 0 2px rgba(215, 87, 114, 0.15);
 }
 
 [data-theme='dark'] .field-error {
@@ -105,7 +105,7 @@
 /* ── Empty text ── */
 .empty-text {
   text-align: center;
-  color: #999;
+  color: var(--text-muted);
   padding: 30px;
   font-size: 15px;
 }
@@ -171,5 +171,148 @@
 }
 
 [data-theme='dark'] .empty-text { color: #888; }
+
+/* ════════════════════════════════════════════
+   Phase 3 — Shared Foundation Primitives
+   ════════════════════════════════════════════ */
+
+/* ── Button hierarchy ── */
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-standard);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.ui-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+.ui-btn:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Primary — filled, accent */
+.ui-btn-primary {
+  background-color: var(--accent-positive-3);
+  color: #ffffff;
+  border-color: var(--accent-positive-3);
+}
+
+.ui-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.ui-btn-primary:active {
+  filter: brightness(0.94);
+  transform: scale(0.98);
+}
+
+/* Secondary — outlined */
+.ui-btn-secondary {
+  background: transparent;
+  border-color: var(--border-default);
+  color: var(--text-default);
+}
+
+.ui-btn-secondary:hover {
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
+}
+
+/* Quiet — text only, no border */
+.ui-btn-quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+}
+
+.ui-btn-quiet:hover {
+  color: var(--text-default);
+  background: var(--surface-muted);
+}
+
+/* Danger — destructive */
+.ui-btn-danger {
+  background-color: var(--accent-negative-3);
+  color: #ffffff;
+  border-color: var(--accent-negative-3);
+}
+
+.ui-btn-danger:hover {
+  filter: brightness(1.08);
+}
+
+.ui-btn-danger:active {
+  filter: brightness(0.94);
+  transform: scale(0.98);
+}
+
+/* ── Surface hierarchy ── */
+
+.surface-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.surface-interactive {
+  composes: surface-card;
+  cursor: pointer;
+  transition: border-color var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.surface-interactive:hover {
+  border-color: var(--border-default);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.surface-inset {
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.divider-subtle {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 0;
+}
+
+/* ── State utilities ── */
+
+.state-selected {
+  border-color: var(--border-strong) !important;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.state-focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-ring) !important;
+}
+
+.state-disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ── Dark mode for surface hierarchy ── */
+
+[data-theme='dark'] .surface-interactive:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
 
