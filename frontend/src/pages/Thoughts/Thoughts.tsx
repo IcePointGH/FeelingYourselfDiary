@@ -67,6 +67,9 @@ export default function ThoughtsPage() {
   const currentDraft: DiaryDraft = { title, content, date };
   createDraft.setCurrent(currentDraft);
   editDraft.setCurrent(currentDraft);
+  const isFormDirty = title.trim() !== '' || content.trim() !== '';
+  createDraft.setDirty(isFormDirty);
+  editDraft.setDirty(isFormDirty);
 
   // Debounced autosave (1500ms)
   const autosaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -168,7 +171,6 @@ export default function ThoughtsPage() {
       setContent(createDraft.draft.content);
       setDate(createDraft.draft.date);
     }
-    createDraft.clear();
     setCreateDraftHandled(true);
   };
 
@@ -183,7 +185,6 @@ export default function ThoughtsPage() {
       setContent(editDraft.draft.content);
       setDate(editDraft.draft.date);
     }
-    editDraft.clear();
     if (editingEntryId !== null) {
       setEditDraftHandledId(editingEntryId);
     }

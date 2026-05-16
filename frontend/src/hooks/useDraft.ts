@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useBlocker } from 'react-router-dom';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -32,7 +33,11 @@ export interface UseDraftReturn<T> {
   save: (value: T) => void;
   /** Remove the stored draft from localStorage */
   clear: () => void;
-  /** Compare current form value against the last persisted draft */
+  /**
+   * Compare current form value against the last persisted draft.
+   * When no draft has been saved yet, falls back to the dirty signal
+   * so the pre-autosave gap is protected.
+   */
   hasUnsavedChanges: (current: T) => boolean;
   /** Update the timestamp on the stored draft without changing its value */
   markSaved: () => void;
@@ -41,6 +46,12 @@ export interface UseDraftReturn<T> {
    * The guard compares the ref'd value against the stored envelope.
    */
   setCurrent: (value: T) => void;
+  /**
+   * Tell the hook whether the consumer considers the current form "dirty"
+   * (has user input worth protecting). Used by beforeunload / hasUnsavedChanges
+   * during the window before the first autosave fires.
+   */
+  setDirty: (dirty: boolean) => void;
 }
 
 export function useDraft<T>(key: string): UseDraftReturn<T> {
@@ -48,10 +59,12 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     () => readEnvelope<T>(key),
   );
   const currentRef = useRef<T | null>(null);
+  const dirtyRef = useRef(false);
 
   // Re-read from storage if the key changes (should not happen in practice)
   useEffect(() => {
     setEnvelope(readEnvelope<T>(key));
+    dirtyRef.current = false;
   }, [key]);
 
   const save = useCallback(
@@ -66,11 +79,12 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
   const clear = useCallback(() => {
     localStorage.removeItem(key);
     setEnvelope(null);
+    dirtyRef.current = false;
   }, [key]);
 
   const hasUnsavedChanges = useCallback(
     (current: T): boolean => {
-      if (!envelope) return false;
+      if (!envelope) return dirtyRef.current;
       return JSON.stringify(current) !== JSON.stringify(envelope.value);
     },
     [envelope],
@@ -91,12 +105,20 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     currentRef.current = value;
   }, []);
 
-  // ── beforeunload guard ──
+  const setDirty = useCallback((d: boolean) => {
+    dirtyRef.current = d;
+  }, []);
+
+  // ── beforeunload guard (browser departures) ──
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (!currentRef.current) return;
       const stored = readEnvelope<T>(key);
-      if (!stored) return;
+      if (!stored) {
+        // No draft saved yet — warn if the form has been touched
+        if (dirtyRef.current) e.preventDefault();
+        return;
+      }
       if (JSON.stringify(currentRef.current) !== JSON.stringify(stored.value)) {
         e.preventDefault();
       }
@@ -104,6 +126,26 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [key]);
+
+  // ── In-app navigation guard (sidebar / route transitions) ──
+  const blocker = useBlocker(() => {
+    if (!currentRef.current) return false;
+    const stored = readEnvelope<T>(key);
+    if (!stored) return dirtyRef.current;
+    return JSON.stringify(currentRef.current) !== JSON.stringify(stored.value);
+  });
+
+  // When the blocker fires, confirm with the user
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const ok = window.confirm('你有未保存的更改，确定要离开吗？');
+      if (ok) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
 
   return {
     draft: envelope?.value ?? null,
@@ -113,5 +155,6 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     hasUnsavedChanges,
     markSaved,
     setCurrent,
+    setDirty,
   };
 }

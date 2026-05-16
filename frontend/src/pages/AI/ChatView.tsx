@@ -473,6 +473,7 @@ export default function ChatView() {
 
   // Wire beforeunload guard for AI input draft
   inputDraft.setCurrent({ input });
+  inputDraft.setDirty(input.trim() !== '');
 
   return (
     <div className={styles.wrapper}>

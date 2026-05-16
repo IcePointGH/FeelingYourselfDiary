@@ -74,7 +74,7 @@ export default function SchedulePage() {
   const { addToast } = useToast();
 
   // ── Draft persistence ──
-  const { draft, hasDraft, save, clear, setCurrent } = useDraft<ScheduleDraft>('schedule.create');
+  const { draft, hasDraft, save, clear, setCurrent, setDirty } = useDraft<ScheduleDraft>('schedule.create');
   const [draftDismissed, setDraftDismissed] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -115,6 +115,7 @@ export default function SchedulePage() {
     showDesc,
   };
   setCurrent(formDraft);
+  setDirty(title.trim() !== '' || description.trim() !== '' || feeling !== 0);
 
   const focusTitleInput = () => {
     requestAnimationFrame(() => titleInputRef.current?.focus({ preventScroll: true }));
@@ -375,7 +376,6 @@ export default function SchedulePage() {
                 setFeeling(draft.feeling);
                 setHasInteracted(draft.feeling !== 0);
                 setShowDesc(draft.showDesc);
-                clear();
                 setDraftDismissed(true);
               }}
             >
