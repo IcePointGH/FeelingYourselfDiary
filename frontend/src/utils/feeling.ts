@@ -36,9 +36,13 @@ export const MOOD_COLORS: Record<number, string> = {
    '3': '#1686ee',
 };
 
-/** Get the hex color for a given feeling value */
+/** Get the hex color for a given feeling value.
+ *  Values outside [-3, 3] are rounded and clamped so totals and
+ *  averages never fall through to the fallback gray. */
 export function getMoodColor(value: number): string {
-  return MOOD_COLORS[value] ?? '#454545';
+  const rounded = Math.round(value);
+  const clamped = Math.max(-3, Math.min(3, rounded));
+  return MOOD_COLORS[clamped] ?? '#454545';
 }
 
 /** Get a lighter background variant of the mood color (for badges, calendar days, etc.) */
