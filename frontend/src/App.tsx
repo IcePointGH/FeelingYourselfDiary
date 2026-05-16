@@ -7,6 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import Layout from './components/Layout/Layout';
 import Toast from './components/Toast/Toast';
+import NavigationGuard from './components/NavigationGuard/NavigationGuard';
 import PageSkeleton from './components/PageSkeleton';
 
 // Synchronous — most frequently used pages
@@ -44,6 +45,7 @@ function App() {
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              <NavigationGuard />
               </BrowserRouter>
               <Toast />
             </ToastProvider>

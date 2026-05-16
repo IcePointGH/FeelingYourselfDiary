@@ -5,12 +5,48 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 // ── Module-level history interception (singleton) ──
 // useBlocker requires a data router (createBrowserRouter), but the app
 // uses the component router (<BrowserRouter>). Instead we patch the
-// History API directly so we can intercept pushState / replaceState
-// regardless of router flavor.
+// History API directly so we can intercept pushState / replaceState.
+//
+// Rather than window.confirm (system-native ugly dialog), blocked
+// navigations are surfaced through an event bridge that a React
+// <NavigationGuard> component listens to and renders a styled
+// ConfirmDialog for.
+
+export interface NavBlocker {
+  proceed: () => void;
+  cancel: () => void;
+}
 
 type BlockFn = () => boolean;
 const blockers = new Set<BlockFn>();
 let historyPatched = false;
+
+// ── Event bridge for styled confirm dialogs ──
+let currentBlocker: NavBlocker | null = null;
+type NavListener = () => void;
+const navListeners = new Set<NavListener>();
+
+/** Call from a React component to get the current pending blocker (if any). */
+export function getNavBlocker(): NavBlocker | null {
+  return currentBlocker;
+}
+
+/** Subscribe to navigation-block events. Returns unsubscribe function. */
+export function subscribeNavBlock(fn: NavListener): () => void {
+  navListeners.add(fn);
+  return () => { navListeners.delete(fn); };
+}
+
+/** Clear the current blocker (called after user confirms or cancels). */
+export function clearNavBlocker() {
+  currentBlocker = null;
+}
+
+function notifyNavListeners() {
+  navListeners.forEach(fn => fn());
+}
+
+// ── History patch ─────────────────────────────────────────
 
 function ensureHistoryPatched() {
   if (historyPatched) return;
@@ -22,10 +58,12 @@ function ensureHistoryPatched() {
   const guarded = (orig: typeof origPush, ...args: Parameters<typeof origPush>) => {
     for (const fn of blockers) {
       if (fn()) {
-        if (!window.confirm('你有未保存的更改，确定要离开吗？')) {
-          return; // navigation blocked
-        }
-        break; // only ask once per navigation
+        currentBlocker = {
+          proceed: () => { currentBlocker = null; orig(...args); },
+          cancel: () => { currentBlocker = null; },
+        };
+        notifyNavListeners();
+        return; // navigation held — waiting for user decision
       }
     }
     orig(...args);
