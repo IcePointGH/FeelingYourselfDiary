@@ -465,3 +465,31 @@
 [data-theme='dark'] .sidebarClose { background: rgba(255,255,255,.1); color: #e0e0e0; }
 [data-theme='dark'] .sidebarClose:hover { background: rgba(255,255,255,.2); }
 [data-theme='dark'] .overlay { background: rgba(0,0,0,.6); }
+
+/* ── Stop generation button ── */
+.stopBtn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: #ef4444; color: #fff;
+  border: none; border-radius: 50%;
+  cursor: pointer; flex-shrink: 0;
+  transition: background .2s, transform .15s;
+  margin: 0 6px;
+}
+.stopBtn:hover { background: #dc2626; transform: scale(1.08); }
+.stopBtn:active { transform: scale(.95); }
+.stopBtn i { font-size: 13px; }
+
+/* ── Stream status indicators ── */
+.bubbleStatus {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; background: #fff8e1; border: 1px solid #ffcc02;
+  border-radius: 12px; max-width: 85%; margin: 4px auto;
+}
+.statusIcon { font-size: 14px; flex-shrink: 0; }
+.statusText { font-size: 13px; color: #5d4037; line-height: 1.4; }
+
+[data-theme='dark'] .bubbleStatus {
+  background: #3e3520; border-color: #6d5a00;
+}
+[data-theme='dark'] .statusText { color: #d4c094; }

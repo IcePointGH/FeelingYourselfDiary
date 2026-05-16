@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useApi } from '../../hooks/useApi';
+import { useDraft } from '../../hooks/useDraft';
 import { AI_API } from '../../services/api';
 import { getMoodColor, getMoodBgColor } from '../../utils/feeling';
 import type {
@@ -43,6 +44,12 @@ function formatDate(ts: string) {
 }
 
 // ─── Component ──────────────────────────────────────────
+
+interface AiInputDraft {
+  input: string;
+}
+
+type StreamStatus = 'generating' | 'stopped' | 'failed' | 'interrupted' | 'completed';
 
 export default function ChatView() {
   // ── Session state ──
@@ -90,6 +97,22 @@ export default function ChatView() {
   const rafRef = useRef<number | null>(null);
   const prevMsgLenRef = useRef(0);
   const initialScrollRef = useRef(true);
+
+  // ── Stream termination tracking ──
+  const [streamStatus, setStreamStatus] = useState<StreamStatus | null>(null);
+  const streamStatusRef = useRef<StreamStatus | null>(null);
+
+  // ── AI input draft ──
+  const draftKey = activeId ? `ai.chat.${activeId}` : 'ai.chat.__none__';
+  const inputDraft = useDraft<AiInputDraft>(draftKey);
+
+  // Restore draft on mount or session change (silent — no banner for AI input)
+  useEffect(() => {
+    if (inputDraft.hasDraft && inputDraft.draft) {
+      setInput(inputDraft.draft.input);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId]);
 
   // ════════════════════════════════════════════
   //  SESSION LIST
@@ -227,9 +250,12 @@ export default function ChatView() {
     };
     setMessages(prev => [...prev, optimistic]);
     setInput('');
+    inputDraft.clear();
     setStreaming(true);
     setStreamContent('');
     setWaitingFirst(true);
+    streamStatusRef.current = 'generating';
+    setStreamStatus('generating');
 
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -312,20 +338,43 @@ export default function ChatView() {
         };
         setMessages(prev => [...prev, assistant]);
       }
+      streamStatusRef.current = 'completed';
+      setStreamStatus('completed');
       // Refresh sessions to update title/messageCount
       setTimeout(() => fetchSessions(), 1500);
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return;
-      setMessages(prev => prev.filter(m => m.id !== optimistic.id));
-      addToast(err instanceof Error ? err.message : '发送失败', 'error');
+      if ((err as Error).name === 'AbortError') {
+        streamStatusRef.current = 'stopped';
+        setStreamStatus('stopped');
+      } else if (err instanceof TypeError) {
+        streamStatusRef.current = 'interrupted';
+        setStreamStatus('interrupted');
+        addToast('连接中断，请检查网络', 'error');
+      } else {
+        streamStatusRef.current = 'failed';
+        setStreamStatus('failed');
+        addToast(err instanceof Error ? err.message : '发送失败', 'error');
+      }
     } finally {
+      // For abnormal termination with partial content, append as incomplete message
+      const partial = fullContentRef.current.trim();
+      if (partial && streamStatusRef.current && streamStatusRef.current !== 'completed') {
+        const assistant: MessageResponse = {
+          id: Date.now(), role: 'assistant', content: partial,
+          sequenceNum: messages.length + 2, createdAt: new Date().toISOString(),
+        };
+        setMessages(prev => [...prev, assistant]);
+      } else if (!partial && streamStatusRef.current && streamStatusRef.current !== 'completed') {
+        // No partial content — remove optimistic message on failure
+        setMessages(prev => prev.filter(m => m.id !== optimistic.id));
+      }
       if (rafRef.current !== null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
       setStreaming(false);
       setStreamContent('');
       setWaitingFirst(false);
       abortRef.current = null;
     }
-  }, [input, streaming, activeId, messages.length, token, addToast, fetchSessions]);
+  }, [input, streaming, activeId, messages.length, token, addToast, fetchSessions, inputDraft]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -421,6 +470,9 @@ export default function ChatView() {
   // ════════════════════════════════════════════
   //  RENDER
   // ════════════════════════════════════════════
+
+  // Wire beforeunload guard for AI input draft
+  inputDraft.setCurrent({ input });
 
   return (
     <div className={styles.wrapper}>
@@ -596,6 +648,24 @@ export default function ChatView() {
                 </div>
               )}
 
+              {/* Stream status indicators */}
+              {!streaming && streamStatus && streamStatus !== 'completed' && (
+                <div className={`${styles.msgRow} ${styles.msgRowAi}`}>
+                  <div className={`${styles.bubble} ${styles.bubbleAi} ${styles.bubbleStatus}`}>
+                    <span className={styles.statusIcon}>
+                      {streamStatus === 'stopped' && <i className="fas fa-hand" />}
+                      {streamStatus === 'failed' && <i className="fas fa-exclamation-circle" />}
+                      {streamStatus === 'interrupted' && <i className="fas fa-plug" />}
+                    </span>
+                    <span className={styles.statusText}>
+                      {streamStatus === 'stopped' && '生成已停止 · 内容不完整'}
+                      {streamStatus === 'failed' && '生成失败 · 请重试'}
+                      {streamStatus === 'interrupted' && '连接中断 · 内容不完整'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div ref={msgEndRef} />
             </div>
 
@@ -644,12 +714,19 @@ export default function ChatView() {
                 ref={inputRef}
                 className={styles.textarea}
                 value={input}
-                onChange={e => setInput(e.target.value)}
+                onChange={e => { setInput(e.target.value); inputDraft.save({ input: e.target.value }); }}
                 onKeyDown={handleKeyDown}
                 placeholder="输入消息，Enter 发送，Shift+Enter 换行"
                 rows={1}
                 disabled={streaming}
               />
+              {streaming && (
+                <button
+                  className={styles.stopBtn}
+                  onClick={() => { abortRef.current?.abort(); }}
+                  title="停止生成"
+                ><i className="fas fa-stop" /></button>
+              )}
               <button
                 className={styles.sendBtn}
                 onClick={handleSend}
