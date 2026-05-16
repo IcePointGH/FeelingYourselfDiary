@@ -2,6 +2,9 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 import type { User, AuthResponse, LoginRequest, RegisterRequest } from '../types';
 import { AUTH_API } from '../services/api';
 
+const EXPIRY_RETURN_KEY = 'session_return_to';
+const EXPIRY_FLAG_KEY = 'session_expired';
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -9,6 +12,7 @@ interface AuthContextType {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
+  expireSession: (returnTo: string) => void;
   updateUser: (user: User) => void;
   loading: boolean;
 }
@@ -82,6 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const expireSession = useCallback((returnTo: string) => {
+    sessionStorage.setItem(EXPIRY_FLAG_KEY, '1');
+    sessionStorage.setItem(EXPIRY_RETURN_KEY, returnTo);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setToken(null);
+    setUser(null);
+  }, []);
+
   const updateUser = useCallback((updatedUser: User) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
@@ -95,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      expireSession,
       updateUser,
       loading,
     }}>

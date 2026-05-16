@@ -14,7 +14,7 @@ export class RateLimitError extends Error {
 }
 
 export function useApi() {
-  const { token, logout } = useAuth();
+  const { token, expireSession } = useAuth();
   const lastHeadersRef = useRef<Headers | null>(null);
 
   const apiFetch = useCallback(async (url: string, options: RequestInit = {}) => {
@@ -37,7 +37,8 @@ export function useApi() {
 
     // 401 — session expired
     if (res.status === 401) {
-      logout();
+      const returnTo = window.location.pathname + window.location.search;
+      expireSession(returnTo);
       throw new Error('Session expired');
     }
 
@@ -77,7 +78,7 @@ export function useApi() {
       throw new Error(data.message || 'Request failed');
     }
     return data.data;
-  }, [token, logout]);
+  }, [token, expireSession]);
 
   return { apiFetch, lastHeadersRef };
 }

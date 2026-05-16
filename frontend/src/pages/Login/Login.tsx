@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
 import './Login.css';
+
+const EXPIRY_FLAG_KEY = 'session_expired';
+const EXPIRY_RETURN_KEY = 'session_return_to';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -11,7 +15,16 @@ export default function Login() {
   const [success, setSuccess] = useState('');
   const { login, loading } = useAuth();
   const { theme } = useTheme();
+  const { addToast } = useToast();
   const navigate = useNavigate();
+
+  // Show expiry toast and redirect back after login
+  useEffect(() => {
+    if (sessionStorage.getItem(EXPIRY_FLAG_KEY)) {
+      addToast('会话已过期，请重新登录', 'warning');
+      sessionStorage.removeItem(EXPIRY_FLAG_KEY);
+    }
+  }, [addToast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +32,10 @@ export default function Login() {
     setSuccess('');
     try {
       await login({ username, password });
+      const returnTo = sessionStorage.getItem(EXPIRY_RETURN_KEY);
+      sessionStorage.removeItem(EXPIRY_RETURN_KEY);
       setSuccess('登录成功，正在跳转...');
-      setTimeout(() => navigate('/schedule'), 1200);
+      setTimeout(() => navigate(returnTo || '/schedule'), 1200);
     } catch (err) {
       setError(err instanceof Error ? err.message : '登录失败，请检查用户名和密码');
     }
