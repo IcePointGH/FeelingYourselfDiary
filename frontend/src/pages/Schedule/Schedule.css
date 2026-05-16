@@ -451,6 +451,30 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .schedule-page {
+    max-width: 100%;
+  }
+
+  .schedule-page-title {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .kaomoji-showcase {
+    padding: 20px 16px 16px;
+    margin-bottom: 16px;
+  }
+
+  .kaomoji-face {
+    font-size: 40px;
+  }
+
+  .daily-quote {
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+
   .datetime-compact {
     flex-direction: column;
     gap: 8px;
@@ -458,6 +482,71 @@
 
   .time-divider {
     display: none;
+  }
+
+  .feeling-area {
+    padding: 16px 12px;
+  }
+
+  .feeling-area-kaomoji {
+    font-size: 36px;
+  }
+
+  .list-card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .batch-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .batch-count {
+    text-align: center;
+    margin: 0;
+  }
+
+  .btn-danger {
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+  }
+
+  .btn-cancel {
+    width: 100%;
+    text-align: center;
+    padding: 10px 16px;
+  }
+
+  .future-reminder-card {
+    border-radius: 16px 16px 0 0;
+    max-width: 100%;
+    width: 100%;
+    padding-bottom: calc(24px + var(--safe-area-bottom));
+  }
+
+  .future-reminder-overlay {
+    align-items: flex-end;
+  }
+
+  .draft-restore-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .draft-restore-banner span {
+    width: 100%;
+  }
+
+  .draft-restore-btn-restore,
+  .draft-restore-btn-discard {
+    width: 100%;
+    text-align: center;
+    padding: 8px 14px;
   }
 }
 
