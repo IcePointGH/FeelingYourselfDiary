@@ -11,6 +11,7 @@ import MoodSummary from './MoodSummary';
 import StagedProgress from './StagedProgress';
 import LetterReveal from './LetterReveal';
 import StructuredReportView from './report/StructuredReportView';
+import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import { ANALYSIS_API } from '../../services/api';
 import type {
   DailyAnalysis,
@@ -395,14 +396,26 @@ export default function AnalysisPage() {
         )}
       </div>
 
-      {viewMode === 'chart' && data && (
+      {viewMode === 'chart' && (
         <>
-          {error && <div className="error-message">{error}</div>}
+          {loading && !data && (
+            <LoadingState label="加载分析数据..." />
+          )}
+          {error && (
+            <ErrorState
+              title="分析失败"
+              description={error}
+              retry={{ label: '重试', onClick: handleAnalyze }}
+            />
+          )}
+          {data && (
+          <>
           {data.itemCount === 0 && (
-            <div className="empty-state">
-              <p>暂无记录</p>
-              <span>该时间段内没有日程记录，去添加一些日程后再分析。</span>
-            </div>
+            <EmptyState
+              title="暂无记录"
+              description="该时间段内没有日程记录，去添加一些日程后再分析。"
+              icon="fa-regular fa-chart-bar"
+            />
           )}
           <div className="stats-row">
             <StatCard title="情绪总和" value={data.totalFeeling > 0 ? `+${data.totalFeeling}` : String(data.totalFeeling)} />
@@ -457,6 +470,8 @@ export default function AnalysisPage() {
           {data.itemCount > 0 && (
             <MoodSummary tab={tab === 'full' ? 'monthly' : tab} items={data.items} />
           )}
+          </>
+        )}
         </>
       )}
     </div>

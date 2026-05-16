@@ -6,6 +6,7 @@ import { useDraft } from '../../hooks/useDraft';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import DateInput from '../../components/DateInput/DateInput';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import { EmptyState, LoadingState } from '../../components/PageState/PageState';
 import ChatView from '../AI/ChatView';
 import { DIARY_API } from '../../services/api';
 import type { DiaryEntry } from '../../types';
@@ -42,7 +43,7 @@ export default function ThoughtsPage() {
     },
   );
 
-  const { data: entries, error, refetch } = useFetch<DiaryEntry[]>(
+  const { data: entries, loading: entriesLoading, error, refetch } = useFetch<DiaryEntry[]>(
     () => apiFetch(DIARY_API.byDate(reviewDate)),
     [apiFetch, reviewDate],
   );
@@ -324,8 +325,15 @@ export default function ThoughtsPage() {
               <DateInput value={reviewDate} onChange={(v) => setReviewDate(v)} />
             </div>
 
-            {entryList.length === 0 ? (
-              <p className="empty-text">请选择日期查找日记</p>
+            {entriesLoading ? (
+              <LoadingState label="加载日记..." compact />
+            ) : entryList.length === 0 ? (
+              <EmptyState
+                title="暂无日记"
+                description={'请选择日期查找日记，或切换到\u201C记录思考\u201D开始写一篇吧。'}
+                icon="fa-regular fa-bookmark"
+                compact
+              />
             ) : (
               <div className="diary-list">
                 {entryList.map((entry) => (

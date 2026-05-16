@@ -9,6 +9,7 @@ import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import { EmptyState, LoadingState } from '../../components/PageState/PageState';
 import { SCHEDULE_API } from '../../services/api';
 import { KAOMOJI, DEFAULT_KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, FeelingValue } from '../../types';
@@ -196,7 +197,7 @@ export default function SchedulePage() {
     autoResize();
   }, [description, autoResize]);
 
-  const { data: items, error, refetch } = useFetch<ScheduleItem[]>(
+  const { data: items, loading: listLoading, error, refetch } = useFetch<ScheduleItem[]>(
     () => apiFetch(SCHEDULE_API.byDate(date)),
     [apiFetch, date]
   );
@@ -471,8 +472,15 @@ export default function SchedulePage() {
             </button>
           )}
         </div>
-        {scheduleList.length === 0 ? (
-          <p className="empty-text">今天还没有记录，添加第一条吧～</p>
+        {listLoading ? (
+          <LoadingState label="加载日程..." compact />
+        ) : scheduleList.length === 0 ? (
+          <EmptyState
+            title="今天还没有记录"
+            description="添加第一条日程，开始记录你的心情吧。"
+            icon="fa-regular fa-calendar-plus"
+            compact
+          />
         ) : (
           <div className="schedule-list">
             {scheduleList.map(item => (
