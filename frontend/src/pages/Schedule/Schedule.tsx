@@ -150,13 +150,33 @@ export default function SchedulePage() {
   // 批量操作
   const [batchMode, setBatchMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [lastAnchor, setLastAnchor] = useState<number | null>(null);
   const [confirmState, setConfirmState] = useState<{
     message: string; danger?: boolean; onConfirm: () => void;
   } | null>(null);
 
-  const toggleSelect = (id: number) => {
+  const handleSelectItem = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const isShift = e.shiftKey;
+    const isCtrl = e.ctrlKey || e.metaKey;
+
+    // Shift+click: select range from lastAnchor to clicked item
+    if (isShift && lastAnchor !== null) {
+      const visibleIds = scheduleList.filter(it => !it.saving).map(it => it.id);
+      const anchorIdx = visibleIds.indexOf(lastAnchor);
+      const clickIdx = visibleIds.indexOf(id);
+      if (anchorIdx !== -1 && clickIdx !== -1) {
+        const start = Math.min(anchorIdx, clickIdx);
+        const end = Math.max(anchorIdx, clickIdx);
+        const range = new Set(visibleIds.slice(start, end + 1));
+        setSelectedIds(range);
+        return;
+      }
+    }
+
+    // Toggle single item
     setSelectedIds(prev => {
-      const next = new Set(prev);
+      const next = isCtrl ? new Set(prev) : new Set();
       if (next.has(id)) {
         next.delete(id);
       } else {
@@ -164,12 +184,18 @@ export default function SchedulePage() {
       }
       return next;
     });
+
+    setLastAnchor(id);
   };
 
   const selectAll = () => {
     setSelectedIds(new Set(scheduleList.filter(it => !it.saving).map(it => it.id)));
+    setLastAnchor(null);
   };
-  const deselectAll = () => setSelectedIds(new Set());
+  const deselectAll = () => {
+    setSelectedIds(new Set());
+    setLastAnchor(null);
+  };
 
   const batchToggle = async (_completed: boolean) => {
     const ids = Array.from(selectedIds);
@@ -180,6 +206,7 @@ export default function SchedulePage() {
     }
     setSelectedIds(new Set());
     setBatchMode(false);
+    setLastAnchor(null);
     refetch();
   };
   const [showFutureReminder, setShowFutureReminder] = useState(false);
@@ -488,7 +515,7 @@ export default function SchedulePage() {
                 {batchMode && !item.saving && (
                   <div
                     className={`batch-select-box ${selectedIds.has(item.id) ? 'selected' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+                    onClick={(e) => handleSelectItem(item.id, e)}
                   >
                     {selectedIds.has(item.id) ? <i className="fas fa-check" /> : null}
                   </div>
@@ -524,9 +551,10 @@ export default function SchedulePage() {
                   for (const id of ids) {
                     try { await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' }); } catch { /* continue */ }
                   }
-                  setSelectedIds(new Set());
-                  setBatchMode(false);
-                  refetch();
+                   setSelectedIds(new Set());
+                   setBatchMode(false);
+                   setLastAnchor(null);
+                   refetch();
                 },
               });
             }}>批量删除</button>
