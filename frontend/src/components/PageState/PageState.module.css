@@ -1,0 +1,169 @@
+/* ════════════════════════════════════════════
+   PageState — shared empty / error / loading
+   ════════════════════════════════════════════ */
+
+/* ── Shared container ── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 8px;
+  min-height: 200px;
+}
+
+.compact {
+  padding: 28px 16px;
+  min-height: 120px;
+  gap: 4px;
+}
+
+/* ── Empty state ── */
+
+.icon {
+  font-size: 36px;
+  color: #cfcfcf;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #8e8e8e;
+  margin: 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.description {
+  font-size: 13px;
+  color: #b0b0b0;
+  margin: 0;
+  max-width: 300px;
+  line-height: 1.55;
+}
+
+.actionBtn {
+  margin-top: 10px;
+  padding: 8px 22px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #666;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.actionBtn:hover {
+  background: #f5f3ff;
+  border-color: #d4ccff;
+  color: #7C5CFC;
+}
+
+/* ── Error state ── */
+
+.errorIcon {
+  font-size: 36px;
+  color: #e8a87c;
+  margin-bottom: 4px;
+}
+
+.retryBtn {
+  margin-top: 10px;
+  padding: 8px 22px;
+  border: 1px solid #e8d4c0;
+  border-radius: 8px;
+  background: #fefaf5;
+  color: #c08450;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.retryBtn:hover {
+  background: #fdf0e0;
+  border-color: #e0b888;
+  color: #a06830;
+}
+
+/* ── Loading state ── */
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e8e8e8;
+  border-top-color: #b0b0b0;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.loadingLabel {
+  font-size: 13px;
+  color: #b0b0b0;
+  margin: 0;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .icon {
+  color: #5a5a5a;
+}
+
+[data-theme='dark'] .title {
+  color: #999;
+}
+
+[data-theme='dark'] .description {
+  color: #777;
+}
+
+[data-theme='dark'] .actionBtn {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #bbb;
+}
+
+[data-theme='dark'] .actionBtn:hover {
+  background: #4a3f60;
+  border-color: #5a4f70;
+  color: #9b8cff;
+}
+
+[data-theme='dark'] .errorIcon {
+  color: #8a6a4a;
+}
+
+[data-theme='dark'] .retryBtn {
+  background: #4a3f30;
+  border-color: #5a4f40;
+  color: #c0a080;
+}
+
+[data-theme='dark'] .retryBtn:hover {
+  background: #5a4f40;
+  border-color: #6a5f50;
+  color: #d0b090;
+}
+
+[data-theme='dark'] .spinner {
+  border-color: #4a4a4a;
+  border-top-color: #777;
+}
+
+[data-theme='dark'] .loadingLabel {
+  color: #777;
+}
