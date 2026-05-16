@@ -63,6 +63,38 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes confirm-sheet-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Mobile: bottom sheet ── */
+
+@media (max-width: 768px) {
+  .confirm-overlay {
+    align-items: flex-end;
+  }
+
+  .confirm-popup {
+    border-radius: 16px 16px 0 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 24px 20px;
+    padding-bottom: calc(24px + var(--safe-area-bottom));
+    animation: confirm-sheet-up 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .confirm-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-actions .btn {
+    width: 100%;
+    padding: 12px 24px;
+    text-align: center;
+  }
+}
+
 /* ── Dark mode ── */
 
 [data-theme='dark'] .confirm-overlay {
@@ -76,4 +108,15 @@
 
 [data-theme='dark'] .confirm-popup p {
   color: #e0e0e0;
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-overlay {
+    animation: none;
+  }
+  .confirm-popup {
+    animation: none;
+  }
 }

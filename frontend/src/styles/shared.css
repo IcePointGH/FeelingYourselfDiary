@@ -317,4 +317,30 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* ════════════════════════════════════════════
+   Phase 4 — Mobile Overlay Primitives
+   ════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .mobile-overlay-safe {
+    padding-bottom: var(--safe-area-bottom);
+  }
+
+  .mobile-actions-stacked {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .mobile-actions-stacked > * {
+    width: 100%;
+  }
+
+  .mobile-btn-full {
+    width: 100%;
+    text-align: center;
+    padding: 12px 20px;
+  }
+}
+
 

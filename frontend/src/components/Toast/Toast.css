@@ -131,7 +131,8 @@
 
 @media (max-width: 768px) {
   .toast-container {
-    top: 16px;
+    top: auto;
+    bottom: calc(var(--mobile-shell-bottom-nav-height) + var(--safe-area-bottom) + var(--mobile-fixed-gap));
     right: 16px;
     left: 16px;
   }
@@ -139,5 +140,27 @@
   .toast {
     max-width: 100%;
     min-width: 0;
+  }
+
+  @keyframes toast-enter {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes toast-exit {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px);
+    }
   }
 }
