@@ -432,12 +432,34 @@
     max-width: 100%;
   }
 
+  .analysis-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .view-toggle-btn {
+    align-self: flex-start;
+  }
+
   .tab-bar {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .tab-btn {
-    min-width: 86px;
+    min-width: 72px;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .analyze-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .analyze-row .view-toggle-btn {
+    align-self: flex-start;
   }
 
   .stats-row {
@@ -459,6 +481,29 @@
 
   .detail-time {
     font-size: 12px;
+  }
+
+  .selected-day-stats {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .day-stat-value {
+    font-size: 18px;
+  }
+
+  .ai-markdown {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .ai-result-card {
+    padding: 14px;
+  }
+
+  .details-section h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 }
 
