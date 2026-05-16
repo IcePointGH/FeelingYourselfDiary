@@ -199,6 +199,10 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
         if (dirtyRef.current) e.preventDefault();
         return;
       }
+      // Only warn if the form has been touched AND differs from the draft.
+      // A stored draft alone (e.g. restore banner shown, form still empty)
+      // is not "unsaved work" — the user hasn't made any changes yet.
+      if (!dirtyRef.current) return;
       if (JSON.stringify(currentRef.current) !== JSON.stringify(stored.value)) {
         e.preventDefault();
       }
@@ -215,6 +219,7 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
       if (!currentRef.current) return false;
       const stored = readEnvelope<T>(key);
       if (!stored) return dirtyRef.current;
+      if (!dirtyRef.current) return false;
       return JSON.stringify(currentRef.current) !== JSON.stringify(stored.value);
     };
     blockers.add(block);
