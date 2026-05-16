@@ -214,7 +214,13 @@ export default function ThoughtsPage() {
   const showEditRestore =
     editDraft.hasDraft &&
     editingEntryId !== null &&
-    editDraftHandledId !== editingEntryId;
+    editDraftHandledId !== editingEntryId &&
+    // Only show when the draft actually differs from current form values.
+    // Autosave can create a draft from the entry's original content within
+    // 1.5s of opening the edit form — that's not real "unsaved work".
+    (editDraft.draft?.title !== title ||
+     editDraft.draft?.content !== content ||
+     editDraft.draft?.date !== date);
 
   const tabs: { key: ThoughtTab; label: string; icon: string }[] = [
     { key: 'write', label: '记录思考', icon: 'fa-pen' },
