@@ -261,19 +261,30 @@ export default function AnalysisPage() {
   const [selectedDiaries, setSelectedDiaries] = useState<
     { id: number; title: string; content: string; date: string }[]
   >([]);
+  const [diariesLoading, setDiariesLoading] = useState(false);
 
   useEffect(() => {
     if (!selectedDate) {
       setSelectedDiaries([]);
+      setDiariesLoading(false);
       return;
     }
+    // Clear stale data immediately so summary doesn't flash previous date's diaries
+    setSelectedDiaries([]);
+    setDiariesLoading(true);
     let cancelled = false;
     apiFetch(DIARY_API.byDate(selectedDate))
       .then((d) => {
-        if (!cancelled) setSelectedDiaries((d as unknown[]) ?? []);
+        if (!cancelled) {
+          setSelectedDiaries((d as unknown[]) ?? []);
+          setDiariesLoading(false);
+        }
       })
       .catch(() => {
-        if (!cancelled) setSelectedDiaries([]);
+        if (!cancelled) {
+          setSelectedDiaries([]);
+          setDiariesLoading(false);
+        }
       });
     return () => { cancelled = true; };
   }, [selectedDate, apiFetch]);
@@ -487,7 +498,13 @@ export default function AnalysisPage() {
                     </div>
                     <div className="day-stat">
                       <span className="day-stat-label">日记</span>
-                      <span className="day-stat-value">{selectedDaySummary.diaryCount}</span>
+                      <span className="day-stat-value">
+                        {diariesLoading ? (
+                          <span className="day-stat-loading">···</span>
+                        ) : (
+                          selectedDaySummary.diaryCount
+                        )}
+                      </span>
                     </div>
                   </div>
                   {selectedDaySummary.scheduleItems.length > 0 && (
@@ -503,7 +520,9 @@ export default function AnalysisPage() {
                       ))}
                     </div>
                   )}
-                  {selectedDaySummary.diaryItems.length > 0 && (
+                  {diariesLoading ? (
+                    <div className="day-evidence-loading">加载日记数据…</div>
+                  ) : selectedDaySummary.diaryItems.length > 0 ? (
                     <div className="day-evidence">
                       {selectedDaySummary.diaryItems.map((entry) => (
                         <div key={entry.id} className="evidence-item">
@@ -512,7 +531,7 @@ export default function AnalysisPage() {
                         </div>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                   <button className="view-history-btn" onClick={navigateToHistory}>
                     <i className="fas fa-external-link-alt" style={{ marginRight: 6 }} />
                     查看当天记录

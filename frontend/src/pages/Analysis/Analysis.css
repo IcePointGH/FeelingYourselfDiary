@@ -728,3 +728,22 @@
 [data-theme='dark'] .selected-day-empty-hint { color: #777; }
 [data-theme='dark'] .evidence-type-tag { background: rgba(60, 223, 233, 0.08); }
 [data-theme='dark'] .evidence-type-tag.diary-tag { background: rgba(123, 97, 255, 0.08); }
+
+/* ── Diary loading in summary ── */
+
+.day-stat-loading {
+  font-size: 16px;
+  color: #ccc;
+  letter-spacing: 2px;
+}
+
+.day-evidence-loading {
+  text-align: center;
+  padding: 12px 0 8px;
+  font-size: 12px;
+  color: #bbb;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+[data-theme='dark'] .day-stat-loading { color: #666; }
+[data-theme='dark'] .day-evidence-loading { color: #777; }
