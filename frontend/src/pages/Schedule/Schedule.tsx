@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
+import { useDraft } from '../../hooks/useDraft';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
@@ -45,6 +46,15 @@ const localToday = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
+interface ScheduleDraft {
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  feeling: number;
+  showDesc: boolean;
+}
+
 export default function SchedulePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -62,6 +72,49 @@ export default function SchedulePage() {
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  // ── Draft persistence ──
+  const { draft, hasDraft, save, clear, setCurrent } = useDraft<ScheduleDraft>('schedule.create');
+  const [draftDismissed, setDraftDismissed] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced auto-save: watches form fields, saves after 1.5s of no changes
+  // Skips saving when title is empty (don't save empty drafts)
+  useEffect(() => {
+    if (!title.trim()) return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      save({
+        title: title.trim(),
+        description,
+        date,
+        time,
+        feeling,
+        showDesc,
+      });
+    }, 1500);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [title, description, date, time, feeling, showDesc, save]);
+
+  // Wire up beforeunload guard: setCurrent feeds the ref that useDraft compares
+  const formDraft: ScheduleDraft = {
+    title: title.trim(),
+    description,
+    date,
+    time,
+    feeling,
+    showDesc,
+  };
+  setCurrent(formDraft);
 
   const focusTitleInput = () => {
     requestAnimationFrame(() => titleInputRef.current?.focus({ preventScroll: true }));
@@ -217,6 +270,9 @@ export default function SchedulePage() {
         }),
       }) as ScheduleItem;
 
+      clear();
+      setDraftDismissed(true);
+
       setScheduleList(prev => sortScheduleItems(prev.map(item =>
         item.tempId === tempId ? { ...saved, justAdded: true } : item
       )));
@@ -303,6 +359,40 @@ export default function SchedulePage() {
       <div className="daily-quote">{quote}</div>
 
       <div className="card form-card">
+        {/* Draft restore banner */}
+        {hasDraft && !draftDismissed && draft && (
+          <div className="draft-restore-banner">
+            <i className="fas fa-pencil-alt" />
+            <span>你有未提交的日程草稿，是否恢复？</span>
+            <button
+              type="button"
+              className="draft-restore-btn-restore"
+              onClick={() => {
+                setTitle(draft.title);
+                setDescription(draft.description);
+                setDate(draft.date);
+                setTime(draft.time);
+                setFeeling(draft.feeling);
+                setHasInteracted(draft.feeling !== 0);
+                setShowDesc(draft.showDesc);
+                clear();
+                setDraftDismissed(true);
+              }}
+            >
+              恢复
+            </button>
+            <button
+              type="button"
+              className="draft-restore-btn-discard"
+              onClick={() => {
+                clear();
+                setDraftDismissed(true);
+              }}
+            >
+              放弃
+            </button>
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>事项 *</label>
