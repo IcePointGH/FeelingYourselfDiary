@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import { useAiAnalysis } from '../../hooks/useAiAnalysis';
@@ -80,12 +81,16 @@ export default function AnalysisPage() {
   // ── Dependencies ──
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   // ── AI analysis state machine (extracted hook) ──
   const ai = useAiAnalysis({ apiFetch, addToast });
 
   // Track which tab started the current AI analysis — prevents cross-tab UI leakage
   const [aiTab, setAiTab] = useState<TabType | null>(null);
+
+  // ── Selected-day drill-down ──
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // ── Tab cache ──
   const cache = useTabCache<TabSnapshot>();
@@ -241,6 +246,31 @@ export default function AnalysisPage() {
     return result;
   }, [data, tab, date, month]);
 
+  const handleSelectChartDate = useCallback((dateStr: string) => {
+    setSelectedDate((prev) => (prev === dateStr ? null : dateStr));
+  }, []);
+
+  const navigateToHistory = useCallback(() => {
+    if (selectedDate) {
+      navigate('/history', { state: { date: selectedDate } });
+    }
+  }, [selectedDate, navigate]);
+
+  // ── Selected-day summary (frontend-driven from existing items) ──
+  const selectedDaySummary = useMemo(() => {
+    if (!selectedDate || !data?.items) return null;
+    const dayItems = data.items.filter((it) => it.date === selectedDate);
+    if (dayItems.length === 0) return null;
+    const avg =
+      dayItems.reduce((sum, it) => sum + it.feeling, 0) / dayItems.length;
+    return {
+      date: selectedDate,
+      count: dayItems.length,
+      averageFeeling: avg,
+      items: dayItems,
+    };
+  }, [selectedDate, data]);
+
   const tabLabels: Record<TabType, string> = { daily: '日', weekly: '周', monthly: '月', full: '全部' };
 
   // ── AI state shortcuts ──
@@ -380,8 +410,48 @@ export default function AnalysisPage() {
             <StatCard title="平均情绪" value={data.averageFeeling > 0 ? `+${data.averageFeeling.toFixed(1)}` : data.averageFeeling.toFixed(1)} />
           </div>
 
+          {/* Selected-day drill-down summary */}
+          {selectedDaySummary && (
+            <div className="card selected-day-summary">
+              <div className="selected-day-header">
+                <h3>{selectedDaySummary.date}</h3>
+                <button className="close-summary-btn" onClick={() => setSelectedDate(null)}>
+                  <i className="fas fa-times" />
+                </button>
+              </div>
+              <div className="selected-day-stats">
+                <div className="day-stat">
+                  <span className="day-stat-label">平均情绪</span>
+                  <span className={`day-stat-value ${selectedDaySummary.averageFeeling > 0 ? 'positive' : selectedDaySummary.averageFeeling < 0 ? 'negative' : ''}`}>
+                    {selectedDaySummary.averageFeeling > 0 ? '+' : ''}{selectedDaySummary.averageFeeling.toFixed(1)}
+                  </span>
+                </div>
+                <div className="day-stat">
+                  <span className="day-stat-label">记录数</span>
+                  <span className="day-stat-value">{selectedDaySummary.count}</span>
+                </div>
+              </div>
+              {selectedDaySummary.items.length > 0 && (
+                <div className="day-evidence">
+                  {selectedDaySummary.items.slice(0, 3).map((item) => (
+                    <div key={item.id} className="evidence-item">
+                      <span className="evidence-title">{item.title || '未命名日程'}</span>
+                      <span className={`evidence-feeling feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling as import('../../types').FeelingValue)}`}>
+                        {item.feeling > 0 ? '+' : ''}{item.feeling}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button className="view-history-btn" onClick={navigateToHistory}>
+                <i className="fas fa-external-link-alt" style={{ marginRight: 6 }} />
+                查看当天记录
+              </button>
+            </div>
+          )}
+
           {(data.dailyTotals || tab === 'daily') && data.itemCount > 0 && (
-            <MoodTrendChart tab={tab === 'full' ? 'monthly' : tab} chartData={chartData} month={tab === 'monthly' ? month : undefined} />
+            <MoodTrendChart tab={tab === 'full' ? 'monthly' : tab} chartData={chartData} month={tab === 'monthly' ? month : undefined} onSelectDate={tab !== 'daily' ? handleSelectChartDate : undefined} />
           )}
 
           {data.itemCount > 0 && (

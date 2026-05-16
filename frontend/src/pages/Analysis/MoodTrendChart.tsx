@@ -11,6 +11,7 @@ interface MoodTrendChartProps {
   tab: 'daily' | 'weekly' | 'monthly';
   chartData: ChartDataItem[];
   month?: string;
+  onSelectDate?: (date: string) => void;
 }
 
 function formatXAxisDate(dateStr: string, tab: string): string {
@@ -74,7 +75,7 @@ function MoodActiveDot(props: { cx?: number; cy?: number; payload?: ChartDataIte
   return <circle cx={cx} cy={cy} r={6} fill={color} stroke="#fff" strokeWidth={2} />;
 }
 
-export default function MoodTrendChart({ tab, chartData, month }: MoodTrendChartProps) {
+export default function MoodTrendChart({ tab, chartData, month, onSelectDate }: MoodTrendChartProps) {
   if (!chartData || chartData.length === 0) return null;
 
   // ── Daily: LineChart of mood trajectory through the day ──
@@ -172,6 +173,11 @@ export default function MoodTrendChart({ tab, chartData, month }: MoodTrendChart
                 strokeWidth={1.5}
                 dot={<MoodDot />}
                 activeDot={<MoodActiveDot />}
+                onClick={(e: { activePayload?: { payload: ChartDataItem }[] }) => {
+                  if (onSelectDate && e?.activePayload?.[0]?.payload?.date && !e.activePayload[0].payload.isFiller) {
+                    onSelectDate(e.activePayload[0].payload.date);
+                  }
+                }}
               />
             </LineChart>
           </ResponsiveContainer>

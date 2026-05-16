@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
@@ -52,6 +53,10 @@ export default function HistoryPage() {
   } | null>(null);
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+  const location = useLocation();
+
+  // If navigated from analysis drill-down, pre-select the incoming date
+  const incomingDate = (location.state as { date?: string } | null)?.date;
 
   const fetchMonthlyMood = useCallback(async () => {
     try {
@@ -90,9 +95,19 @@ export default function HistoryPage() {
     if (selectedDate) handleSelectDate(selectedDate);
   };
 
-  // 默认加载当天日程
+  // 默认加载当天日程（或从 analysis drill-down 传入的日期）
   useEffect(() => {
-    handleSelectDate(todayStr);
+    if (incomingDate) {
+      // Parse year/month from incoming date to set calendar context
+      const [y, m] = incomingDate.split('-').map(Number);
+      if (y && m !== undefined) {
+        setCurrentYear(y);
+        setCurrentMonth(m - 1);
+      }
+      handleSelectDate(incomingDate);
+    } else {
+      handleSelectDate(todayStr);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
