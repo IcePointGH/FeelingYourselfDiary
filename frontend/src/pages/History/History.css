@@ -60,6 +60,38 @@
   color: #454545;
 }
 
+.today-btn {
+  background: #f5f3ff;
+  border: 1px solid #d4ccff;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #7C5CFC;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.today-btn:hover {
+  background: #ece6ff;
+  border-color: #b8a8ff;
+  color: #6348e0;
+}
+
+[data-theme='dark'] .today-btn {
+  background: #403a50;
+  border-color: #5a4f70;
+  color: #9b8cff;
+}
+
+[data-theme='dark'] .today-btn:hover {
+  background: #4a3f60;
+  border-color: #6a5f80;
+  color: #b0a0ff;
+}
+
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

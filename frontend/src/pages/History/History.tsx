@@ -3,6 +3,7 @@ import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import { SCHEDULE_API, ANALYSIS_API } from '../../services/api';
 import { KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, MonthlyAnalysis, FeelingValue } from '../../types';
@@ -41,6 +42,8 @@ export default function HistoryPage() {
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedSchedules, setSelectedSchedules] = useState<ScheduleItem[]>([]);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState(false);
   const [monthlyMood, setMonthlyMood] = useState<Record<string, number>>({});
   const [transitionDirection, setTransitionDirection] = useState<MonthTransitionDirection | null>(null);
   const [outgoingMonth, setOutgoingMonth] = useState<MonthSnapshot | null>(null);
@@ -70,13 +73,21 @@ export default function HistoryPage() {
 
   const handleSelectDate = async (dateStr: string) => {
     setSelectedDate(dateStr);
+    setDetailLoading(true);
+    setDetailError(false);
     try {
       const data = await apiFetch(SCHEDULE_API.byDate(dateStr));
       setSelectedSchedules(data || []);
     } catch {
       setSelectedSchedules([]);
-      addToast('加载日程详情失败, 请刷新重试', 'error');
+      setDetailError(true);
+    } finally {
+      setDetailLoading(false);
     }
+  };
+
+  const handleRetryDetail = () => {
+    if (selectedDate) handleSelectDate(selectedDate);
   };
 
   // 默认加载当天日程
@@ -138,6 +149,15 @@ export default function HistoryPage() {
         setSelectedSchedules(fresh || []);
       }
     }
+  };
+
+  const isOnToday =
+    currentYear === today.getFullYear() && currentMonth === today.getMonth();
+
+  const handleGoToday = () => {
+    setCurrentYear(today.getFullYear());
+    setCurrentMonth(today.getMonth());
+    handleSelectDate(todayStr);
   };
 
   const handleMonthSelection = (nextYear: number, nextMonth: number) => {
@@ -250,6 +270,9 @@ export default function HistoryPage() {
                 <option key={idx} value={idx}>{name}</option>
               ))}
             </select>
+            {!isOnToday && (
+              <button className="today-btn" onClick={handleGoToday}>今天</button>
+            )}
           </div>
           <button className="icon-btn" onClick={handleNextMonth}>
             <i className="fas fa-chevron-right" />
@@ -282,8 +305,22 @@ export default function HistoryPage() {
       {selectedDate && (
         <div className="card detail-card">
           <h2>{selectedDate} 的日程</h2>
-          {selectedSchedules.length === 0 ? (
-            <p className="empty-text">这一天没有日程记录。</p>
+          {detailLoading ? (
+            <LoadingState label="加载日程..." compact />
+          ) : detailError ? (
+            <ErrorState
+              title="加载失败"
+              description="无法获取当天的日程详情，请检查网络后重试。"
+              retry={{ label: '重试', onClick: handleRetryDetail }}
+              compact
+            />
+          ) : selectedSchedules.length === 0 ? (
+            <EmptyState
+              title="暂无日程记录"
+              description="这一天还没有安排任何日程。"
+              icon="fa-regular fa-calendar-xmark"
+              compact
+            />
           ) : (
             <div className="schedule-list history-schedule-list" key={selectedDate}>
               {selectedSchedules.map((item, index) => (
