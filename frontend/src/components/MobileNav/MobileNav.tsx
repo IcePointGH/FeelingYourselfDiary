@@ -36,13 +36,12 @@ export default function MobileNav({ onMoreClick }: MobileNavProps) {
         </NavLink>
       ))}
       <button
-        className={styles.item}
+        className={styles.moreBtn}
         onClick={onMoreClick}
         type="button"
-        aria-label="更多"
+        aria-label="更多菜单"
       >
         <i className="fas fa-ellipsis-h" />
-        <span>更多</span>
       </button>
     </nav>
   );
