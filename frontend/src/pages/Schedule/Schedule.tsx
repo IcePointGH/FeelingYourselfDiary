@@ -9,7 +9,7 @@ import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
-import { EmptyState, LoadingState } from '../../components/PageState/PageState';
+import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import { SCHEDULE_API } from '../../services/api';
 import { KAOMOJI, DEFAULT_KAOMOJI } from '../../utils/feeling';
 import type { ScheduleItem, FeelingValue } from '../../types';
@@ -499,7 +499,14 @@ export default function SchedulePage() {
             </button>
           )}
         </div>
-        {listLoading ? (
+        {error ? (
+          <ErrorState
+            title="加载失败"
+            description={error}
+            retry={{ label: '重试', onClick: refetch }}
+            compact
+          />
+        ) : listLoading ? (
           <LoadingState label="加载日程..." compact />
         ) : scheduleList.length === 0 ? (
           <EmptyState

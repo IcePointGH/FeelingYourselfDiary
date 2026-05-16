@@ -167,7 +167,9 @@ export default function HistoryPage() {
   };
 
   const isOnToday =
-    currentYear === today.getFullYear() && currentMonth === today.getMonth();
+    currentYear === today.getFullYear() &&
+    currentMonth === today.getMonth() &&
+    selectedDate === todayStr;
 
   const handleGoToday = () => {
     setCurrentYear(today.getFullYear());

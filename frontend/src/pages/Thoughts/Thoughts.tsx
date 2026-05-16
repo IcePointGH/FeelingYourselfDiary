@@ -6,7 +6,7 @@ import { useDraft } from '../../hooks/useDraft';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import DateInput from '../../components/DateInput/DateInput';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
-import { EmptyState, LoadingState } from '../../components/PageState/PageState';
+import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import ChatView from '../AI/ChatView';
 import { DIARY_API } from '../../services/api';
 import type { DiaryEntry } from '../../types';
@@ -325,7 +325,14 @@ export default function ThoughtsPage() {
               <DateInput value={reviewDate} onChange={(v) => setReviewDate(v)} />
             </div>
 
-            {entriesLoading ? (
+            {error ? (
+              <ErrorState
+                title="加载失败"
+                description={error}
+                retry={{ label: '重试', onClick: refetch }}
+                compact
+              />
+            ) : entriesLoading ? (
               <LoadingState label="加载日记..." compact />
             ) : entryList.length === 0 ? (
               <EmptyState

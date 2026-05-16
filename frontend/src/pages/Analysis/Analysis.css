@@ -683,3 +683,48 @@
 [data-theme='dark'] .evidence-title { color: #aaa; }
 [data-theme='dark'] .view-history-btn { background: #403a50; border-color: #5a4f70; color: #9b8cff; }
 [data-theme='dark'] .view-history-btn:hover { background: #4a3f60; border-color: #6a5f80; color: #b0a0ff; }
+
+/* ── Evidence type tags ── */
+
+.evidence-type-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-right: 8px;
+  background: rgba(60, 223, 233, 0.12);
+  color: #3cdfe9;
+}
+
+.evidence-type-tag.diary-tag {
+  background: rgba(123, 97, 255, 0.1);
+  color: #7b61ff;
+}
+
+/* ── Empty drill-down explanation ── */
+
+.selected-day-empty {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.selected-day-empty-text {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+.selected-day-empty-hint {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+  line-height: 1.5;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+
+[data-theme='dark'] .selected-day-empty-text { color: #aaa; }
+[data-theme='dark'] .selected-day-empty-hint { color: #777; }
+[data-theme='dark'] .evidence-type-tag { background: rgba(60, 223, 233, 0.08); }
+[data-theme='dark'] .evidence-type-tag.diary-tag { background: rgba(123, 97, 255, 0.08); }

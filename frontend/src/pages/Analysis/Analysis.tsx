@@ -12,7 +12,7 @@ import StagedProgress from './StagedProgress';
 import LetterReveal from './LetterReveal';
 import StructuredReportView from './report/StructuredReportView';
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
-import { ANALYSIS_API } from '../../services/api';
+import { ANALYSIS_API, DIARY_API } from '../../services/api';
 import type {
   DailyAnalysis,
   WeeklyAnalysis,
@@ -257,20 +257,49 @@ export default function AnalysisPage() {
     }
   }, [selectedDate, navigate]);
 
-  // ── Selected-day summary (frontend-driven from existing items) ──
+  // ── Diary data for selected-date drill-down ──
+  const [selectedDiaries, setSelectedDiaries] = useState<
+    { id: number; title: string; content: string; date: string }[]
+  >([]);
+
+  useEffect(() => {
+    if (!selectedDate) {
+      setSelectedDiaries([]);
+      return;
+    }
+    let cancelled = false;
+    apiFetch(DIARY_API.byDate(selectedDate))
+      .then((d) => {
+        if (!cancelled) setSelectedDiaries((d as unknown[]) ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setSelectedDiaries([]);
+      });
+    return () => { cancelled = true; };
+  }, [selectedDate, apiFetch]);
+
+  // ── Selected-day summary (frontend-driven from existing items + diaries) ──
   const selectedDaySummary = useMemo(() => {
     if (!selectedDate || !data?.items) return null;
     const dayItems = data.items.filter((it) => it.date === selectedDate);
-    if (dayItems.length === 0) return null;
+    const diaryCount = selectedDiaries.length;
+    const totalRecords = dayItems.length + diaryCount;
+    if (totalRecords === 0) return { date: selectedDate, isEmpty: true as const };
     const avg =
-      dayItems.reduce((sum, it) => sum + it.feeling, 0) / dayItems.length;
+      dayItems.length > 0
+        ? dayItems.reduce((sum, it) => sum + it.feeling, 0) / dayItems.length
+        : 0;
     return {
       date: selectedDate,
-      count: dayItems.length,
+      isEmpty: false as const,
+      scheduleCount: dayItems.length,
+      diaryCount,
+      totalRecords,
       averageFeeling: avg,
-      items: dayItems,
+      scheduleItems: dayItems,
+      diaryItems: selectedDiaries.slice(0, 3),
     };
-  }, [selectedDate, data]);
+  }, [selectedDate, data, selectedDiaries]);
 
   const tabLabels: Record<TabType, string> = { daily: '日', weekly: '周', monthly: '月', full: '全部' };
 
@@ -432,34 +461,64 @@ export default function AnalysisPage() {
                   <i className="fas fa-times" />
                 </button>
               </div>
-              <div className="selected-day-stats">
-                <div className="day-stat">
-                  <span className="day-stat-label">平均情绪</span>
-                  <span className={`day-stat-value ${selectedDaySummary.averageFeeling > 0 ? 'positive' : selectedDaySummary.averageFeeling < 0 ? 'negative' : ''}`}>
-                    {selectedDaySummary.averageFeeling > 0 ? '+' : ''}{selectedDaySummary.averageFeeling.toFixed(1)}
-                  </span>
+              {selectedDaySummary.isEmpty ? (
+                <div className="selected-day-empty">
+                  <p className="selected-day-empty-text">
+                    这一天没有日程或日记记录。
+                  </p>
+                  <p className="selected-day-empty-hint">
+                    图表颜色来自期间情绪均值，但当天可能没有具体的日程条目。
+                  </p>
                 </div>
-                <div className="day-stat">
-                  <span className="day-stat-label">记录数</span>
-                  <span className="day-stat-value">{selectedDaySummary.count}</span>
-                </div>
-              </div>
-              {selectedDaySummary.items.length > 0 && (
-                <div className="day-evidence">
-                  {selectedDaySummary.items.slice(0, 3).map((item) => (
-                    <div key={item.id} className="evidence-item">
-                      <span className="evidence-title">{item.title || '未命名日程'}</span>
-                      <span className={`evidence-feeling feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling as import('../../types').FeelingValue)}`}>
-                        {item.feeling > 0 ? '+' : ''}{item.feeling}
-                      </span>
+              ) : (
+                <>
+                  <div className="selected-day-stats">
+                    {selectedDaySummary.scheduleCount > 0 && (
+                      <div className="day-stat">
+                        <span className="day-stat-label">平均情绪</span>
+                        <span className={`day-stat-value ${selectedDaySummary.averageFeeling > 0 ? 'positive' : selectedDaySummary.averageFeeling < 0 ? 'negative' : ''}`}>
+                          {selectedDaySummary.averageFeeling > 0 ? '+' : ''}{selectedDaySummary.averageFeeling.toFixed(1)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="day-stat">
+                      <span className="day-stat-label">日程</span>
+                      <span className="day-stat-value">{selectedDaySummary.scheduleCount}</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="day-stat">
+                      <span className="day-stat-label">日记</span>
+                      <span className="day-stat-value">{selectedDaySummary.diaryCount}</span>
+                    </div>
+                  </div>
+                  {selectedDaySummary.scheduleItems.length > 0 && (
+                    <div className="day-evidence">
+                      {selectedDaySummary.scheduleItems.slice(0, 3).map((item) => (
+                        <div key={item.id} className="evidence-item">
+                          <span className="evidence-type-tag">日程</span>
+                          <span className="evidence-title">{item.title || '未命名日程'}</span>
+                          <span className={`evidence-feeling feel${item.feeling >= 0 ? '-' : '--'}${Math.abs(item.feeling as import('../../types').FeelingValue)}`}>
+                            {item.feeling > 0 ? '+' : ''}{item.feeling}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {selectedDaySummary.diaryItems.length > 0 && (
+                    <div className="day-evidence">
+                      {selectedDaySummary.diaryItems.map((entry) => (
+                        <div key={entry.id} className="evidence-item">
+                          <span className="evidence-type-tag diary-tag">日记</span>
+                          <span className="evidence-title">{entry.title || '无标题日记'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button className="view-history-btn" onClick={navigateToHistory}>
+                    <i className="fas fa-external-link-alt" style={{ marginRight: 6 }} />
+                    查看当天记录
+                  </button>
+                </>
               )}
-              <button className="view-history-btn" onClick={navigateToHistory}>
-                <i className="fas fa-external-link-alt" style={{ marginRight: 6 }} />
-                查看当天记录
-              </button>
             </div>
           )}
 
