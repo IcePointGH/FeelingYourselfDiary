@@ -87,6 +87,43 @@
   padding: 4px 0;
 }
 
+/* ── Draft restore banner ── */
+.draft-restore-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: #fff9e6;
+  border: 1px solid #ffe8a1;
+  border-radius: 8px;
+  color: #8a6d14;
+  font-size: 14px;
+}
+
+.draft-restore-banner .draft-restore-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.draft-restore-banner .draft-restore-actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #8a6d14;
+  transition: background 0.2s;
+}
+
+.draft-restore-banner .draft-restore-actions button:hover {
+  background: #ffe8a1;
+}
+
 /* ── AI chat panel ── */
 .thoughts-ai-panel {
   min-height: 400px;
