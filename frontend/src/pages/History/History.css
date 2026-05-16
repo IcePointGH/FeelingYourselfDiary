@@ -354,23 +354,45 @@
 }
 
 @media (max-width: 768px) {
-  .calendar-grid {
-    gap: 4px;
+  .history-page {
+    max-width: 100%;
   }
-  .calendar-day {
-    font-size: 13px;
-    border-radius: var(--radius-sm);
+
+  .calendar-header {
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .card {
-    padding: 20px;
-  }
+
   .calendar-header-selects {
     gap: 6px;
   }
+
   .year-select,
   .month-select {
     font-size: 14px;
     padding: 5px 8px;
     padding-right: 24px;
+  }
+
+  .calendar-grid {
+    gap: 3px;
+  }
+
+  .calendar-day {
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .day-kaomoji {
+    font-size: 6px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .detail-card h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
   }
 }
