@@ -59,7 +59,14 @@ function ensureHistoryPatched() {
     for (const fn of blockers) {
       if (fn()) {
         currentBlocker = {
-          proceed: () => { currentBlocker = null; orig(...args); },
+          proceed: () => {
+            currentBlocker = null;
+            orig(...args);
+            // React Router listens for popstate to detect URL changes.
+            // Since we bypassed its history wrapper, we must fire this
+            // ourselves so it picks up the new URL and re-renders.
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          },
           cancel: () => { currentBlocker = null; },
         };
         notifyNavListeners();
