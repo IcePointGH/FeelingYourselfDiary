@@ -73,6 +73,35 @@
   background-color: #333;
 }
 
+/* ── Inline field validation ── */
+.field-error {
+  color: #d75772;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.form-group.has-error input,
+.form-group.has-error textarea {
+  border-color: #d75772;
+  background-color: #fef6f7;
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error textarea:focus {
+  box-shadow: 0 0 0 3px rgba(215, 87, 114, 0.1);
+}
+
+[data-theme='dark'] .field-error {
+  color: #f090a0;
+}
+
+[data-theme='dark'] .form-group.has-error input,
+[data-theme='dark'] .form-group.has-error textarea {
+  border-color: #8a4040;
+  background-color: #3a2a2a;
+}
+
 /* ── Empty text ── */
 .empty-text {
   text-align: center;
