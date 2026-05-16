@@ -80,7 +80,7 @@ export default function Login() {
             />
             {errors.password && <div className="field-error">{errors.password}</div>}
           </div>
-          <button type="submit" disabled={loading} className="btn">
+          <button type="submit" disabled={loading} className="ui-btn ui-btn-primary login-btn">
             {loading ? '登录中...' : '登录'}
           </button>
         </form>

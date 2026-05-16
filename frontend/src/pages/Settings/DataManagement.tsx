@@ -41,10 +41,10 @@ export default function DataManagement() {
 
   return (
     <div className="data-options">
-      <button className="action-btn export-btn" onClick={handleExport} disabled={loading}>
+      <button className="ui-btn ui-btn-primary settings-btn-full" onClick={handleExport} disabled={loading}>
         数据分析预览（导入示例数据）
       </button>
-      <button className="action-btn clear-btn" onClick={handleClear} disabled={loading}>
+      <button className="ui-btn ui-btn-danger settings-btn-full" onClick={handleClear} disabled={loading}>
         一键清除数据
       </button>
     </div>

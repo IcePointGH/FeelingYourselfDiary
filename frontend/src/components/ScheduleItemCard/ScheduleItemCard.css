@@ -5,14 +5,14 @@
   align-items: flex-start;
   flex: 1;
   padding: 20px 24px;
-  background: #fafafa;
-  border-radius: 8px;
-  border: 1px solid #e8e8e8;
-  transition: all 0.3s ease;
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--motion-base) var(--ease-standard);
 }
 
 .schedule-item:hover {
-  background: #f5f5f5;
+  background: var(--surface-inset);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
@@ -24,14 +24,14 @@
 .schedule-title {
   font-weight: 600;
   font-size: 17px;
-  color: #454545;
+  color: var(--text-default);
   margin-bottom: 6px;
   line-height: 1.4;
 }
 
 .schedule-desc {
   font-size: 14px;
-  color: #999;
+  color: var(--text-muted);
   margin-bottom: 10px;
   line-height: 1.6;
 }
@@ -41,12 +41,12 @@
   gap: 14px;
   align-items: center;
   font-size: 13px;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .schedule-date {
   font-weight: 600;
-  color: #454545;
+  color: var(--text-default);
   margin-right: 8px;
 }
 
@@ -65,20 +65,20 @@
 .schedule-checkbox .checkmark {
   width: 20px;
   height: 20px;
-  border: 2px solid #d0d0d0;
+  border: 2px solid var(--border-default);
   border-radius: 4px;
-  background: #fff;
-  transition: all 0.2s ease;
+  background: var(--surface-card);
+  transition: all var(--motion-fast) var(--ease-standard);
   position: relative;
 }
 
 .schedule-checkbox:hover .checkmark {
-  border-color: #b0b0b0;
+  border-color: var(--border-strong);
 }
 
 .schedule-checkbox.checked .checkmark {
-  background: #454545;
-  border-color: #454545;
+  background: var(--text-default);
+  border-color: var(--text-default);
 }
 
 .schedule-checkbox.checked .checkmark::after {
@@ -88,7 +88,7 @@
   top: 1px;
   width: 6px;
   height: 11px;
-  border: solid #fff;
+  border: solid var(--surface-card);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
@@ -105,13 +105,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   z-index: 5;
   animation: fade-in 0.15s ease;
 }
 
 .future-confirm-popup {
-  background: #fff;
+  background: var(--surface-card);
   border-radius: 10px;
   padding: 20px 24px;
   text-align: center;
@@ -121,7 +121,7 @@
 
 .future-confirm-popup p {
   font-size: 14px;
-  color: #454545;
+  color: var(--text-default);
   line-height: 1.6;
   margin: 0 0 16px 0;
 }
@@ -139,18 +139,18 @@
 .future-confirm-actions .btn {
   padding: 6px 18px;
   font-size: 13px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 
 .future-confirm-actions .btn-cancel {
-  background: #f5f5f5;
-  color: #666;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-inset);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 .future-confirm-actions .btn-cancel:hover {
-  background: #eee;
+  background: var(--surface-muted);
 }
 
 /* ── Action buttons row ── */
@@ -165,33 +165,33 @@
   width: 30px;
   height: 30px;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  transition: all 0.2s;
+  transition: all var(--motion-fast) var(--ease-standard);
 }
 
 .edit-btn {
   background: transparent;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .edit-btn:hover {
-  background: #eee;
-  color: #454545;
+  background: var(--surface-muted);
+  color: var(--text-default);
 }
 
 .delete-btn-small {
   background: transparent;
-  color: #999;
+  color: var(--text-muted);
 }
 
 .delete-btn-small:hover {
   background: #fce8e8;
-  color: #d75772;
+  color: var(--accent-negative-3);
 }
 
 /* ── Edit overlay ── */
@@ -210,8 +210,8 @@
 }
 
 .edit-popup {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
   padding: 28px 30px;
   max-width: 420px;
   width: 90%;
@@ -222,7 +222,7 @@
 .edit-popup h3 {
   margin: 0 0 18px 0;
   font-size: 18px;
-  color: #454545;
+  color: var(--text-default);
   text-align: center;
 }
 
@@ -233,7 +233,7 @@
 .edit-popup .form-group label {
   display: block;
   font-size: 13px;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 4px;
 }
 
@@ -241,8 +241,8 @@
 .edit-popup .form-group textarea {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: inherit;
   box-sizing: border-box;
@@ -271,24 +271,24 @@
 .feeling-quick-btn {
   width: 32px;
   height: 32px;
-  border: 1px solid #d0d0d0;
+  border: 1px solid var(--border-default);
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface-card);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
-  color: #666;
+  transition: all var(--motion-fast) var(--ease-standard);
+  color: var(--text-muted);
 }
 
 .feeling-quick-btn:hover {
-  border-color: #454545;
-  color: #454545;
+  border-color: var(--text-default);
+  color: var(--text-default);
 }
 
 .feeling-quick-btn.active {
-  background: #454545;
-  color: #fff;
-  border-color: #454545;
+  background: var(--text-default);
+  color: var(--surface-card);
+  border-color: var(--text-default);
 }
 
 .edit-actions {
@@ -328,7 +328,7 @@
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  color: #888;
+  color: var(--text-muted);
   font-size: 12px;
   padding: 4px 0;
 }
@@ -336,8 +336,8 @@
 .saving-spinner {
   width: 12px;
   height: 12px;
-  border: 2px solid #ddd;
-  border-top-color: #777;
+  border: 2px solid var(--border-subtle);
+  border-top-color: var(--text-muted);
   border-radius: 50%;
   animation: saving-spin 0.8s linear infinite;
 }
@@ -346,13 +346,13 @@
   animation: schedule-just-added 2000ms ease-out both;
 }
 
-.schedule-item.just-added.feel--3 { --just-added-color: #d75772; }
-.schedule-item.just-added.feel--2 { --just-added-color: #f5867b; }
-.schedule-item.just-added.feel--1 { --just-added-color: #fea979; }
-.schedule-item.just-added.feel-0 { --just-added-color: #ffe062; }
-.schedule-item.just-added.feel-1 { --just-added-color: #3cdfe9; }
-.schedule-item.just-added.feel-2 { --just-added-color: #12b8ec; }
-.schedule-item.just-added.feel-3 { --just-added-color: #1686ee; }
+.schedule-item.just-added.feel--3 { --just-added-color: var(--accent-negative-3); }
+.schedule-item.just-added.feel--2 { --just-added-color: var(--accent-negative-2); }
+.schedule-item.just-added.feel--1 { --just-added-color: var(--accent-negative-1); }
+.schedule-item.just-added.feel-0 { --just-added-color: var(--accent-neutral); }
+.schedule-item.just-added.feel-1 { --just-added-color: var(--accent-positive-1); }
+.schedule-item.just-added.feel-2 { --just-added-color: var(--accent-positive-2); }
+.schedule-item.just-added.feel-3 { --just-added-color: var(--accent-positive-3); }
 
 @keyframes saving-spin {
   to { transform: rotate(360deg); }
@@ -362,17 +362,17 @@
   0% {
     transform: translateY(8px);
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-    border-color: var(--just-added-color, #1686ee);
+    border-color: var(--just-added-color, var(--accent-positive-3));
   }
   18% {
     transform: translateY(0);
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, #1686ee) 25%, transparent);
-    border-color: var(--just-added-color, #1686ee);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, var(--accent-positive-3)) 25%, transparent);
+    border-color: var(--just-added-color, var(--accent-positive-3));
   }
   65% {
     transform: translateY(0);
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, #1686ee) 25%, transparent);
-    border-color: var(--just-added-color, #1686ee);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--just-added-color, var(--accent-positive-3)) 25%, transparent);
+    border-color: var(--just-added-color, var(--accent-positive-3));
   }
   100% {
     transform: translateY(0);
@@ -390,8 +390,8 @@
 /* ── Dark mode ── */
 
 [data-theme='dark'] .schedule-item {
-  background: #3a3a3a;
-  border-color: #4a4a4a;
+  background: var(--surface-muted);
+  border-color: var(--border-subtle);
 }
 
 [data-theme='dark'] .schedule-item:hover {
@@ -400,43 +400,43 @@
 }
 
 [data-theme='dark'] .schedule-title {
-  color: #e0e0e0;
+  color: var(--text-default);
 }
 
 [data-theme='dark'] .schedule-desc,
 [data-theme='dark'] .schedule-meta {
-  color: #888;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .schedule-date {
-  color: #ccc;
+  color: var(--text-strong);
 }
 
 [data-theme='dark'] .schedule-checkbox .checkmark {
-  background: #4a4a4a;
-  border-color: #555;
+  background: var(--surface-muted);
+  border-color: var(--border-default);
 }
 
 [data-theme='dark'] .schedule-checkbox:hover .checkmark {
-  border-color: #888;
+  border-color: var(--border-strong);
 }
 
 [data-theme='dark'] .schedule-checkbox.checked .checkmark {
-  background: #888;
-  border-color: #888;
+  background: var(--border-strong);
+  border-color: var(--border-strong);
 }
 
 [data-theme='dark'] .edit-btn {
-  color: #888;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .edit-btn:hover {
   background: #444;
-  color: #ccc;
+  color: var(--text-strong);
 }
 
 [data-theme='dark'] .delete-btn-small {
-  color: #888;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .delete-btn-small:hover {
@@ -450,40 +450,40 @@
 }
 
 [data-theme='dark'] .edit-popup {
-  background: #3a3a3a;
+  background: var(--surface-card);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='dark'] .edit-popup h3 {
-  color: #e0e0e0;
+  color: var(--text-default);
 }
 
 [data-theme='dark'] .edit-popup .form-group label {
-  color: #999;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .edit-popup .form-group input,
 [data-theme='dark'] .edit-popup .form-group textarea {
-  background: #4a4a4a;
-  border-color: #555;
-  color: #e0e0e0;
+  background: var(--surface-muted);
+  border-color: var(--border-default);
+  color: var(--text-default);
 }
 
 [data-theme='dark'] .feeling-quick-btn {
-  background: #4a4a4a;
-  border-color: #555;
-  color: #999;
+  background: var(--surface-muted);
+  border-color: var(--border-default);
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .feeling-quick-btn:hover {
-  border-color: #888;
-  color: #ccc;
+  border-color: var(--border-strong);
+  color: var(--text-strong);
 }
 
 [data-theme='dark'] .feeling-quick-btn.active {
-  background: #888;
-  color: #fff;
-  border-color: #888;
+  background: var(--border-strong);
+  color: var(--surface-card);
+  border-color: var(--border-strong);
 }
 
 /* Future confirm */
@@ -492,22 +492,22 @@
 }
 
 [data-theme='dark'] .future-confirm-popup {
-  background: #3a3a3a;
+  background: var(--surface-card);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='dark'] .future-confirm-popup p {
-  color: #ccc;
+  color: var(--text-strong);
 }
 
 [data-theme='dark'] .future-confirm-actions .btn-cancel {
-  background: #4a4a4a;
-  color: #999;
-  border-color: #555;
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  border-color: var(--border-default);
 }
 
 [data-theme='dark'] .future-confirm-actions .btn-cancel:hover {
-  background: #555;
+  background: var(--border-default);
 }
 
 /* Saving state */
@@ -517,10 +517,10 @@
 }
 
 [data-theme='dark'] .saving-indicator {
-  color: #999;
+  color: var(--text-muted);
 }
 
 [data-theme='dark'] .saving-spinner {
   border-color: #444;
-  border-top-color: #999;
+  border-top-color: var(--text-muted);
 }

@@ -243,7 +243,7 @@ export default function SettingsPage() {
               placeholder="输入个性签名"
             />
           </div>
-          <button className="save-btn" onClick={handleSaveProfile} disabled={loading}>保存</button>
+          <button className="ui-btn ui-btn-primary settings-btn-full" onClick={handleSaveProfile} disabled={loading}>保存</button>
         </CollapsiblePanel>
 
         <CollapsiblePanel title="自定义">
@@ -291,7 +291,7 @@ export default function SettingsPage() {
                     />
                   </div>
                 ))}
-                <button className="save-btn" onClick={handleSaveLabels} disabled={loading}>保存情绪语言设置</button>
+                <button className="ui-btn ui-btn-primary settings-btn-full" onClick={handleSaveLabels} disabled={loading}>保存情绪语言设置</button>
               </div>
             </div>
           )}
@@ -357,7 +357,7 @@ export default function SettingsPage() {
         </CollapsiblePanel>
 
         <CollapsiblePanel title="导航">
-          <button className="back-welcome-btn" onClick={() => navigate('/')}>
+          <button className="ui-btn ui-btn-secondary settings-btn-full" onClick={() => navigate('/')}>
             <i className="fas fa-home" />
             <span>返回欢迎页</span>
           </button>
@@ -376,7 +376,7 @@ export default function SettingsPage() {
         </CollapsiblePanel>
 
         <CollapsiblePanel title="账户操作">
-          <button className="logout-btn" onClick={handleLogout}>
+          <button className="ui-btn ui-btn-danger settings-btn-full" onClick={handleLogout}>
             <i className="fas fa-sign-out-alt" />
             <span>退出登录</span>
           </button>

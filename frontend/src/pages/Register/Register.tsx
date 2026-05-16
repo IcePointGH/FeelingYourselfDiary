@@ -87,7 +87,7 @@ export default function Register() {
             />
             {errors.confirmPassword && <div className="field-error">{errors.confirmPassword}</div>}
           </div>
-          <button type="submit" disabled={loading} className="btn">
+          <button type="submit" disabled={loading} className="ui-btn ui-btn-primary register-btn">
             {loading ? '注册中...' : '注册'}
           </button>
         </form>

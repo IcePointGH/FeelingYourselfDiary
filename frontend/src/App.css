@@ -3,3 +3,21 @@
    #next-steps, #docs, #spacer, .ticks, etc.) were confirmed unreferenced
    in any .tsx/.ts file and have been removed.
    Add project-specific styles here as needed. */
+
+/* ── Page transitions ── */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--motion-slow) var(--ease-emphasized),
+              transform var(--motion-slow) var(--ease-emphasized);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { transform: none; }
+  .page-enter-active { transition: opacity 0.01ms; }
+}
