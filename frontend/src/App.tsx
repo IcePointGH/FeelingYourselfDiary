@@ -42,7 +42,7 @@ function App() {
                   <Route path="/thoughts" element={<ThoughtsPage />} />
                   <Route path="/history" element={<Suspense fallback={<PageSkeleton />}><HistoryPage /></Suspense>} />
                   <Route path="/analysis" element={<Suspense fallback={<PageSkeleton />}><AnalysisPage /></Suspense>} />
-                  <Route path="/ai" element={<Suspense fallback={<PageSkeleton />}><AIChatPage /></Suspense>} />
+                  <Route path="/ai" element={<Suspense fallback={<PageSkeleton />}><AIChatPage standalone /></Suspense>} />
                   <Route path="/settings" element={<Suspense fallback={<PageSkeleton />}><SettingsPage /></Suspense>} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />

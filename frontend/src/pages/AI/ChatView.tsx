@@ -51,7 +51,11 @@ interface AiInputDraft {
 
 type StreamStatus = 'generating' | 'stopped' | 'failed' | 'interrupted' | 'completed';
 
-export default function ChatView() {
+interface ChatViewProps {
+  standalone?: boolean;
+}
+
+export default function ChatView({ standalone = false }: ChatViewProps = {}) {
   // ── Session state ──
   const [sessions, setSessions] = useState<SessionListItem[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -476,7 +480,7 @@ export default function ChatView() {
   inputDraft.setDirty(input.trim() !== '');
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${standalone ? styles.standalone : ''}`}>
       {/* Mobile hamburger */}
       <button className={styles.hamburger} onClick={() => setSidebarOpen(true)} aria-label="会话列表">
         <i className="fas fa-bars" />
