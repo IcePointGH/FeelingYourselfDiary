@@ -439,13 +439,19 @@
   @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
   .sidebarClose { display: flex; }
 
-  .wrapper { height: calc(100vh - 140px); min-height: 320px; border-radius: 0; border: none; box-shadow: none; }
+  .wrapper {
+    height: calc(var(--app-viewport-height) - var(--mobile-shell-bottom-nav-height) - var(--safe-area-bottom) - var(--mobile-fixed-gap));
+    min-height: 320px; border-radius: 0; border: none; box-shadow: none;
+  }
   .panel { min-height: 280px; }
   .msgList { padding: 10px; }
   .bubble { max-width: 92%; }
   .bubbleUser { margin-left: 8px; }
   .bubbleAi { margin-right: 8px; }
-  .inputArea { padding: 8px 10px; gap: 6px; }
+  .inputArea {
+    padding: 8px 10px; gap: 6px;
+    padding-bottom: calc(8px + var(--safe-area-bottom));
+  }
   .textarea { font-size: 13px; }
 
   .ctxPanel {
@@ -457,6 +463,11 @@
   }
   .ctxPanelOpen { right: auto; transform: translateY(0); }
   .ctxHeader { border-radius: 16px 16px 0 0; }
+
+  .ctxChips { padding: 4px 10px 0; }
+  .ctxChip { max-width: 140px; font-size: 10px; }
+  .diaryBar { padding: 4px 10px 0; }
+  .diaryBtn { font-size: 11px; padding: 5px 10px; }
 }
 
 [data-theme='dark'] .hamburger { background: #3d3d3d; border-color: #555; color: #9b8cff; }
