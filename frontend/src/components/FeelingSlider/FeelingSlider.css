@@ -286,7 +286,7 @@
 [data-theme='dark'] .feeling-slider {
   --sl-track-bg: var(--surface-inset);
   --sl-text: var(--text-muted);
-  --sl-accent: var(--text-default);
+  --sl-accent: var(--text-default); /* overridden by inline style from TSX */
   --sl-thumb-bg: var(--surface-muted);
   --sl-border: var(--border-default);
 }
@@ -316,7 +316,7 @@
 
 [data-theme='dark'] .slider-thumb {
   background: var(--surface-muted);
-  border-color: var(--text-muted);
+  border-color: var(--sl-accent);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -325,9 +325,9 @@
 }
 
 [data-theme='dark'] .slider-value-num {
-  color: var(--text-default);
+  color: var(--sl-accent);
 }
 
 [data-theme='dark'] .stage-kaomoji {
-  color: var(--text-default);
+  color: var(--sl-accent);
 }

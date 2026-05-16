@@ -3,6 +3,7 @@ import {
   KAOMOJI,
   FEELING_VALUES,
   getFeelingClass,
+  getMoodAccentToken,
 } from '../../utils/feeling';
 import type { FeelingValue } from '../../types';
 import './FeelingSlider.css';
@@ -138,6 +139,7 @@ export default function FeelingSlider({
 
   const trackPercent = valueToPercent(clampedValue);
   const feelingClass = getFeelingClass(clampedValue);
+  const accentToken = getMoodAccentToken(clampedValue);
 
   const wrapperCls = [
     'feeling-slider',
@@ -149,7 +151,10 @@ export default function FeelingSlider({
     .join(' ');
 
   return (
-    <div className={wrapperCls}>
+    <div
+      className={wrapperCls}
+      style={{ '--sl-accent': accentToken } as React.CSSProperties}
+    >
       {/* Large animated kaomoji display — above slider */}
       <div className="slider-kaomoji-stage" key={clampedValue}>
         <span className="stage-kaomoji">{KAOMOJI[clampedValue]}</span>

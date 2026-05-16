@@ -5,7 +5,24 @@
    Add project-specific styles here as needed. */
 
 /* ── Page transitions ── */
+
 .page-enter {
+  animation: page-in var(--motion-slow) var(--ease-emphasized) both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Transition-based variant (use when wrapping a persistent container) */
+.page-enter-start {
   opacity: 0;
   transform: translateY(8px);
 }
@@ -18,6 +35,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-enter { transform: none; }
-  .page-enter-active { transition: opacity 0.01ms; }
+  .page-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .page-enter-active {
+    transition: none;
+  }
 }

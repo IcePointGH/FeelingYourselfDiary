@@ -51,3 +51,23 @@ export function getMoodBgColor(value: number): string {
   // Append ~40% alpha for subtle backgrounds
   return hex + '26';
 }
+
+/** Map of mood values (-3..3) to CSS accent token variable references */
+const ACCENT_TOKEN_REF: Record<number, string> = {
+  [-3]: 'var(--accent-negative-3)',
+  [-2]: 'var(--accent-negative-2)',
+  [-1]: 'var(--accent-negative-1)',
+  [0]: 'var(--accent-neutral)',
+  [1]: 'var(--accent-positive-1)',
+  [2]: 'var(--accent-positive-2)',
+  [3]: 'var(--accent-positive-3)',
+};
+
+/** Return the CSS variable reference for the mood spectrum accent color.
+ *  Used to set `--sl-accent` on FeelingSlider so thumb/value/kaomoji
+ *  share the same seven-color language as FeelingSelector and FeelingTuner. */
+export function getMoodAccentToken(value: number): string {
+  const rounded = Math.round(value);
+  const clamped = Math.max(-3, Math.min(3, rounded));
+  return ACCENT_TOKEN_REF[clamped] ?? 'var(--text-default)';
+}
