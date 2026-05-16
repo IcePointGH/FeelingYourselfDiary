@@ -1,5 +1,6 @@
 /* ============================================
    FeelingTuner — embodied mood dial selector
+   Phase 3: token-aligned timing, focus, radii
    ============================================ */
 
 .feeling-tuner {
@@ -16,10 +17,10 @@
   gap: 12px;
   padding: 14px;
   border: 1px solid rgba(55, 64, 68, 0.14);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background:
     radial-gradient(circle at 50% 26%, color-mix(in srgb, var(--tuner-color), transparent 84%), transparent 36%),
-    linear-gradient(180deg, #f6f0e5, #e7ddca);
+    linear-gradient(180deg, var(--surface-card), var(--surface-inset));
   box-shadow: 0 16px 42px rgba(55, 64, 68, 0.12);
   user-select: none;
   -webkit-user-select: none;
@@ -33,7 +34,7 @@
 }
 
 .tuner-readout span {
-  color: #7b7470;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 900;
 }
@@ -91,7 +92,9 @@
     0 0 0 5px rgba(0, 0, 0, 0.22),
     0 0 26px color-mix(in srgb, var(--tuner-color), transparent 50%);
   opacity: calc(0.48 + var(--tuner-focus));
-  transition: background 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+  transition: background var(--motion-fast) var(--ease-standard),
+              opacity var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard);
 }
 
 .tuner-badge-live {
@@ -165,10 +168,10 @@
   box-shadow: 0 0 16px color-mix(in srgb, var(--tuner-color), transparent 62%);
   transform: scaleY(calc(0.55 + var(--tuner-focus))) translateY(var(--bar-offset));
   transition:
-    height 420ms cubic-bezier(0.19, 1, 0.22, 1),
-    opacity 220ms ease,
-    background 220ms ease,
-    transform 420ms cubic-bezier(0.19, 1, 0.22, 1);
+    height var(--motion-slow) var(--ease-emphasized),
+    opacity var(--motion-base) var(--ease-standard),
+    background var(--motion-base) var(--ease-standard),
+    transform var(--motion-slow) var(--ease-emphasized);
 }
 
 .tuner-scanline-live {
@@ -214,7 +217,10 @@
     rotate(var(--mark-angle))
     translateY(-86px)
     rotate(calc(var(--mark-angle) * -1));
-  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease, scale 180ms ease;
+  transition: color var(--motion-fast) var(--ease-standard),
+              background var(--motion-fast) var(--ease-standard),
+              box-shadow var(--motion-fast) var(--ease-standard),
+              scale var(--motion-fast) var(--ease-standard);
 }
 
 .tuner-scale-mark-live:disabled {
@@ -256,7 +262,7 @@
 }
 
 .tuner-knob-live:focus-visible {
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tuner-color), transparent 54%);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .tuner-knob-face-live {
@@ -284,7 +290,8 @@
   box-shadow: 0 0 18px color-mix(in srgb, var(--tuner-color), transparent 48%);
   transform: translate(-50%, -94%) rotate(var(--tuner-rotation));
   transform-origin: center 94%;
-  transition: transform 520ms cubic-bezier(0.19, 1, 0.22, 1), background 220ms ease;
+  transition: transform var(--motion-slow) var(--ease-emphasized),
+              background var(--motion-base) var(--ease-standard);
 }
 
 .tuner-footer-live {
@@ -306,19 +313,21 @@
 }
 
 .feeling-tuner-disabled {
-  opacity: 0.54;
+  opacity: 0.45;
   pointer-events: none;
 }
 
+/* ── Dark mode ── */
+
 [data-theme='dark'] .feeling-tuner {
-  border-color: rgba(96, 106, 110, 0.72);
+  border-color: var(--border-strong);
   background:
     radial-gradient(circle at 50% 26%, color-mix(in srgb, var(--tuner-color), transparent 90%), transparent 38%),
-    linear-gradient(180deg, rgba(54, 63, 66, 0.96), rgba(41, 45, 48, 0.96));
+    linear-gradient(180deg, var(--surface-card), var(--surface-inset));
 }
 
 [data-theme='dark'] .tuner-readout span {
-  color: #b7c0c3;
+  color: var(--text-muted);
 }
 
 @media (max-width: 480px) {
