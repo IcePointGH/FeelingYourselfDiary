@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useDraft } from '../../hooks/useDraft';
+import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useToast } from '../../contexts/ToastContext';
 import DateInput from '../../components/DateInput/DateInput';
@@ -72,6 +73,12 @@ export default function SchedulePage() {
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  // ── Inline validation ──
+  const { errors, touchField, validateAll } = useFieldValidation(
+    { title },
+    { title: required('请填写事项标题') },
+  );
 
   // ── Draft persistence ──
   const { draft, hasDraft, save, clear, setCurrent, setDirty } = useDraft<ScheduleDraft>('schedule.create');
@@ -212,7 +219,7 @@ export default function SchedulePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (validateAll()) return;
 
     // 检查是否为未来日期，且用户未勾选"不再提示"
     const isFutureDate = date > localToday();
@@ -394,16 +401,17 @@ export default function SchedulePage() {
           </div>
         )}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className={`form-group ${errors.title ? 'has-error' : ''}`}>
             <label>事项 *</label>
             <input
               ref={titleInputRef}
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
+              onBlur={() => touchField('title')}
               placeholder="记录今天发生的事情"
-              required
             />
+            {errors.title && <div className="field-error">{errors.title}</div>}
           </div>
 
           <div className="datetime-compact">

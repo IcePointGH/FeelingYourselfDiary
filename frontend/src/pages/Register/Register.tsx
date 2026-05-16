@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useFieldValidation, required, matchField } from '../../hooks/useFieldValidation';
 import './Register.module.css';
 
 export default function Register() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -14,10 +16,21 @@ export default function Register() {
   const { theme } = useTheme();
   const navigate = useNavigate();
 
+  // ── Inline validation ──
+  const { errors, touchField, validateAll } = useFieldValidation(
+    { username, password, confirmPassword },
+    {
+      username: required('请输入用户名'),
+      password: required('请输入密码'),
+      confirmPassword: matchField(password, '两次密码输入不一致'),
+    },
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    if (validateAll()) return;
     try {
       await register({ username, password, nickname });
       setSuccess('注册成功，正在跳转...');
@@ -35,14 +48,15 @@ export default function Register() {
         {success && <div className="success-message">{success}</div>}
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className={`form-group ${errors.username ? 'has-error' : ''}`}>
             <label>用户名</label>
             <input
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              required
+              onBlur={() => touchField('username')}
             />
+            {errors.username && <div className="field-error">{errors.username}</div>}
           </div>
           <div className="form-group">
             <label>昵称</label>
@@ -53,14 +67,25 @@ export default function Register() {
               placeholder="选填"
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${errors.password ? 'has-error' : ''}`}>
             <label>密码</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              required
+              onBlur={() => touchField('password')}
             />
+            {errors.password && <div className="field-error">{errors.password}</div>}
+          </div>
+          <div className={`form-group ${errors.confirmPassword ? 'has-error' : ''}`}>
+            <label>确认密码</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              onBlur={() => touchField('confirmPassword')}
+            />
+            {errors.confirmPassword && <div className="field-error">{errors.confirmPassword}</div>}
           </div>
           <button type="submit" disabled={loading} className="btn">
             {loading ? '注册中...' : '注册'}

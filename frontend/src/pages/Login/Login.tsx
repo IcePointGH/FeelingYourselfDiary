@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import './Login.css';
 
 const EXPIRY_FLAG_KEY = 'session_expired';
@@ -18,6 +19,15 @@ export default function Login() {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
+  // ── Inline validation ──
+  const { errors, touchField, validateAll } = useFieldValidation(
+    { username, password },
+    {
+      username: required('请输入用户名'),
+      password: required('请输入密码'),
+    },
+  );
+
   // Show expiry toast and redirect back after login
   useEffect(() => {
     if (sessionStorage.getItem(EXPIRY_FLAG_KEY)) {
@@ -30,6 +40,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    if (validateAll()) return;
     try {
       await login({ username, password });
       const returnTo = sessionStorage.getItem(EXPIRY_RETURN_KEY);
@@ -49,23 +60,25 @@ export default function Login() {
         {success && <div className="success-message">{success}</div>}
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className={`form-group ${errors.username ? 'has-error' : ''}`}>
             <label>用户名</label>
             <input
               type="text"
               value={username}
               onChange={e => setUsername(e.target.value)}
-              required
+              onBlur={() => touchField('username')}
             />
+            {errors.username && <div className="field-error">{errors.username}</div>}
           </div>
-          <div className="form-group">
+          <div className={`form-group ${errors.password ? 'has-error' : ''}`}>
             <label>密码</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              required
+              onBlur={() => touchField('password')}
             />
+            {errors.password && <div className="field-error">{errors.password}</div>}
           </div>
           <button type="submit" disabled={loading} className="btn">
             {loading ? '登录中...' : '登录'}

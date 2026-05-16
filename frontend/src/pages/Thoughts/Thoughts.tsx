@@ -3,6 +3,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
 import { useDraft } from '../../hooks/useDraft';
+import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import DateInput from '../../components/DateInput/DateInput';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import ChatView from '../AI/ChatView';
@@ -31,6 +32,15 @@ export default function ThoughtsPage() {
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+
+  // ── Inline validation ──
+  const { errors, touchField, validateAll } = useFieldValidation(
+    { title, content },
+    {
+      title: required('请填写日记标题'),
+      content: required('请填写日记内容'),
+    },
+  );
 
   const { data: entries, error, refetch } = useFetch<DiaryEntry[]>(
     () => apiFetch(DIARY_API.byDate(reviewDate)),
@@ -104,6 +114,7 @@ export default function ThoughtsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (validateAll()) return;
     const isEditing = editingEntryId !== null;
 
     try {
@@ -269,15 +280,16 @@ export default function ThoughtsPage() {
               </div>
             )}
 
-            <div className="form-group">
+            <div className={`form-group ${errors.title ? 'has-error' : ''}`}>
               <label>标题</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onBlur={() => touchField('title')}
                 placeholder="给你的情绪起个名字"
-                required
               />
+              {errors.title && <div className="field-error">{errors.title}</div>}
             </div>
 
             <div className="form-group">
@@ -285,15 +297,16 @@ export default function ThoughtsPage() {
               <DateInput value={date} onChange={(v) => setDate(v)} required />
             </div>
 
-            <div className="form-group">
+            <div className={`form-group ${errors.content ? 'has-error' : ''}`}>
               <label>内容</label>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                onBlur={() => touchField('content')}
                 placeholder="在这里记录你的感受..."
                 rows={10}
-                required
               />
+              {errors.content && <div className="field-error">{errors.content}</div>}
             </div>
 
             <button type="submit" className="submit-btn">
