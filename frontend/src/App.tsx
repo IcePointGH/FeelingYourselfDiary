@@ -21,6 +21,7 @@ import ThoughtsPage from './pages/Thoughts/Thoughts';
 const AnalysisPage = React.lazy(() => import('./pages/Analysis/Analysis'));
 const HistoryPage = React.lazy(() => import('./pages/History/History'));
 const SettingsPage = React.lazy(() => import('./pages/Settings/Settings'));
+const AIChatPage = React.lazy(() => import('./pages/AI/ChatView'));
 const FeelingPrototypePage = React.lazy(() => import('./pages/FeelingPrototype/FeelingPrototype'));
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
                   <Route path="/thoughts" element={<ThoughtsPage />} />
                   <Route path="/history" element={<Suspense fallback={<PageSkeleton />}><HistoryPage /></Suspense>} />
                   <Route path="/analysis" element={<Suspense fallback={<PageSkeleton />}><AnalysisPage /></Suspense>} />
+                  <Route path="/ai" element={<Suspense fallback={<PageSkeleton />}><AIChatPage /></Suspense>} />
                   <Route path="/settings" element={<Suspense fallback={<PageSkeleton />}><SettingsPage /></Suspense>} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />

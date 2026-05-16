@@ -1,6 +1,6 @@
 .app-layout {
   display: flex;
-  height: 100vh;
+  height: var(--app-viewport-height, 100dvh);
   overflow: hidden;
 }
 
@@ -11,6 +11,24 @@
   overflow-x: hidden;
   min-width: 0;
   scrollbar-gutter: stable;
+}
+
+/* ── Mobile layout ── */
+
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  height: var(--app-viewport-height, 100dvh);
+  overflow: hidden;
+}
+
+.mobile-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--mobile-shell-inline-padding);
+  padding-bottom: calc(var(--mobile-shell-bottom-nav-height) + var(--safe-area-bottom) + var(--mobile-fixed-gap));
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 768px) {

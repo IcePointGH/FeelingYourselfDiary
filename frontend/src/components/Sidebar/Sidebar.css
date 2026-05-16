@@ -210,12 +210,6 @@
 
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-  }
-  .sidebar.collapsed {
-    /* Collapsed sidebar stays at 70px wide on the left edge, still visible */
+    display: none;
   }
 }
