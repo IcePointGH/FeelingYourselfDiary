@@ -545,3 +545,60 @@
     align-items: flex-start;
   }
 }
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .emotion-form-group label { color: #bbb; }
+
+[data-theme='dark'] .emotion-form-group input {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .emotion-form-group input:focus {
+  border-color: #7c8fff;
+}
+
+/* Toggle switch */
+[data-theme='dark'] .toggle-track {
+  background: #555;
+}
+
+[data-theme='dark'] .toggle-track::after {
+  background: #bbb;
+}
+
+[data-theme='dark'] .toggle-switch input:checked + .toggle-track {
+  background: #5a80cc;
+}
+
+/* Buttons */
+[data-theme='dark'] .save-btn {
+  background: #5a5a5a;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .save-btn:hover { background: #666; }
+
+[data-theme='dark'] .export-btn {
+  background: #5a5a5a;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .export-btn:hover { background: #666; }
+
+[data-theme='dark'] .clear-btn {
+  background: #8a3030;
+  color: #fff;
+}
+
+[data-theme='dark'] .clear-btn:hover { background: #a04040; }
+
+/* Avatar */
+[data-theme='dark'] .avatar-preview { border-color: #555; }
+
+[data-theme='dark'] .avatar-overlay { background: rgba(0, 0, 0, 0.55); }
+
+/* Label values */
+[data-theme='dark'] .label-row .label-value { color: #bbb; }

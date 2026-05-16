@@ -386,3 +386,141 @@
     animation: none;
   }
 }
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .schedule-item {
+  background: #3a3a3a;
+  border-color: #4a4a4a;
+}
+
+[data-theme='dark'] .schedule-item:hover {
+  background: #444;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .schedule-title {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .schedule-desc,
+[data-theme='dark'] .schedule-meta {
+  color: #888;
+}
+
+[data-theme='dark'] .schedule-date {
+  color: #ccc;
+}
+
+[data-theme='dark'] .schedule-checkbox .checkmark {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+[data-theme='dark'] .schedule-checkbox:hover .checkmark {
+  border-color: #888;
+}
+
+[data-theme='dark'] .schedule-checkbox.checked .checkmark {
+  background: #888;
+  border-color: #888;
+}
+
+[data-theme='dark'] .edit-btn {
+  color: #888;
+}
+
+[data-theme='dark'] .edit-btn:hover {
+  background: #444;
+  color: #ccc;
+}
+
+[data-theme='dark'] .delete-btn-small {
+  color: #888;
+}
+
+[data-theme='dark'] .delete-btn-small:hover {
+  background: #4a2a2a;
+  color: #e88080;
+}
+
+/* Edit popup dark mode */
+[data-theme='dark'] .edit-overlay {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+[data-theme='dark'] .edit-popup {
+  background: #3a3a3a;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .edit-popup h3 {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .edit-popup .form-group label {
+  color: #999;
+}
+
+[data-theme='dark'] .edit-popup .form-group input,
+[data-theme='dark'] .edit-popup .form-group textarea {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .feeling-quick-btn {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #999;
+}
+
+[data-theme='dark'] .feeling-quick-btn:hover {
+  border-color: #888;
+  color: #ccc;
+}
+
+[data-theme='dark'] .feeling-quick-btn.active {
+  background: #888;
+  color: #fff;
+  border-color: #888;
+}
+
+/* Future confirm */
+[data-theme='dark'] .future-confirm-overlay {
+  background: rgba(30, 30, 30, 0.85);
+}
+
+[data-theme='dark'] .future-confirm-popup {
+  background: #3a3a3a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'] .future-confirm-popup p {
+  color: #ccc;
+}
+
+[data-theme='dark'] .future-confirm-actions .btn-cancel {
+  background: #4a4a4a;
+  color: #999;
+  border-color: #555;
+}
+
+[data-theme='dark'] .future-confirm-actions .btn-cancel:hover {
+  background: #555;
+}
+
+/* Saving state */
+[data-theme='dark'] .schedule-item.is-saving .schedule-checkbox .checkmark {
+  background: #333;
+  border-color: #444;
+}
+
+[data-theme='dark'] .saving-indicator {
+  color: #999;
+}
+
+[data-theme='dark'] .saving-spinner {
+  border-color: #444;
+  border-top-color: #999;
+}

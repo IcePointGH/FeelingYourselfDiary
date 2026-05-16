@@ -461,3 +461,77 @@
     display: none;
   }
 }
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .schedule-page-title { color: #e0e0e0; }
+
+[data-theme='dark'] .feeling-area-kaomoji { color: #e0e0e0; }
+
+/* Batch operations */
+[data-theme='dark'] .btn-batch-toggle {
+  background: #4a4a4a;
+  border-color: #555;
+  color: #bbb;
+}
+
+[data-theme='dark'] .btn-batch-toggle.active {
+  background: #888;
+  color: #fff;
+}
+
+[data-theme='dark'] .batch-select-box {
+  background: #4a4a4a;
+  border-color: #555;
+}
+
+[data-theme='dark'] .batch-select-box.selected {
+  background: #888;
+}
+
+[data-theme='dark'] .batch-bar {
+  background: #1a2a3a;
+  border-color: #2a3a4a;
+}
+
+[data-theme='dark'] .batch-count { color: #bbb; }
+
+[data-theme='dark'] .btn-text { color: #ccc; }
+
+[data-theme='dark'] .btn-cancel {
+  background: #4a4a4a;
+  color: #bbb;
+  border-color: #555;
+}
+
+[data-theme='dark'] .btn-cancel:hover { background: #555; }
+
+/* Future reminder */
+[data-theme='dark'] .future-reminder-card {
+  background: #3a3a3a;
+}
+
+[data-theme='dark'] .future-reminder-text { color: #ccc; }
+[data-theme='dark'] .future-reminder-sub { color: #999; }
+[data-theme='dark'] .future-reminder-check { color: #bbb; }
+
+/* Draft restore banner */
+[data-theme='dark'] .draft-restore-banner {
+  background: #3a3020;
+  border-color: #5a4a20;
+  color: #d4b060;
+}
+
+[data-theme='dark'] .draft-restore-btn-restore {
+  background: #c07000;
+  color: #fff;
+}
+
+[data-theme='dark'] .draft-restore-btn-discard {
+  border-color: #555;
+  color: #999;
+}
+
+[data-theme='dark'] .draft-restore-btn-discard:hover {
+  background: #4a4a4a;
+}

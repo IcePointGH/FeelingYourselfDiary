@@ -265,3 +265,32 @@
     flex: 1 1 100%;
   }
 }
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .draft-restore-banner {
+  background: #3a3020;
+  border-color: #5a4a20;
+  color: #d4b060;
+}
+
+[data-theme='dark'] .draft-restore-banner .draft-restore-actions button {
+  color: #d4b060;
+}
+
+[data-theme='dark'] .draft-restore-banner .draft-restore-actions button:hover {
+  background: #5a4a20;
+}
+
+[data-theme='dark'] .edit-btn-small {
+  color: #888;
+}
+
+[data-theme='dark'] .edit-btn-small:hover {
+  color: #7c8fff;
+  background: #2a3040;
+}
+
+[data-theme='dark'] .ai-layout {
+  border-color: #4a4a4a;
+}
