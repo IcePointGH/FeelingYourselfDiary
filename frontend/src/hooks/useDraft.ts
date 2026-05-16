@@ -1,7 +1,41 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useBlocker } from 'react-router-dom';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+// ── Module-level history interception (singleton) ──
+// useBlocker requires a data router (createBrowserRouter), but the app
+// uses the component router (<BrowserRouter>). Instead we patch the
+// History API directly so we can intercept pushState / replaceState
+// regardless of router flavor.
+
+type BlockFn = () => boolean;
+const blockers = new Set<BlockFn>();
+let historyPatched = false;
+
+function ensureHistoryPatched() {
+  if (historyPatched) return;
+  historyPatched = true;
+
+  const origPush = window.history.pushState.bind(window.history);
+  const origReplace = window.history.replaceState.bind(window.history);
+
+  const guarded = (orig: typeof origPush, ...args: Parameters<typeof origPush>) => {
+    for (const fn of blockers) {
+      if (fn()) {
+        if (!window.confirm('你有未保存的更改，确定要离开吗？')) {
+          return; // navigation blocked
+        }
+        break; // only ask once per navigation
+      }
+    }
+    orig(...args);
+  };
+
+  window.history.pushState = (...args) => guarded(origPush, ...args);
+  window.history.replaceState = (...args) => guarded(origReplace, ...args);
+}
+
+// ── Types ────────────────────────────────────────────────
 
 interface DraftEnvelope<T> {
   value: T;
@@ -54,6 +88,8 @@ export interface UseDraftReturn<T> {
   setDirty: (dirty: boolean) => void;
 }
 
+// ── Hook ─────────────────────────────────────────────────
+
 export function useDraft<T>(key: string): UseDraftReturn<T> {
   const [envelope, setEnvelope] = useState<DraftEnvelope<T> | null>(
     () => readEnvelope<T>(key),
@@ -61,7 +97,7 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
   const currentRef = useRef<T | null>(null);
   const dirtyRef = useRef(false);
 
-  // Re-read from storage if the key changes (should not happen in practice)
+  // Re-read from storage if the key changes
   useEffect(() => {
     setEnvelope(readEnvelope<T>(key));
     dirtyRef.current = false;
@@ -109,13 +145,12 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     dirtyRef.current = d;
   }, []);
 
-  // ── beforeunload guard (browser departures) ──
+  // ── beforeunload guard (browser departures: refresh, close tab) ──
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       if (!currentRef.current) return;
       const stored = readEnvelope<T>(key);
       if (!stored) {
-        // No draft saved yet — warn if the form has been touched
         if (dirtyRef.current) e.preventDefault();
         return;
       }
@@ -127,25 +162,19 @@ export function useDraft<T>(key: string): UseDraftReturn<T> {
     return () => window.removeEventListener('beforeunload', handler);
   }, [key]);
 
-  // ── In-app navigation guard (sidebar / route transitions) ──
-  const blocker = useBlocker(() => {
-    if (!currentRef.current) return false;
-    const stored = readEnvelope<T>(key);
-    if (!stored) return dirtyRef.current;
-    return JSON.stringify(currentRef.current) !== JSON.stringify(stored.value);
-  });
-
-  // When the blocker fires, confirm with the user
+  // ── In-app navigation guard (sidebar links, navigate()) ──
+  // Register a blocker with the module-level history patch
   useEffect(() => {
-    if (blocker.state === 'blocked') {
-      const ok = window.confirm('你有未保存的更改，确定要离开吗？');
-      if (ok) {
-        blocker.proceed();
-      } else {
-        blocker.reset();
-      }
-    }
-  }, [blocker]);
+    ensureHistoryPatched();
+    const block: BlockFn = () => {
+      if (!currentRef.current) return false;
+      const stored = readEnvelope<T>(key);
+      if (!stored) return dirtyRef.current;
+      return JSON.stringify(currentRef.current) !== JSON.stringify(stored.value);
+    };
+    blockers.add(block);
+    return () => { blockers.delete(block); };
+  }, [key]);
 
   return {
     draft: envelope?.value ?? null,
