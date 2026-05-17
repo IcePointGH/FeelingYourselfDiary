@@ -5,6 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { EmotionLabelsProvider } from './contexts/EmotionLabelsContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { OnboardingProvider } from './contexts/OnboardingContext';
 import Layout from './components/Layout/Layout';
 import Toast from './components/Toast/Toast';
 import NavigationGuard from './components/NavigationGuard/NavigationGuard';
@@ -31,6 +32,7 @@ function App() {
         <EmotionLabelsProvider>
           <ThemeProvider>
             <ToastProvider>
+              <OnboardingProvider>
               <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Welcome />} />
@@ -49,6 +51,7 @@ function App() {
               </Routes>
               <NavigationGuard />
               </BrowserRouter>
+              </OnboardingProvider>
               <Toast />
             </ToastProvider>
           </ThemeProvider>
