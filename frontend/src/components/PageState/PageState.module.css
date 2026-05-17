@@ -167,3 +167,84 @@
 [data-theme='dark'] .loadingLabel {
   color: #777;
 }
+
+/* ── Onboarding hint (inside empty state) ── */
+
+.onboardingHint {
+  border: 1px dashed var(--border-subtle, #d0c4ff);
+  border-radius: var(--radius-md, 10px);
+  background: linear-gradient(135deg, rgba(124, 92, 252, 0.04), rgba(109, 77, 224, 0.02));
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.onboardingStepLabel {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #7C5CFC;
+  background: rgba(124, 92, 252, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.onboardingTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-default, #333);
+  margin: 0 0 4px;
+}
+
+.onboardingDesc {
+  font-size: 13px;
+  color: var(--text-muted, #888);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.onboardingAction {
+  margin-top: 10px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7C5CFC, #6D4DE0);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  font-family: inherit;
+}
+
+.onboardingAction:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(124, 92, 252, 0.3);
+}
+
+.onboardingAction:active {
+  transform: translateY(0);
+}
+
+[data-theme='dark'] .onboardingHint {
+  border-color: rgba(124, 92, 252, 0.25);
+  background: linear-gradient(135deg, rgba(124, 92, 252, 0.08), rgba(109, 77, 224, 0.04));
+}
+
+[data-theme='dark'] .onboardingStepLabel {
+  color: #9b8cff;
+  background: rgba(124, 92, 252, 0.15);
+}
+
+[data-theme='dark'] .onboardingTitle {
+  color: #eee;
+}
+
+[data-theme='dark'] .onboardingDesc {
+  color: #999;
+}
