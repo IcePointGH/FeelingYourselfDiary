@@ -43,7 +43,7 @@
 }
 
 .active {
-  color: var(--accent-positive-3);
+  color: var(--brand-primary);
 }
 
 .active i {

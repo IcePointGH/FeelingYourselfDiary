@@ -50,9 +50,9 @@
 }
 
 .actionBtn:hover {
-  background: #f5f3ff;
-  border-color: #d4ccff;
-  color: #7C5CFC;
+  background: color-mix(in srgb, var(--brand-guidance) 10%, white);
+  border-color: color-mix(in srgb, var(--brand-guidance) 28%, white);
+  color: var(--brand-guidance);
 }
 
 /* ── Dark mode ── */
@@ -76,7 +76,7 @@
 }
 
 [data-theme='dark'] .actionBtn:hover {
-  background: #4a3f60;
-  border-color: #5a4f70;
-  color: #9b8cff;
+  background: color-mix(in srgb, var(--brand-guidance) 14%, var(--surface-card));
+  border-color: color-mix(in srgb, var(--brand-guidance) 28%, var(--border-default));
+  color: var(--brand-guidance);
 }

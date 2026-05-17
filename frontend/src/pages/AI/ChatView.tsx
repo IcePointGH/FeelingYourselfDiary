@@ -681,7 +681,17 @@ export default function ChatView({ standalone = false }: ChatViewProps = {}) {
                 {ctxEntries.map(e => (
                   <span key={e.id} className={styles.ctxChip}>
                     [{e.date}] {e.title}
-                    {e.feeling != null && <span className={styles.ctxFeeling}>({e.feeling > 0 ? '+' : ''}{e.feeling})</span>}
+                    {e.feeling != null && (
+                      <span
+                        className={styles.ctxFeeling}
+                        style={{
+                          color: getMoodColor(e.feeling),
+                          background: getMoodBgColor(e.feeling),
+                        }}
+                      >
+                        ({e.feeling > 0 ? '+' : ''}{e.feeling})
+                      </span>
+                    )}
                     <button onClick={() => removeContext(e.id)}>×</button>
                   </span>
                 ))}

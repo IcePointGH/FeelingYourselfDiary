@@ -29,6 +29,12 @@
   --accent-positive-2: #12b8ec;
   --accent-positive-3: #1686ee;
 
+  /* ── Brand semantics ── */
+  --brand-primary: var(--accent-positive-3);
+  --brand-ai: #3a9fc4;
+  --brand-guidance: var(--accent-positive-1);
+  --brand-highlight: var(--accent-neutral);
+
   /* ── Focus ── */
   --focus-ring: rgba(22, 134, 238, 0.22);
 
@@ -62,6 +68,11 @@
   --border-subtle: #4a4a4a;
   --border-default: #555555;
   --border-strong: #777777;
+
+  --brand-primary: var(--accent-positive-3);
+  --brand-ai: #5fafc8;
+  --brand-guidance: var(--accent-positive-1);
+  --brand-highlight: var(--accent-neutral);
 
   --focus-ring: rgba(22, 134, 238, 0.30);
 }

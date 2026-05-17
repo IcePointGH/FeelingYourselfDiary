@@ -1,7 +1,11 @@
 .hint {
   border: 1px dashed var(--border-subtle, #d0c4ff);
   border-radius: var(--radius-md, 10px);
-  background: linear-gradient(135deg, rgba(124, 92, 252, 0.04), rgba(109, 77, 224, 0.02));
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-guidance) 8%, transparent),
+    color-mix(in srgb, var(--brand-ai) 4%, transparent)
+  );
   padding: 16px 20px;
   margin-bottom: 16px;
 }
@@ -12,8 +16,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #7C5CFC;
-  background: rgba(124, 92, 252, 0.1);
+  color: var(--brand-guidance);
+  background: color-mix(in srgb, var(--brand-guidance) 14%, transparent);
   padding: 2px 8px;
   border-radius: 4px;
   margin-bottom: 8px;
@@ -38,7 +42,7 @@
   padding: 6px 16px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(135deg, #7C5CFC, #6D4DE0);
+  background: linear-gradient(135deg, var(--brand-guidance), var(--brand-ai));
   color: #fff;
   font-size: 12px;
   font-weight: 600;
@@ -49,7 +53,7 @@
 
 .actionBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(124, 92, 252, 0.3);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--brand-guidance) 30%, transparent);
 }
 
 .actionBtn:active {
@@ -75,13 +79,17 @@
 /* ── Dark mode ── */
 
 [data-theme='dark'] .hint {
-  border-color: rgba(124, 92, 252, 0.25);
-  background: linear-gradient(135deg, rgba(124, 92, 252, 0.08), rgba(109, 77, 224, 0.04));
+  border-color: color-mix(in srgb, var(--brand-guidance) 25%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-guidance) 10%, transparent),
+    color-mix(in srgb, var(--brand-ai) 5%, transparent)
+  );
 }
 
 [data-theme='dark'] .stepLabel {
-  color: #9b8cff;
-  background: rgba(124, 92, 252, 0.15);
+  color: var(--brand-guidance);
+  background: color-mix(in srgb, var(--brand-guidance) 18%, transparent);
 }
 
 [data-theme='dark'] .title {

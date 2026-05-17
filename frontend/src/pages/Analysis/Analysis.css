@@ -701,10 +701,10 @@
 .view-history-btn {
   width: 100%;
   padding: 10px;
-  background: #f5f3ff;
-  border: 1px solid #d4ccff;
+  background: color-mix(in srgb, var(--brand-primary) 8%, white);
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 24%, white);
   border-radius: var(--radius-md);
-  color: #7C5CFC;
+  color: var(--brand-primary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -729,8 +729,8 @@
 [data-theme='dark'] .day-stat-value { color: var(--text-default); }
 [data-theme='dark'] .day-evidence .evidence-item { border-color: var(--surface-muted); }
 [data-theme='dark'] .evidence-title { color: var(--text-muted); }
-[data-theme='dark'] .view-history-btn { background: #403a50; border-color: #5a4f70; color: #9b8cff; }
-[data-theme='dark'] .view-history-btn:hover { background: #4a3f60; border-color: #6a5f80; color: #b0a0ff; }
+[data-theme='dark'] .view-history-btn { background: color-mix(in srgb, var(--brand-primary) 12%, var(--surface-card)); border-color: color-mix(in srgb, var(--brand-primary) 26%, var(--border-default)); color: var(--brand-primary); }
+[data-theme='dark'] .view-history-btn:hover { background: color-mix(in srgb, var(--brand-primary) 18%, var(--surface-card)); border-color: color-mix(in srgb, var(--brand-primary) 34%, var(--border-default)); color: var(--brand-primary); }
 
 /* ── Evidence type tags ── */
 
