@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import { useDraft } from '../../hooks/useDraft';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import DateInput from '../../components/DateInput/DateInput';
@@ -33,6 +34,7 @@ export default function ThoughtsPage() {
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+  const { isActive: onboardingActive, markDiaryCreated } = useOnboarding();
 
   // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
@@ -135,6 +137,7 @@ export default function ThoughtsPage() {
       resetForm();
       refetch();
       addToast(isEditing ? '日记已更新' : '日记已保存', 'success');
+      if (!isEditing) markDiaryCreated();
       if (isEditing) setActiveTab('review');
     } catch (err) {
       addToast(err instanceof Error ? err.message : '保存失败', 'error');
@@ -346,6 +349,13 @@ export default function ThoughtsPage() {
                 description={'请选择日期查找日记，或切换到\u201C记录思考\u201D开始写一篇吧。'}
                 icon="fa-regular fa-bookmark"
                 compact
+                {...(onboardingActive ? {
+                  onboardingHint: {
+                    stepLabel: '第 2 步',
+                    title: '写下你的第一篇日记',
+                    description: '用文字记录今天的感受和思考，这是反思自己的重要一步。',
+                  },
+                } : {})}
               />
             ) : (
               <div className="diary-list">
