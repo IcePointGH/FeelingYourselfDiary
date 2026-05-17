@@ -33,26 +33,26 @@ function App() {
           <ThemeProvider>
             <ToastProvider>
               <OnboardingProvider>
-              <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Welcome />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/feeling-prototype" element={<Suspense fallback={<PageSkeleton />}><FeelingPrototypePage /></Suspense>} />
-                <Route element={<Layout />}>
-                  <Route path="/schedule" element={<SchedulePage />} />
-                  <Route path="/thoughts" element={<ThoughtsPage />} />
-                  <Route path="/history" element={<Suspense fallback={<PageSkeleton />}><HistoryPage /></Suspense>} />
-                  <Route path="/analysis" element={<Suspense fallback={<PageSkeleton />}><AnalysisPage /></Suspense>} />
-                  <Route path="/ai" element={<Suspense fallback={<PageSkeleton />}><AIChatPage standalone /></Suspense>} />
-                  <Route path="/settings" element={<Suspense fallback={<PageSkeleton />}><SettingsPage /></Suspense>} />
-                </Route>
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-              <NavigationGuard />
+                <BrowserRouter>
+                  <Routes>
+                  <Route path="/" element={<Welcome />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/feeling-prototype" element={<Suspense fallback={<PageSkeleton />}><FeelingPrototypePage /></Suspense>} />
+                  <Route element={<Layout />}>
+                    <Route path="/schedule" element={<SchedulePage />} />
+                    <Route path="/thoughts" element={<ThoughtsPage />} />
+                    <Route path="/history" element={<Suspense fallback={<PageSkeleton />}><HistoryPage /></Suspense>} />
+                    <Route path="/analysis" element={<Suspense fallback={<PageSkeleton />}><AnalysisPage /></Suspense>} />
+                    <Route path="/ai" element={<Suspense fallback={<PageSkeleton />}><AIChatPage standalone /></Suspense>} />
+                    <Route path="/settings" element={<Suspense fallback={<PageSkeleton />}><SettingsPage /></Suspense>} />
+                  </Route>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+                <NavigationGuard />
               </BrowserRouter>
-              </OnboardingProvider>
-              <Toast />
+            </OnboardingProvider>
+            <Toast />
             </ToastProvider>
           </ThemeProvider>
         </EmotionLabelsProvider>
