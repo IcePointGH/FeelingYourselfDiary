@@ -42,7 +42,7 @@ export default function OnboardingProgress() {
     <div className={styles.surface}>
       <div className={styles.inner}>
         <div className={styles.header}>
-          <span className={styles.welcome}>欢迎来到 Feeling Yourself</span>
+          <span className={styles.welcome}>欢迎来到 Seven Sense</span>
           <button
             className={styles.skipBtn}
             onClick={skipOnboarding}
