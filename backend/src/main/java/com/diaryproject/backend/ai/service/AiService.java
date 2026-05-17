@@ -146,7 +146,7 @@ public class AiService {
                 .map(Diary::getId).collect(Collectors.toSet());
 
         String userPrompt = recordFormatter.formatAnalysisRecords(schedules, diaries);
-        String systemPrompt = promptService.get("range-analysis-json");
+        String systemPrompt = promptService.getWithBase("range-analysis-json");
 
         // Retry loop: up to 3 retries on parse/validation failure
         int retryCount = 0;

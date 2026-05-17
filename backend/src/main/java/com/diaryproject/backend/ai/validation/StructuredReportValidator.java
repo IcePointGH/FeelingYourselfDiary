@@ -1,22 +1,22 @@
 package com.diaryproject.backend.ai.validation;
 
-import com.diaryproject.backend.ai.dto.StructuredReportDTO;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.diaryproject.backend.ai.dto.StructuredReportDTO;
 
 /**
  * 结构化报告手动校验器（匹配项目风格 — 无 Bean Validation 依赖）。
  */
 public class StructuredReportValidator {
 
-    private static final Set<String> VALID_TONES = Set.of("positive", "stable", "mixed", "low", "unknown");
-    private static final Set<String> VALID_DIRECTIONS = Set.of("up", "down", "flat", "slightly_up", "slightly_down", "mixed", "unknown");
-    private static final Set<String> VALID_VOLATILITIES = Set.of("low", "medium", "high", "unknown");
-    private static final Set<String> VALID_TURNING_TYPES = Set.of("high", "low", "shift", "recovery", "unknown");
-    private static final Set<String> VALID_DIFFICULTIES = Set.of("easy", "medium", "hard", "unknown");
+    private static final Set<String> VALID_TONES = Set.of("positive", "stable", "mixed", "low");
+    private static final Set<String> VALID_DIRECTIONS = Set.of("up", "down", "flat", "slightly_up", "slightly_down", "mixed");
+    private static final Set<String> VALID_VOLATILITIES = Set.of("low", "medium", "high");
+    private static final Set<String> VALID_TURNING_TYPES = Set.of("high", "low", "shift", "recovery");
+    private static final Set<String> VALID_DIFFICULTIES = Set.of("easy", "medium", "hard");
 
     /**
      * 校验结构化报告。返回空列表表示通过。
@@ -90,8 +90,8 @@ public class StructuredReportValidator {
         // gentleNote
         if (isNullOrBlank(report.getGentleNote())) {
             errors.add("report.gentleNote is required");
-        } else if (report.getGentleNote().length() > 160) {
-            errors.add("report.gentleNote exceeds 160 characters: " + report.getGentleNote().length());
+        } else if (report.getGentleNote().length() > 80) {
+            errors.add("report.gentleNote exceeds 80 characters: " + report.getGentleNote().length());
         }
 
         return errors;

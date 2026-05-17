@@ -131,7 +131,7 @@ public class AiAnalysisService {
             List<HistoryChunkingService.Chunk> chunks = chunkingService.chunk(
                     allSchedules, allDiaries, MAX_TOKENS_PER_CHUNK);
 
-            String systemPrompt = promptService.get("full-analysis");
+            String systemPrompt = promptService.getWithBase("full-analysis");
 
             int totalChunks = chunks.size();
 
