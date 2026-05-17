@@ -34,7 +34,7 @@ export default function ThoughtsPage() {
 
   const { apiFetch } = useApi();
   const { addToast } = useToast();
-  const { isActive: onboardingActive, markDiaryCreated } = useOnboarding();
+  const { isActive: onboardingActive, state: onboardingState, markDiaryCreated } = useOnboarding();
 
   // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
@@ -349,7 +349,7 @@ export default function ThoughtsPage() {
                 description={'请选择日期查找日记，或切换到\u201C记录思考\u201D开始写一篇吧。'}
                 icon="fa-regular fa-bookmark"
                 compact
-                {...(onboardingActive ? {
+                {...(onboardingActive && !onboardingState.hasCreatedDiary ? {
                   onboardingHint: {
                     stepLabel: '第 2 步',
                     title: '写下你的第一篇日记',

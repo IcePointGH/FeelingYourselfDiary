@@ -75,7 +75,7 @@ export default function SchedulePage() {
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
-  const { isActive: onboardingActive, markScheduleCreated } = useOnboarding();
+  const { isActive: onboardingActive, state: onboardingState, markScheduleCreated } = useOnboarding();
 
   // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
@@ -517,7 +517,7 @@ export default function SchedulePage() {
             description="添加第一条日程，开始记录你的心情吧。"
             icon="fa-regular fa-calendar-plus"
             compact
-            {...(onboardingActive ? {
+            {...(onboardingActive && !onboardingState.hasCreatedSchedule ? {
               onboardingHint: {
                 stepLabel: '第 1 步',
                 title: '记录你的第一条日程',

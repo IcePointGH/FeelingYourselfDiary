@@ -83,7 +83,7 @@ export default function AnalysisPage() {
   // ── Dependencies ──
   const { apiFetch } = useApi();
   const { addToast } = useToast();
-  const { isActive: onboardingActive, markAnalysisViewed } = useOnboarding();
+  const { isActive: onboardingActive, state: onboardingState, markAnalysisViewed } = useOnboarding();
   const navigate = useNavigate();
 
   // ── AI analysis state machine (extracted hook) ──
@@ -464,7 +464,7 @@ export default function AnalysisPage() {
               title="暂无记录"
               description="该时间段内没有日程记录，去添加一些日程后再分析。"
               icon="fa-regular fa-chart-bar"
-              {...(onboardingActive ? {
+              {...(onboardingActive && !onboardingState.hasViewedAnalysis ? {
                 onboardingHint: {
                   stepLabel: '第 3 步',
                   title: '查看你的情绪分析',
