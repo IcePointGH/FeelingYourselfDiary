@@ -1,0 +1,283 @@
+.surface {
+  margin-bottom: 20px;
+  border: 1px solid var(--border-subtle, #e8e8e8);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-card, #fff);
+  overflow: hidden;
+}
+
+.inner {
+  padding: 20px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.welcome {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-default, #333);
+}
+
+.skipBtn {
+  border: none;
+  background: none;
+  color: var(--text-muted, #999);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color var(--motion-fast, 150ms) ease, background var(--motion-fast, 150ms) ease;
+  font-family: inherit;
+}
+
+.skipBtn:hover {
+  color: var(--text-default, #333);
+  background: var(--surface-muted, #f5f5f5);
+}
+
+.explanation {
+  font-size: 13px;
+  color: var(--text-muted, #888);
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.steps {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.4;
+}
+
+.stepCurrent {
+  opacity: 1;
+}
+
+.stepDone {
+  opacity: 0.7;
+}
+
+.stepDot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--surface-muted, #f0f0f0);
+  color: var(--text-muted, #999);
+  flex-shrink: 0;
+}
+
+.stepCurrent .stepDot {
+  background: linear-gradient(135deg, #7C5CFC, #6D4DE0);
+  color: #fff;
+}
+
+.stepDone .stepDot {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.stepLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-default, #333);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cta {
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-md, 10px);
+  background: linear-gradient(135deg, #7C5CFC, #6D4DE0);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  font-family: inherit;
+}
+
+.cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(124, 92, 252, 0.35);
+}
+
+.cta:active {
+  transform: translateY(0);
+}
+
+.dismissBtn {
+  border: none;
+  background: none;
+  color: var(--text-muted, #999);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color var(--motion-fast, 150ms) ease;
+  font-family: inherit;
+}
+
+.dismissBtn:hover {
+  color: var(--text-default, #333);
+}
+
+.remaining {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--text-muted, #bbb);
+}
+
+/* ── Completion ── */
+
+.completion {
+  margin-bottom: 20px;
+  border: 1px solid #c8e6c9;
+  border-radius: var(--radius-md, 10px);
+  background: #f1f8e9;
+  overflow: hidden;
+}
+
+.completionInner {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.completionIcon {
+  font-size: 20px;
+  color: #43a047;
+  flex-shrink: 0;
+}
+
+.completionText {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2e7d32;
+  flex: 1;
+  min-width: 0;
+}
+
+.completionDismiss {
+  border: none;
+  background: #43a047;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms ease;
+  font-family: inherit;
+}
+
+.completionDismiss:hover {
+  background: #388e3c;
+}
+
+/* ── Mobile ── */
+
+@media (max-width: 768px) {
+  .inner {
+    padding: 16px;
+  }
+
+  .steps {
+    gap: 10px;
+  }
+
+  .stepLabel {
+    font-size: 12px;
+  }
+
+  .explanation {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* ── Dark mode ── */
+
+[data-theme='dark'] .surface {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--surface-card, #2a2a2a);
+}
+
+[data-theme='dark'] .welcome {
+  color: #eee;
+}
+
+[data-theme='dark'] .explanation {
+  color: #999;
+}
+
+[data-theme='dark'] .stepDot {
+  background: #3a3a3a;
+  color: #888;
+}
+
+[data-theme='dark'] .stepCurrent .stepDot {
+  background: linear-gradient(135deg, #7C5CFC, #6D4DE0);
+  color: #fff;
+}
+
+[data-theme='dark'] .stepDone .stepDot {
+  background: #1b3a1b;
+  color: #66bb6a;
+}
+
+[data-theme='dark'] .stepLabel {
+  color: #ddd;
+}
+
+[data-theme='dark'] .skipBtn:hover {
+  background: #3a3a3a;
+}
+
+[data-theme='dark'] .completion {
+  border-color: #2e5a2e;
+  background: #1a2e1a;
+}
+
+[data-theme='dark'] .completionIcon {
+  color: #66bb6a;
+}
+
+[data-theme='dark'] .completionText {
+  color: #81c784;
+}
+
+[data-theme='dark'] .completionDismiss {
+  background: #388e3c;
+}
+
+[data-theme='dark'] .completionDismiss:hover {
+  background: #43a047;
+}

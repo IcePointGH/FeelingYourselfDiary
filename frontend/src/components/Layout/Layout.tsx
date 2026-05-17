@@ -5,6 +5,7 @@ import { useVisualViewport } from '../../hooks/useVisualViewport';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import MobileNav from '../../components/MobileNav/MobileNav';
 import MobileMoreDrawer from '../../components/MobileMoreDrawer/MobileMoreDrawer';
+import OnboardingProgress from '../../components/OnboardingProgress/OnboardingProgress';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 import './Layout.css';
 
@@ -45,6 +46,7 @@ export default function Layout() {
     return (
       <div className="mobile-layout">
         <main className="mobile-main">
+          <OnboardingProgress />
           <div className="page-enter" key={pageKey}>
             <Outlet />
           </div>
@@ -63,6 +65,7 @@ export default function Layout() {
     <div className="app-layout">
       <Sidebar />
       <main className="main-content">
+        <OnboardingProgress />
         <div className="page-enter" key={pageKey}>
           <Outlet />
         </div>
