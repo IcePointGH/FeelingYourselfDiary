@@ -77,3 +77,4 @@ application-local.properties
 /.playwright-mcp/
 /.superpowers/
 /docs/superpowers/
+/docs/
