@@ -399,7 +399,7 @@ export default function SchedulePage() {
 
       <div className="card form-card">
         {/* Draft restore banner */}
-        {hasDraft && !draftDismissed && draft && (
+        {hasDraft && !draftDismissed && draft && JSON.stringify(formDraft) !== JSON.stringify(draft) && (
           <div className="draft-restore-banner">
             <i className="fas fa-pencil-alt" />
             <span>你有未提交的日程草稿，是否恢复？</span>
