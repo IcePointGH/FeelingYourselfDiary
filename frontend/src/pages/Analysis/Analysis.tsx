@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../hooks/useApi';
 import { useToast } from '../../contexts/ToastContext';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import { useAiAnalysis } from '../../hooks/useAiAnalysis';
 import { useTabCache } from '../../hooks/useTabCache';
 import DateInput from '../../components/DateInput/DateInput';
@@ -82,10 +83,18 @@ export default function AnalysisPage() {
   // ── Dependencies ──
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+  const { isActive: onboardingActive, markAnalysisViewed } = useOnboarding();
   const navigate = useNavigate();
 
   // ── AI analysis state machine (extracted hook) ──
   const ai = useAiAnalysis({ apiFetch, addToast });
+
+  // ── Onboarding: mark analysis viewed when AI report arrives ──
+  useEffect(() => {
+    if (ai.state.phase === 'letter' || ai.state.phase === 'report') {
+      markAnalysisViewed();
+    }
+  }, [ai.state.phase, markAnalysisViewed]);
 
   // Track which tab started the current AI analysis — prevents cross-tab UI leakage
   const [aiTab, setAiTab] = useState<TabType | null>(null);
@@ -455,6 +464,13 @@ export default function AnalysisPage() {
               title="暂无记录"
               description="该时间段内没有日程记录，去添加一些日程后再分析。"
               icon="fa-regular fa-chart-bar"
+              {...(onboardingActive ? {
+                onboardingHint: {
+                  stepLabel: '第 3 步',
+                  title: '查看你的情绪分析',
+                  description: '有了足够的记录后，AI 会帮你发现情绪规律。点击「AI 分析」按钮试试。',
+                },
+              } : {})}
             />
           )}
           <div className="stats-row">
