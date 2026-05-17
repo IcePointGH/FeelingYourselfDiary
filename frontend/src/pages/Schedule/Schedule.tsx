@@ -5,6 +5,7 @@ import { useDraft } from '../../hooks/useDraft';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useToast } from '../../contexts/ToastContext';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
@@ -74,6 +75,7 @@ export default function SchedulePage() {
   const rowRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const { apiFetch } = useApi();
   const { addToast } = useToast();
+  const { isActive: onboardingActive, markScheduleCreated } = useOnboarding();
 
   // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
@@ -308,6 +310,7 @@ export default function SchedulePage() {
 
       clear();
       setDraftDismissed(true);
+      markScheduleCreated();
 
       setScheduleList(prev => sortScheduleItems(prev.map(item =>
         item.tempId === tempId ? { ...saved, justAdded: true } : item
@@ -514,6 +517,13 @@ export default function SchedulePage() {
             description="添加第一条日程，开始记录你的心情吧。"
             icon="fa-regular fa-calendar-plus"
             compact
+            {...(onboardingActive ? {
+              onboardingHint: {
+                stepLabel: '第 1 步',
+                title: '记录你的第一条日程',
+                description: '添加一个今天要做的事，给它一个心情值。这是自我理解循环的第一步。',
+              },
+            } : {})}
           />
         ) : (
           <div className="schedule-list">
