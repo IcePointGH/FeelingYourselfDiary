@@ -522,6 +522,10 @@ export default function SchedulePage() {
                 stepLabel: '第 1 步',
                 title: '记录你的第一条日程',
                 description: '添加一个今天要做的事，给它一个心情值。这是自我理解循环的第一步。',
+                action: {
+                  label: '开始记录',
+                  onClick: () => titleInputRef.current?.focus(),
+                },
               },
             } : {})}
           />

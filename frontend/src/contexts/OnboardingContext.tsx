@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { useApi } from '../hooks/useApi';
+import { useAuth } from './AuthContext';
+import { SETTINGS_API } from '../services/api';
 
 type OnboardingState = {
   hasCreatedSchedule: boolean;
@@ -6,10 +9,11 @@ type OnboardingState = {
   hasViewedAnalysis: boolean;
   dismissed: boolean;
   completed: boolean;
+  completionAcknowledged: boolean;
   updatedAt: number;
 };
 
-const STORAGE_KEY = 'onboarding.phase5';
+const STORAGE_KEY_PREFIX = 'onboarding.phase5';
 
 const INITIAL_STATE: OnboardingState = {
   hasCreatedSchedule: false,
@@ -17,12 +21,27 @@ const INITIAL_STATE: OnboardingState = {
   hasViewedAnalysis: false,
   dismissed: false,
   completed: false,
+  completionAcknowledged: false,
   updatedAt: 0,
 };
 
-function loadState(): OnboardingState {
+function getStorageKey(userId?: number | null) {
+  return userId ? `${STORAGE_KEY_PREFIX}.${userId}` : `${STORAGE_KEY_PREFIX}.anonymous`;
+}
+
+function loadState(userId?: number | null): OnboardingState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const scopedKey = getStorageKey(userId);
+    let raw = localStorage.getItem(scopedKey);
+    if (!raw && userId) {
+      // One-time migration from the earlier browser-global cache.
+      const legacyRaw = localStorage.getItem(STORAGE_KEY_PREFIX);
+      if (legacyRaw) {
+        raw = legacyRaw;
+        localStorage.setItem(scopedKey, legacyRaw);
+        localStorage.removeItem(STORAGE_KEY_PREFIX);
+      }
+    }
     if (!raw) return { ...INITIAL_STATE };
     const parsed = JSON.parse(raw);
     if (
@@ -40,6 +59,7 @@ function loadState(): OnboardingState {
       hasViewedAnalysis: parsed.hasViewedAnalysis,
       dismissed: !!parsed.dismissed,
       completed: !!parsed.completed,
+      completionAcknowledged: !!parsed.completionAcknowledged,
       updatedAt: typeof parsed.updatedAt === 'number' ? parsed.updatedAt : 0,
     };
   } catch {
@@ -47,12 +67,66 @@ function loadState(): OnboardingState {
   }
 }
 
-function saveState(state: OnboardingState) {
+function saveState(state: OnboardingState, userId?: number | null) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(state));
   } catch {
     // storage full or blocked — degrade gracefully
   }
+}
+
+function deriveCompleted(s: OnboardingState): OnboardingState {
+  const completed = s.hasCreatedSchedule && s.hasCreatedDiary && s.hasViewedAnalysis;
+  if (completed && !s.completed) {
+    return { ...s, completed: true };
+  }
+  return s;
+}
+
+function mergeStates(local: OnboardingState, remote: Partial<OnboardingState>): OnboardingState {
+  const merged = deriveCompleted({
+    hasCreatedSchedule: local.hasCreatedSchedule || !!remote.hasCreatedSchedule,
+    hasCreatedDiary: local.hasCreatedDiary || !!remote.hasCreatedDiary,
+    hasViewedAnalysis: local.hasViewedAnalysis || !!remote.hasViewedAnalysis,
+    dismissed: local.dismissed || !!remote.dismissed,
+    completed: local.completed || !!remote.completed,
+    completionAcknowledged: local.completionAcknowledged || !!remote.completionAcknowledged,
+    updatedAt: Math.max(local.updatedAt, remote.updatedAt ?? 0),
+  });
+
+  // Completed onboarding must remain internally coherent even if an older client
+  // only persisted the aggregate flag.
+  if (merged.completed) {
+    return {
+      ...merged,
+      hasCreatedSchedule: true,
+      hasCreatedDiary: true,
+      hasViewedAnalysis: true,
+    };
+  }
+  return merged;
+}
+
+function toSettingsPayload(state: OnboardingState) {
+  return {
+    onboardingHasCreatedSchedule: state.hasCreatedSchedule,
+    onboardingHasCreatedDiary: state.hasCreatedDiary,
+    onboardingHasViewedAnalysis: state.hasViewedAnalysis,
+    onboardingDismissed: state.dismissed,
+    onboardingCompleted: state.completed,
+    onboardingCompletionAcknowledged: state.completionAcknowledged,
+  };
+}
+
+function fromSettingsResponse(data: Record<string, unknown>): Partial<OnboardingState> {
+  return {
+    hasCreatedSchedule: !!data.onboardingHasCreatedSchedule,
+    hasCreatedDiary: !!data.onboardingHasCreatedDiary,
+    hasViewedAnalysis: !!data.onboardingHasViewedAnalysis,
+    dismissed: !!data.onboardingDismissed,
+    completed: !!data.onboardingCompleted,
+    completionAcknowledged: !!data.onboardingCompletionAcknowledged,
+  };
 }
 
 type OnboardingStep = 1 | 2 | 3;
@@ -67,6 +141,7 @@ type OnboardingContextValue = {
   markScheduleCreated: () => void;
   markDiaryCreated: () => void;
   markAnalysisViewed: () => void;
+  acknowledgeCompletion: () => void;
   dismissOnboarding: () => void;
   skipOnboarding: () => void;
   resetOnboardingForDebug: () => void;
@@ -75,80 +150,108 @@ type OnboardingContextValue = {
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<OnboardingState>(loadState);
+  const { apiFetch } = useApi();
+  const { isAuthenticated, user } = useAuth();
+  const [state, setState] = useState<OnboardingState>(() => loadState(user?.id));
 
-  const persist = useCallback((next: OnboardingState) => {
-    const withTimestamp = { ...next, updatedAt: Date.now() };
-    setState(withTimestamp);
-    saveState(withTimestamp);
-  }, []);
+  const persistRemote = useCallback(async (next: OnboardingState) => {
+    if (!isAuthenticated) return;
+    try {
+      await apiFetch(SETTINGS_API.base, {
+        method: 'PUT',
+        body: JSON.stringify(toSettingsPayload(next)),
+      });
+    } catch {
+      // Keep local cache and retry on the next authenticated load / transition.
+    }
+  }, [apiFetch, isAuthenticated]);
 
-  const deriveCompleted = useCallback(
-    (s: OnboardingState): OnboardingState => {
-      const completed = s.hasCreatedSchedule && s.hasCreatedDiary && s.hasViewedAnalysis;
-      if (completed && !s.completed) {
-        return { ...s, completed: true };
-      }
-      return s;
-    },
-    [],
-  );
+  const apply = useCallback((updater: (prev: OnboardingState) => OnboardingState) => {
+    setState(prev => {
+      const next = updater(prev);
+      if (next === prev) return prev;
+      const withTimestamp = { ...next, updatedAt: Date.now() };
+      saveState(withTimestamp, user?.id);
+      void persistRemote(withTimestamp);
+      return withTimestamp;
+    });
+  }, [persistRemote, user?.id]);
 
   const markScheduleCreated = useCallback(() => {
-    setState(prev => {
+    apply(prev => {
       if (prev.hasCreatedSchedule) return prev;
-      const next = deriveCompleted({ ...prev, hasCreatedSchedule: true });
-      persist(next);
-      return next;
+      return deriveCompleted({ ...prev, hasCreatedSchedule: true });
     });
-  }, [persist, deriveCompleted]);
+  }, [apply]);
 
   const markDiaryCreated = useCallback(() => {
-    setState(prev => {
+    apply(prev => {
       if (prev.hasCreatedDiary) return prev;
-      const next = deriveCompleted({ ...prev, hasCreatedDiary: true });
-      persist(next);
-      return next;
+      return deriveCompleted({ ...prev, hasCreatedDiary: true });
     });
-  }, [persist, deriveCompleted]);
+  }, [apply]);
 
   const markAnalysisViewed = useCallback(() => {
-    setState(prev => {
+    apply(prev => {
       if (prev.hasViewedAnalysis) return prev;
-      const next = deriveCompleted({ ...prev, hasViewedAnalysis: true });
-      persist(next);
-      return next;
+      return deriveCompleted({ ...prev, hasViewedAnalysis: true });
     });
-  }, [persist, deriveCompleted]);
+  }, [apply]);
+
+  const acknowledgeCompletion = useCallback(() => {
+    apply(prev => {
+      if (prev.completionAcknowledged) return prev;
+      return { ...prev, completionAcknowledged: true };
+    });
+  }, [apply]);
 
   const dismissOnboarding = useCallback(() => {
-    setState(prev => {
-      const next = { ...prev, dismissed: true };
-      persist(next);
-      return next;
-    });
-  }, [persist]);
+    apply(prev => prev.dismissed ? prev : { ...prev, dismissed: true });
+  }, [apply]);
 
   const skipOnboarding = useCallback(() => {
-    setState(prev => {
-      const next = { ...prev, dismissed: true };
-      persist(next);
-      return next;
-    });
-  }, [persist]);
+    apply(prev => prev.dismissed ? prev : { ...prev, dismissed: true });
+  }, [apply]);
 
   const resetOnboardingForDebug = useCallback(() => {
     const fresh = { ...INITIAL_STATE, updatedAt: Date.now() };
-    persist(fresh);
-  }, [persist]);
+    setState(fresh);
+    saveState(fresh, user?.id);
+  }, [user?.id]);
 
   useEffect(() => {
-    const synced = loadState();
-    setState(prev => {
-      if (prev.updatedAt === synced.updatedAt) return prev;
-      return synced;
-    });
-  }, []);
+    if (!isAuthenticated) return;
+    let cancelled = false;
+
+    const syncRemote = async () => {
+      try {
+        const data = await apiFetch(SETTINGS_API.base) as Record<string, unknown>;
+        if (cancelled) return;
+        setState(() => {
+          const localForCurrentUser = loadState(user?.id);
+          const merged = mergeStates(localForCurrentUser, fromSettingsResponse(data));
+          const changed = JSON.stringify(toSettingsPayload(merged)) !== JSON.stringify(toSettingsPayload(localForCurrentUser));
+          const withTimestamp = changed ? { ...merged, updatedAt: Date.now() } : localForCurrentUser;
+          if (changed) {
+            saveState(withTimestamp, user?.id);
+            void persistRemote(withTimestamp);
+          }
+          return withTimestamp;
+        });
+      } catch {
+        // Local cache remains available as a graceful fallback.
+      }
+    };
+
+    void syncRemote();
+    return () => {
+      cancelled = true;
+    };
+  }, [apiFetch, isAuthenticated, persistRemote, user?.id]);
+
+  useEffect(() => {
+    setState(loadState(user?.id));
+  }, [user?.id]);
 
   const isActive = !state.completed && !state.dismissed;
 
@@ -187,6 +290,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
         markScheduleCreated,
         markDiaryCreated,
         markAnalysisViewed,
+        acknowledgeCompletion,
         dismissOnboarding,
         skipOnboarding,
         resetOnboardingForDebug,

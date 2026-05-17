@@ -13,6 +13,12 @@ public class UserSettingsDTO {
         private Boolean autoSaveThoughts;
         @Pattern(regexp = "morandi|minimal", message = "主题只能是 morandi 或 minimal")
         private String theme;
+        private Boolean onboardingHasCreatedSchedule;
+        private Boolean onboardingHasCreatedDiary;
+        private Boolean onboardingHasViewedAnalysis;
+        private Boolean onboardingDismissed;
+        private Boolean onboardingCompleted;
+        private Boolean onboardingCompletionAcknowledged;
     }
 
     @Data
@@ -22,5 +28,11 @@ public class UserSettingsDTO {
         private String emotionLabels;
         private Boolean autoSaveThoughts;
         private String theme;
+        private Boolean onboardingHasCreatedSchedule;
+        private Boolean onboardingHasCreatedDiary;
+        private Boolean onboardingHasViewedAnalysis;
+        private Boolean onboardingDismissed;
+        private Boolean onboardingCompleted;
+        private Boolean onboardingCompletionAcknowledged;
     }
 }

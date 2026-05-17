@@ -86,6 +86,7 @@ export default function ThoughtsPage() {
 
   // Debounced autosave (1500ms)
   const autosaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const draft: DiaryDraft = { title, content, date };
@@ -294,6 +295,7 @@ export default function ThoughtsPage() {
               <label>标题</label>
               <input
                 type="text"
+                ref={titleInputRef}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={() => touchField('title')}
@@ -349,11 +351,18 @@ export default function ThoughtsPage() {
                 description={'请选择日期查找日记，或切换到\u201C记录思考\u201D开始写一篇吧。'}
                 icon="fa-regular fa-bookmark"
                 compact
-                {...(onboardingActive && !onboardingState.hasCreatedDiary ? {
+                {...(onboardingActive && onboardingState.hasCreatedSchedule && !onboardingState.hasCreatedDiary ? {
                   onboardingHint: {
                     stepLabel: '第 2 步',
                     title: '写下你的第一篇日记',
                     description: '用文字记录今天的感受和思考，这是反思自己的重要一步。',
+                    action: {
+                      label: '开始写作',
+                      onClick: () => {
+                        setActiveTab('write');
+                        requestAnimationFrame(() => titleInputRef.current?.focus());
+                      },
+                    },
                   },
                 } : {})}
               />

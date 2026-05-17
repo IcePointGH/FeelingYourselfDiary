@@ -89,12 +89,13 @@ export default function AnalysisPage() {
   // ── AI analysis state machine (extracted hook) ──
   const ai = useAiAnalysis({ apiFetch, addToast });
 
-  // ── Onboarding: mark analysis viewed when AI report arrives ──
+  // ── Onboarding: mark analysis viewed when real usable data is present ──
   useEffect(() => {
-    if (ai.state.phase === 'letter' || ai.state.phase === 'report') {
-      markAnalysisViewed();
+    if ((ai.state.phase === 'letter' || ai.state.phase === 'report') && ai.state.stats) {
+      const hasSourceData = ai.state.stats.scheduleCount > 0 || ai.state.stats.diaryCount > 0;
+      if (hasSourceData) markAnalysisViewed();
     }
-  }, [ai.state.phase, markAnalysisViewed]);
+  }, [ai.state.phase, ai.state.stats, markAnalysisViewed]);
 
   // Track which tab started the current AI analysis — prevents cross-tab UI leakage
   const [aiTab, setAiTab] = useState<TabType | null>(null);
@@ -132,12 +133,15 @@ export default function AnalysisPage() {
       if (tab === 'daily') {
         const d = result as DailyAnalysis;
         setData({ totalFeeling: d.totalFeeling, itemCount: d.itemCount, averageFeeling: d.averageFeeling, items: d.items });
+        if (d.itemCount > 0) markAnalysisViewed();
       } else if (tab === 'weekly') {
         const w = result as WeeklyAnalysis;
         setData({ totalFeeling: w.totalFeeling, itemCount: w.itemCount, averageFeeling: w.averageFeeling, dailyTotals: w.dailyTotals, items: w.items });
+        if (w.itemCount > 0) markAnalysisViewed();
       } else {
         const m = result as MonthlyAnalysis;
         setData({ totalFeeling: m.totalFeeling, itemCount: m.itemCount, averageFeeling: m.averageFeeling, dailyTotals: m.dailyTotals, items: m.items });
+        if (m.itemCount > 0) markAnalysisViewed();
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : '分析失败，请重试';
@@ -146,7 +150,7 @@ export default function AnalysisPage() {
     } finally {
       setLoading(false);
     }
-  }, [apiFetch, tab, date, month, addToast]);
+  }, [apiFetch, tab, date, month, addToast, markAnalysisViewed]);
 
   // ── AI analysis trigger ──
   const buildDateRange = useCallback((): { startDate: string; endDate: string } => {
@@ -464,11 +468,15 @@ export default function AnalysisPage() {
               title="暂无记录"
               description="该时间段内没有日程记录，去添加一些日程后再分析。"
               icon="fa-regular fa-chart-bar"
-              {...(onboardingActive && !onboardingState.hasViewedAnalysis ? {
+              {...(onboardingActive && onboardingState.hasCreatedSchedule && onboardingState.hasCreatedDiary && !onboardingState.hasViewedAnalysis ? {
                 onboardingHint: {
                   stepLabel: '第 3 步',
                   title: '查看你的情绪分析',
-                  description: '有了足够的记录后，AI 会帮你发现情绪规律。点击「AI 分析」按钮试试。',
+                  description: '有了足够的记录后，AI 会帮你发现情绪规律。点击下方按钮试试。',
+                  action: {
+                    label: '运行 AI 分析',
+                    onClick: handleAiAnalyze,
+                  },
                 },
               } : {})}
             />

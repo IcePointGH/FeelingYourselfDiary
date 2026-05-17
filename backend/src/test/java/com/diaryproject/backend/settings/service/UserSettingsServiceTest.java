@@ -26,7 +26,7 @@ class UserSettingsServiceTest {
         Method m = UserSettingsService.class.getMethod("getSettings", Long.class);
         Cacheable ca = m.getAnnotation(Cacheable.class);
         assertNotNull(ca);
-        assertEquals("settings", ca.value()[0]);
+        assertEquals("settingsV2", ca.value()[0]);
     }
 
     @Test
@@ -34,7 +34,7 @@ class UserSettingsServiceTest {
         Method m = UserSettingsService.class.getMethod("updateSettings", Long.class, UserSettingsDTO.UpdateRequest.class);
         CacheEvict ce = m.getAnnotation(CacheEvict.class);
         assertNotNull(ce);
-        assertEquals("settings", ce.value()[0]);
+        assertEquals("settingsV2", ce.value()[0]);
     }
 
     @Test
@@ -51,6 +51,12 @@ class UserSettingsServiceTest {
         UserSettings mockSettings = mock(UserSettings.class);
         when(mockSettings.getTheme()).thenReturn("morandi");
         when(mockSettings.getAutoSaveThoughts()).thenReturn(false);
+        when(mockSettings.getOnboardingHasCreatedSchedule()).thenReturn(true);
+        when(mockSettings.getOnboardingHasCreatedDiary()).thenReturn(false);
+        when(mockSettings.getOnboardingHasViewedAnalysis()).thenReturn(false);
+        when(mockSettings.getOnboardingDismissed()).thenReturn(false);
+        when(mockSettings.getOnboardingCompleted()).thenReturn(false);
+        when(mockSettings.getOnboardingCompletionAcknowledged()).thenReturn(false);
         when(userSettingsRepository.findByUserId(1L)).thenReturn(Optional.of(mockSettings));
 
         UserSettingsService service = new UserSettingsService(userSettingsRepository, cacheService);
@@ -58,6 +64,8 @@ class UserSettingsServiceTest {
 
         assertNotNull(response);
         assertEquals("morandi", response.getTheme());
+        assertTrue(response.getOnboardingHasCreatedSchedule());
+        assertFalse(response.getOnboardingHasCreatedDiary());
     }
 
     @Test
@@ -67,6 +75,12 @@ class UserSettingsServiceTest {
         UserSettings mockSettings = mock(UserSettings.class);
         when(mockSettings.getTheme()).thenReturn("morandi");
         when(mockSettings.getAutoSaveThoughts()).thenReturn(false);
+        when(mockSettings.getOnboardingHasCreatedSchedule()).thenReturn(false);
+        when(mockSettings.getOnboardingHasCreatedDiary()).thenReturn(false);
+        when(mockSettings.getOnboardingHasViewedAnalysis()).thenReturn(false);
+        when(mockSettings.getOnboardingDismissed()).thenReturn(false);
+        when(mockSettings.getOnboardingCompleted()).thenReturn(false);
+        when(mockSettings.getOnboardingCompletionAcknowledged()).thenReturn(false);
         when(userSettingsRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userSettingsRepository.save(any(UserSettings.class))).thenReturn(mockSettings);
 
@@ -75,6 +89,43 @@ class UserSettingsServiceTest {
 
         assertNotNull(response);
         assertEquals("morandi", response.getTheme());
+        assertFalse(response.getOnboardingCompleted());
         verify(userSettingsRepository).save(any(UserSettings.class));
+    }
+
+    @Test
+    void updateSettings_updatesOnboardingFields_whenProvided() {
+        UserSettingsRepository userSettingsRepository = mock(UserSettingsRepository.class);
+        CacheService cacheService = mock(CacheService.class);
+        UserSettings settings = new UserSettings();
+        settings.setUserId(1L);
+        settings.setTheme("morandi");
+        settings.setAutoSaveThoughts(false);
+        settings.setOnboardingHasCreatedSchedule(false);
+        settings.setOnboardingHasCreatedDiary(false);
+        settings.setOnboardingHasViewedAnalysis(false);
+        settings.setOnboardingDismissed(false);
+        settings.setOnboardingCompleted(false);
+        settings.setOnboardingCompletionAcknowledged(false);
+        when(userSettingsRepository.findByUserId(1L)).thenReturn(Optional.of(settings));
+        when(userSettingsRepository.save(any(UserSettings.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserSettingsDTO.UpdateRequest request = new UserSettingsDTO.UpdateRequest();
+        request.setOnboardingHasCreatedSchedule(true);
+        request.setOnboardingHasCreatedDiary(true);
+        request.setOnboardingHasViewedAnalysis(true);
+        request.setOnboardingDismissed(true);
+        request.setOnboardingCompleted(true);
+        request.setOnboardingCompletionAcknowledged(true);
+
+        UserSettingsService service = new UserSettingsService(userSettingsRepository, cacheService);
+        UserSettingsDTO.Response response = service.updateSettings(1L, request);
+
+        assertTrue(response.getOnboardingHasCreatedSchedule());
+        assertTrue(response.getOnboardingHasCreatedDiary());
+        assertTrue(response.getOnboardingHasViewedAnalysis());
+        assertTrue(response.getOnboardingDismissed());
+        assertTrue(response.getOnboardingCompleted());
+        assertTrue(response.getOnboardingCompletionAcknowledged());
     }
 }

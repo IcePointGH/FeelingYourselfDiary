@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../../contexts/OnboardingContext';
 import styles from './OnboardingProgress.module.css';
@@ -13,18 +12,12 @@ export default function OnboardingProgress() {
     nextActionLabel,
     dismissOnboarding,
     skipOnboarding,
+    acknowledgeCompletion,
   } = useOnboarding();
 
   const navigate = useNavigate();
-  const [showCompletion, setShowCompletion] = useState(false);
 
-  useEffect(() => {
-    if (state.completed && state.updatedAt > 0 && Date.now() - state.updatedAt < 5000) {
-      setShowCompletion(true);
-    }
-  }, [state.completed, state.updatedAt]);
-
-  if (showCompletion && state.completed) {
+  if (state.completed && !state.completionAcknowledged) {
     return (
       <div className={styles.completion}>
         <div className={styles.completionInner}>
@@ -32,7 +25,7 @@ export default function OnboardingProgress() {
           <p className={styles.completionText}>你已完成初次体验，继续探索吧！</p>
           <button
             className={styles.completionDismiss}
-            onClick={() => setShowCompletion(false)}
+            onClick={acknowledgeCompletion}
           >
             开始使用
           </button>

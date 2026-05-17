@@ -33,7 +33,7 @@ public class UserSettingsService {
     }
 
     /** 获取用户设置，不存在则创建默认设置 */
-    @Cacheable(value = "settings", key = "#userId")
+    @Cacheable(value = "settingsV2", key = "#userId")
     @Transactional(readOnly = true)
     public UserSettingsDTO.Response getSettings(Long userId) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
@@ -42,7 +42,7 @@ public class UserSettingsService {
     }
 
     /** 更新用户设置，只更新非空字段，不存在则创建 */
-    @CacheEvict(value = "settings", key = "#userId")
+    @CacheEvict(value = "settingsV2", key = "#userId")
     @Transactional(rollbackFor = Exception.class)
     public UserSettingsDTO.Response updateSettings(Long userId, UserSettingsDTO.UpdateRequest request) {
         UserSettings settings = userSettingsRepository.findByUserId(userId)
@@ -56,6 +56,24 @@ public class UserSettingsService {
         }
         if (request.getTheme() != null) {
             settings.setTheme(request.getTheme());
+        }
+        if (request.getOnboardingHasCreatedSchedule() != null) {
+            settings.setOnboardingHasCreatedSchedule(request.getOnboardingHasCreatedSchedule());
+        }
+        if (request.getOnboardingHasCreatedDiary() != null) {
+            settings.setOnboardingHasCreatedDiary(request.getOnboardingHasCreatedDiary());
+        }
+        if (request.getOnboardingHasViewedAnalysis() != null) {
+            settings.setOnboardingHasViewedAnalysis(request.getOnboardingHasViewedAnalysis());
+        }
+        if (request.getOnboardingDismissed() != null) {
+            settings.setOnboardingDismissed(request.getOnboardingDismissed());
+        }
+        if (request.getOnboardingCompleted() != null) {
+            settings.setOnboardingCompleted(request.getOnboardingCompleted());
+        }
+        if (request.getOnboardingCompletionAcknowledged() != null) {
+            settings.setOnboardingCompletionAcknowledged(request.getOnboardingCompletionAcknowledged());
         }
 
         UserSettings updated = userSettingsRepository.save(settings);
@@ -71,12 +89,18 @@ public class UserSettingsService {
         result.put("theme", settings.getTheme());
         result.put("emotionLabels", settings.getEmotionLabels());
         result.put("autoSaveThoughts", settings.getAutoSaveThoughts());
+        result.put("onboardingHasCreatedSchedule", settings.getOnboardingHasCreatedSchedule());
+        result.put("onboardingHasCreatedDiary", settings.getOnboardingHasCreatedDiary());
+        result.put("onboardingHasViewedAnalysis", settings.getOnboardingHasViewedAnalysis());
+        result.put("onboardingDismissed", settings.getOnboardingDismissed());
+        result.put("onboardingCompleted", settings.getOnboardingCompleted());
+        result.put("onboardingCompletionAcknowledged", settings.getOnboardingCompletionAcknowledged());
         result.put("exportTime", Instant.now().toString());
         return result;
     }
 
     /** 清空用户设置数据 */
-    @CacheEvict(value = "settings", key = "#userId")
+    @CacheEvict(value = "settingsV2", key = "#userId")
     @Transactional(rollbackFor = Exception.class)
     public void clearData(Long userId) {
         userSettingsRepository.findByUserId(userId).ifPresent(userSettingsRepository::delete);
@@ -89,6 +113,12 @@ public class UserSettingsService {
         settings.setUserId(userId);
         settings.setTheme("morandi");
         settings.setAutoSaveThoughts(false);
+        settings.setOnboardingHasCreatedSchedule(false);
+        settings.setOnboardingHasCreatedDiary(false);
+        settings.setOnboardingHasViewedAnalysis(false);
+        settings.setOnboardingDismissed(false);
+        settings.setOnboardingCompleted(false);
+        settings.setOnboardingCompletionAcknowledged(false);
         return userSettingsRepository.save(settings);
     }
 
@@ -99,6 +129,12 @@ public class UserSettingsService {
         response.setEmotionLabels(settings.getEmotionLabels());
         response.setAutoSaveThoughts(settings.getAutoSaveThoughts());
         response.setTheme(settings.getTheme());
+        response.setOnboardingHasCreatedSchedule(settings.getOnboardingHasCreatedSchedule());
+        response.setOnboardingHasCreatedDiary(settings.getOnboardingHasCreatedDiary());
+        response.setOnboardingHasViewedAnalysis(settings.getOnboardingHasViewedAnalysis());
+        response.setOnboardingDismissed(settings.getOnboardingDismissed());
+        response.setOnboardingCompleted(settings.getOnboardingCompleted());
+        response.setOnboardingCompletionAcknowledged(settings.getOnboardingCompletionAcknowledged());
         return response;
     }
 }

@@ -34,6 +34,30 @@ public class UserSettings {
     @Column(nullable = false)
     private String theme = "morandi";
 
+    /** 首次引导：是否已创建第一条日程 */
+    @Column(name = "onboarding_has_created_schedule", nullable = false)
+    private Boolean onboardingHasCreatedSchedule = false;
+
+    /** 首次引导：是否已创建第一篇日记 */
+    @Column(name = "onboarding_has_created_diary", nullable = false)
+    private Boolean onboardingHasCreatedDiary = false;
+
+    /** 首次引导：是否已查看过分析 */
+    @Column(name = "onboarding_has_viewed_analysis", nullable = false)
+    private Boolean onboardingHasViewedAnalysis = false;
+
+    /** 首次引导：是否已主动关闭 */
+    @Column(name = "onboarding_dismissed", nullable = false)
+    private Boolean onboardingDismissed = false;
+
+    /** 首次引导：是否已完成 */
+    @Column(name = "onboarding_completed", nullable = false)
+    private Boolean onboardingCompleted = false;
+
+    /** 首次引导：是否已确认完成提示 */
+    @Column(name = "onboarding_completion_acknowledged", nullable = false)
+    private Boolean onboardingCompletionAcknowledged = false;
+
     @Version
     @Column(nullable = false)
     private Long version = 0L;
