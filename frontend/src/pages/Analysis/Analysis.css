@@ -663,7 +663,7 @@
   margin-bottom: 16px;
 }
 
-.evidence-item {
+.day-evidence .evidence-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -727,7 +727,7 @@
 [data-theme='dark'] .close-summary-btn { color: var(--text-muted); }
 [data-theme='dark'] .close-summary-btn:hover { color: var(--text-muted); background: var(--surface-muted); }
 [data-theme='dark'] .day-stat-value { color: var(--text-default); }
-[data-theme='dark'] .evidence-item { border-color: var(--surface-muted); }
+[data-theme='dark'] .day-evidence .evidence-item { border-color: var(--surface-muted); }
 [data-theme='dark'] .evidence-title { color: var(--text-muted); }
 [data-theme='dark'] .view-history-btn { background: #403a50; border-color: #5a4f70; color: #9b8cff; }
 [data-theme='dark'] .view-history-btn:hover { background: #4a3f60; border-color: #6a5f80; color: #b0a0ff; }
