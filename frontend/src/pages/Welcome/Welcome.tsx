@@ -23,21 +23,34 @@ const heroRecords = [
 
 const storySections = [
   {
-    kicker: '记录',
-    title: '把发生的事和当时的感受放在一起',
-    body: '不只记下今天做了什么，也留下它怎样影响了你。日程、情绪和文字会在同一条时间线上互相解释。',
+    kicker: '量化',
+    title: '量化与分析',
+    body: [
+      '模糊的情绪转化为数值记录下来，这个过程，本身就有对自己当下情绪的确认与感知。',
+      '以及我们加入图表分析、AI 分析，希望使用者能够清晰观察到自己的情绪变化。',
+      '在这个功能中，我们加入了各种创意、制作了不同的交互动画，以带来轻松有趣的使用体验。',
+    ],
     kind: 'record',
   },
   {
-    kicker: '看见',
-    title: '让零散波动慢慢显出轮廓',
-    body: '当记录积累起来，趋势、转折和重复出现的片段会变得清楚，不必再只靠模糊记忆判断自己最近过得怎样。',
+    kicker: '回顾',
+    title: '记录与回顾',
+    body: [
+      '（以文字方式）输出是一种有效的、重要的疏解情绪的方法。我们把脑袋里的纷乱的想法转移到纸面上、电子数据里，在记录的同时，完成了一次整理，让想法更加有序。同时，为大脑腾出了思考的空间，让我们不再执着于某些问题，而是去专注于做好现实的事。',
+      '我们提供自主书写的板块，如果心情很乱、无法动笔，也可以尝试和 AI 聊聊，它来帮你整理思绪。',
+      '当然，你还可以去回顾自己的情绪变化历程。',
+    ],
     kind: 'observe',
   },
   {
-    kicker: '理解',
-    title: '把感受整理成能回看的线索',
-    body: '日记补上数字说不出的部分，AI 帮你复盘模式和变化，让你更容易理解自己，而不是被一次情绪带走。',
+    kicker: '规划',
+    title: '审视与规划',
+    body: [
+      '最重要的问题是，我们对一日情绪的评价，常常被一天中感受最强烈的事、或最晚发生的事（峰终效应）干扰。',
+      '当你晚上为了某个期限临近的任务焦头烂额，也请别忘记今天吃过一顿丰盛的午饭；当你被阵雨拦住回家的路，也请别忘记刚刚在外游玩的自由快乐。',
+      '我们难以避免遇到令人身心俱疲的事，除了回想快乐的记忆，还可以把它们添加到待办里，去创造快乐、寻找放松。',
+      '这就是情绪平衡日记，是日记，更是规划。帮助你找回今天情绪的平衡感，并且利用它更好地迎接明天。',
+    ],
     kind: 'reflect',
   },
 ] as const;
@@ -139,7 +152,7 @@ export default function Welcome() {
                 <i className="fas fa-arrow-right" aria-hidden="true" />
                 <span>{isAuthenticated ? '进入我的日记' : '开始使用'}</span>
               </button>
-              <a className="welcome-secondary-link" href="#welcome-storyline">看看它如何工作</a>
+              <a className="welcome-secondary-link" href="#welcome-storyline">功能介绍</a>
             </div>
           </div>
 
@@ -179,7 +192,11 @@ export default function Welcome() {
               <div className="story-step-copy">
                 <span className="section-kicker">{section.kicker}</span>
                 <h2>{section.title}</h2>
-                <p>{section.body}</p>
+                <div className="story-step-body">
+                  {section.body.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
               </div>
 
               <div className="story-step-visual" aria-hidden="true">

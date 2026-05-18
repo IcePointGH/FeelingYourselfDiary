@@ -205,6 +205,14 @@
   line-height: 1.9;
 }
 
+.story-step-body p {
+  margin: 0;
+}
+
+.story-step-body p + p {
+  margin-top: 12px;
+}
+
 .welcome-spectrum {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
