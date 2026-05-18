@@ -6,6 +6,7 @@ import { EmotionLabelsProvider } from './contexts/EmotionLabelsContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { OnboardingProvider } from './contexts/OnboardingContext';
+import { TodayBalanceProvider } from './contexts/TodayBalanceContext';
 import Layout from './components/Layout/Layout';
 import Toast from './components/Toast/Toast';
 import NavigationGuard from './components/NavigationGuard/NavigationGuard';
@@ -23,7 +24,6 @@ const AnalysisPage = React.lazy(() => import('./pages/Analysis/Analysis'));
 const HistoryPage = React.lazy(() => import('./pages/History/History'));
 const SettingsPage = React.lazy(() => import('./pages/Settings/Settings'));
 const AIChatPage = React.lazy(() => import('./pages/AI/ChatView'));
-const FeelingPrototypePage = React.lazy(() => import('./pages/FeelingPrototype/FeelingPrototype'));
 
 function App() {
   return (
@@ -33,12 +33,12 @@ function App() {
           <ThemeProvider>
             <ToastProvider>
               <OnboardingProvider>
+                <TodayBalanceProvider>
                 <BrowserRouter>
                   <Routes>
                   <Route path="/" element={<Welcome />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="/feeling-prototype" element={<Suspense fallback={<PageSkeleton />}><FeelingPrototypePage /></Suspense>} />
                   <Route element={<Layout />}>
                     <Route path="/schedule" element={<SchedulePage />} />
                     <Route path="/thoughts" element={<ThoughtsPage />} />
@@ -51,6 +51,7 @@ function App() {
                 </Routes>
                 <NavigationGuard />
               </BrowserRouter>
+              </TodayBalanceProvider>
             </OnboardingProvider>
             <Toast />
             </ToastProvider>

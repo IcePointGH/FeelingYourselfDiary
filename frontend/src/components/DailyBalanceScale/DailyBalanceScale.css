@@ -1,0 +1,94 @@
+.daily-balance {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.daily-balance.is-horizontal {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+}
+
+.daily-balance-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  min-height: 220px;
+}
+
+.daily-balance-copy small {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+}
+
+.daily-balance-copy strong {
+  display: block;
+  color: var(--text-default);
+  font-size: 36px;
+  line-height: 1;
+}
+
+.daily-balance-copy p {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+}
+
+.daily-balance .balance-scale-canvas {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
+
+.daily-balance .balance-scale-canvas canvas {
+  display: block;
+  width: 440px;
+  max-width: 100%;
+  height: auto;
+}
+
+.daily-balance-note {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  color: var(--text-default);
+  background: var(--surface-muted);
+}
+
+.daily-balance-note button {
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 13px;
+  color: #fffaf3;
+  background: var(--brand-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .daily-balance {
+    padding: 18px 16px 14px;
+  }
+
+  .daily-balance.is-horizontal {
+    display: block;
+    min-height: 0;
+  }
+
+  .daily-balance-sidebar {
+    gap: 14px;
+    min-height: 0;
+  }
+
+  .daily-balance-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

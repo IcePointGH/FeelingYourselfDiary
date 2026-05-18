@@ -7,6 +7,7 @@ import { useDraft } from '../../hooks/useDraft';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import DateInput from '../../components/DateInput/DateInput';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import ThoughtsBalanceNudge from '../../components/ThoughtsBalanceNudge/ThoughtsBalanceNudge';
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import ChatView from '../AI/ChatView';
 import { DIARY_API } from '../../services/api';
@@ -248,6 +249,8 @@ export default function ThoughtsPage() {
           </button>
         ))}
       </div>
+
+      <ThoughtsBalanceNudge />
 
       <div className="thoughts-tab-content">
         {activeTab === 'write' && (

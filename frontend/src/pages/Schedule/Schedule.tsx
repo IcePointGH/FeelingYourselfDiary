@@ -6,9 +6,11 @@ import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useToast } from '../../contexts/ToastContext';
 import { useOnboarding } from '../../contexts/OnboardingContext';
+import { useTodayBalance } from '../../contexts/TodayBalanceContext';
 import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
+import DailyBalanceScale from '../../components/DailyBalanceScale/DailyBalanceScale';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import { SCHEDULE_API } from '../../services/api';
@@ -76,6 +78,7 @@ export default function SchedulePage() {
   const { apiFetch } = useApi();
   const { addToast } = useToast();
   const { isActive: onboardingActive, state: onboardingState, markScheduleCreated } = useOnboarding();
+  const { items: todayItems, refresh: refreshTodayBalance } = useTodayBalance();
 
   // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
@@ -315,6 +318,9 @@ export default function SchedulePage() {
       setScheduleList(prev => sortScheduleItems(prev.map(item =>
         item.tempId === tempId ? { ...saved, justAdded: true } : item
       )));
+      if (saved.date === localToday()) {
+        refreshTodayBalance();
+      }
       window.setTimeout(() => {
         setScheduleList(prev => prev.map(item =>
           item.id === saved.id ? { ...item, justAdded: false } : item
@@ -351,6 +357,7 @@ export default function SchedulePage() {
         try {
           await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' });
           refetch();
+          refreshTodayBalance();
         } catch (err) {
           addToast(err instanceof Error ? err.message : '删除失败', 'error');
         }
@@ -359,6 +366,7 @@ export default function SchedulePage() {
   };
 
   const handleUpdate = async (id: number, data: { title: string; description: string; date: string; time: string; feeling: FeelingValue }) => {
+    const previousItem = scheduleList.find(item => item.id === id);
     // 乐观更新：立即可见，不触发列表重取
     setScheduleList(prev => sortScheduleItems(prev.map(it => it.id === id ? { ...it, ...data } : it)));
     try {
@@ -366,6 +374,9 @@ export default function SchedulePage() {
         method: 'PUT',
         body: JSON.stringify(data),
       });
+      if (previousItem?.date === localToday() || data.date === localToday()) {
+        refreshTodayBalance();
+      }
       // 成功：乐观更新已准确，无需 refetch（避免无意义的重渲染）
     } catch (err) {
       refetch(); // 失败回滚：从服务器恢复正确数据
@@ -380,6 +391,7 @@ export default function SchedulePage() {
     ));
     try {
       await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
+      refreshTodayBalance();
       // 成功：乐观更新已准确，无需 refetch
     } catch (err) {
       // 失败时回滚
@@ -396,6 +408,7 @@ export default function SchedulePage() {
     <div className="schedule-page">
       <h2 className="schedule-page-title">添加新日程</h2>
       <div className="daily-quote">{quote}</div>
+      <DailyBalanceScale items={todayItems} onAddSupport={focusTitleInput} />
 
       <div className="card form-card">
         {/* Draft restore banner */}
