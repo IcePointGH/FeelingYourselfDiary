@@ -32,7 +32,7 @@ export function TodayBalanceProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<TodayBalanceContextValue>(() => {
     const items = data ?? [];
-    const values = items.map(item => item.feeling);
+    const values = items.filter(item => item.completed).map(item => item.feeling);
     const total = values.reduce((sum, value) => sum + value, 0);
     const model = buildDailyBalanceState(total);
 

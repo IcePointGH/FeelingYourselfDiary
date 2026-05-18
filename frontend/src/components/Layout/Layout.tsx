@@ -7,6 +7,7 @@ import MobileNav from '../../components/MobileNav/MobileNav';
 import MobileMoreDrawer from '../../components/MobileMoreDrawer/MobileMoreDrawer';
 import OnboardingProgress from '../../components/OnboardingProgress/OnboardingProgress';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
+import TodayBalancePill from '../../components/TodayBalancePill/TodayBalancePill';
 import './Layout.css';
 
 const MOBILE_BREAKPOINT = 768;
@@ -45,6 +46,7 @@ export default function Layout() {
   if (isMobile) {
     return (
       <div className="mobile-layout">
+        <TodayBalancePill />
         <main className="mobile-main">
           <OnboardingProgress />
           <div className="page-enter" key={pageKey}>
@@ -64,6 +66,7 @@ export default function Layout() {
   return (
     <div className="app-layout">
       <Sidebar />
+      <TodayBalancePill />
       <main className="main-content">
         <OnboardingProgress />
         <div className="page-enter" key={pageKey}>

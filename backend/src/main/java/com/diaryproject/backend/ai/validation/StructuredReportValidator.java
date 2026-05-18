@@ -1,11 +1,11 @@
 package com.diaryproject.backend.ai.validation;
 
+import com.diaryproject.backend.ai.dto.StructuredReportDTO;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.diaryproject.backend.ai.dto.StructuredReportDTO;
 
 /**
  * 结构化报告手动校验器（匹配项目风格 — 无 Bean Validation 依赖）。

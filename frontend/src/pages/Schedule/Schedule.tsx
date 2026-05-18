@@ -10,7 +10,6 @@ import { useTodayBalance } from '../../contexts/TodayBalanceContext';
 import DateInput from '../../components/DateInput/DateInput';
 import FeelingSelector from '../../components/FeelingSelector/FeelingSelector';
 import ScheduleItemCard from '../../components/ScheduleItemCard/ScheduleItemCard';
-import DailyBalanceScale from '../../components/DailyBalanceScale/DailyBalanceScale';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { EmptyState, ErrorState, LoadingState } from '../../components/PageState/PageState';
 import { SCHEDULE_API } from '../../services/api';
@@ -78,10 +77,10 @@ export default function SchedulePage() {
   const { apiFetch } = useApi();
   const { addToast } = useToast();
   const { isActive: onboardingActive, state: onboardingState, markScheduleCreated } = useOnboarding();
-  const { items: todayItems, refresh: refreshTodayBalance } = useTodayBalance();
+  const { refresh: refreshTodayBalance } = useTodayBalance();
 
   // ── Inline validation ──
-  const { errors, touchField, validateAll } = useFieldValidation(
+  const { errors, touchField, validateAll, resetTouched } = useFieldValidation(
     { title },
     { title: required('请填写事项标题') },
   );
@@ -213,6 +212,7 @@ export default function SchedulePage() {
     setBatchMode(false);
     setLastAnchor(null);
     refetch();
+    refreshTodayBalance();
   };
   const [showFutureReminder, setShowFutureReminder] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
@@ -312,6 +312,7 @@ export default function SchedulePage() {
       }) as ScheduleItem;
 
       clear();
+      resetTouched();
       setDraftDismissed(true);
       markScheduleCreated();
 
@@ -408,8 +409,6 @@ export default function SchedulePage() {
     <div className="schedule-page">
       <h2 className="schedule-page-title">添加新日程</h2>
       <div className="daily-quote">{quote}</div>
-      <DailyBalanceScale items={todayItems} onAddSupport={focusTitleInput} />
-
       <div className="card form-card">
         {/* Draft restore banner */}
         {hasDraft && !draftDismissed && draft && JSON.stringify(formDraft) !== JSON.stringify(draft) && (

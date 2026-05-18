@@ -1,0 +1,142 @@
+.today-balance-pill {
+  --today-balance-fill: 50%;
+  position: absolute;
+  top: 16px;
+  right: 40px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 104px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--today-balance-color) 20%, rgba(255, 255, 255, 0.9));
+  border-radius: 999px;
+  padding: 0;
+  color: var(--text-default);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.86),
+      rgba(255, 255, 255, 0.72)
+    );
+  box-shadow:
+    0 14px 30px rgba(71, 55, 36, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+  isolation: isolate;
+  backdrop-filter: blur(10px);
+}
+
+.today-balance-pill::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 2;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+}
+
+.today-balance-pill::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  width: 10px;
+  height: 42px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.84),
+    rgba(255, 255, 255, 0)
+  );
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+.today-balance-liquid {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 0;
+  height: var(--today-balance-fill);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--today-balance-color) 16%, rgba(255, 255, 255, 0.84)),
+    color-mix(in srgb, var(--today-balance-color) 28%, rgba(255, 255, 255, 0.58))
+  );
+  transition: height 260ms ease;
+  pointer-events: none;
+}
+
+.today-balance-liquid svg {
+  position: absolute;
+  top: -12px;
+  left: -125%;
+  width: 350%;
+  height: 24px;
+  overflow: visible;
+  animation: today-balance-wave 4.8s ease-in-out infinite alternate;
+}
+
+.today-balance-liquid path {
+  fill: color-mix(in srgb, var(--today-balance-color) 17%, rgba(255, 255, 255, 0.86));
+}
+
+.today-balance-pill strong {
+  position: relative;
+  z-index: 1;
+  color: var(--today-balance-color);
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+@keyframes today-balance-wave {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(28%);
+  }
+}
+
+[data-theme='dark'] .today-balance-pill {
+  border-color: color-mix(in srgb, var(--today-balance-color) 22%, rgba(255, 255, 255, 0.16));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(34, 31, 28, 0.86),
+      rgba(34, 31, 28, 0.72)
+    );
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .today-balance-pill::after {
+  opacity: 0.34;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .today-balance-liquid svg {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .today-balance-pill {
+    top: 12px;
+    right: 16px;
+    width: 42px;
+    height: 92px;
+  }
+
+  .today-balance-pill strong {
+    font-size: 19px;
+  }
+}

@@ -38,7 +38,7 @@ export default function ThoughtsPage() {
   const { isActive: onboardingActive, state: onboardingState, markDiaryCreated } = useOnboarding();
 
   // ── Inline validation ──
-  const { errors, touchField, validateAll } = useFieldValidation(
+  const { errors, touchField, validateAll, resetTouched } = useFieldValidation(
     { title, content },
     {
       title: required('请填写日记标题'),
@@ -137,6 +137,7 @@ export default function ThoughtsPage() {
         createDraft.clear();
       }
       resetForm();
+      resetTouched();
       refetch();
       addToast(isEditing ? '日记已更新' : '日记已保存', 'success');
       if (!isEditing) markDiaryCreated();

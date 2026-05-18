@@ -5,7 +5,7 @@ const STORAGE_KEY = 'feelingSelectorMode';
 
 function getInitialMode(): FeelingSelectorMode {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === 'buttons' || stored === 'slider' || stored === 'tuner') return stored;
+  if (stored === 'buttons' || stored === 'slider' || stored === 'tuner' || stored === 'scale') return stored;
   if (stored === 'balance') {
     localStorage.setItem(STORAGE_KEY, 'tuner');
     return 'tuner';

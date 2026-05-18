@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import TodayBalanceMiniCard from '../TodayBalanceMiniCard/TodayBalanceMiniCard';
 import './Sidebar.css';
 
 const menuItems = [
@@ -50,7 +49,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <TodayBalanceMiniCard collapsed={collapsed} />
 
       <nav className="sidebar-menu">
         {menuItems.map(item => (

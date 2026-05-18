@@ -6,6 +6,7 @@ import './FeelingSelector.css';
 
 const FeelingSlider = lazy(() => import('../FeelingSlider/FeelingSlider'));
 const FeelingTuner = lazy(() => import('../FeelingTuner/FeelingTuner'));
+const FeelingScale = lazy(() => import('../FeelingScale/FeelingScale'));
 
 interface FeelingSelectorProps {
   value: number;
@@ -38,6 +39,14 @@ export default function FeelingSelector({
         ) : mode === 'tuner' ? (
           <Suspense fallback={<div className="slider-fallback tuner-fallback" />}>
             <FeelingTuner
+              value={value}
+              onChange={onChange}
+              disabled={disabled}
+            />
+          </Suspense>
+        ) : mode === 'scale' ? (
+          <Suspense fallback={<div className="slider-fallback scale-fallback" />}>
+            <FeelingScale
               value={value}
               onChange={onChange}
               disabled={disabled}

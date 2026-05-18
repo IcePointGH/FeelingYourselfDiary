@@ -48,12 +48,16 @@ export function useFieldValidation<T extends Record<string, unknown>>(
     return hasError;
   }, [values, validators]);
 
+  const resetTouched = useCallback(() => {
+    setTouched({});
+  }, []);
+
   const hasErrors = useMemo(
     () => Object.values(errors).some((e) => e !== null && e !== undefined),
     [errors],
   );
 
-  return { touched, errors, touchField, validateAll, hasErrors };
+  return { touched, errors, touchField, validateAll, resetTouched, hasErrors };
 }
 
 /* ── Convenience validators ── */

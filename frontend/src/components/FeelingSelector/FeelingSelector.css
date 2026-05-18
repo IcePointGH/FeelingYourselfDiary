@@ -12,6 +12,10 @@
   height: 360px;
 }
 
+.scale-fallback {
+  height: 224px;
+}
+
 @keyframes slider-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }

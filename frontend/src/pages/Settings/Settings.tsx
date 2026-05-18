@@ -299,14 +299,14 @@ export default function SettingsPage() {
           {customSection === 'mode' && (
             <div className="custom-sub">
               <div className="theme-options">
-                {(['tuner', 'buttons', 'slider'] as FeelingSelectorMode[]).map(opt => (
+                {(['tuner', 'buttons', 'slider', 'scale'] as FeelingSelectorMode[]).map(opt => (
                   <div
                     key={opt}
                     className={`theme-option ${feelingMode === opt ? 'active' : ''}`}
                     onClick={() => setFeelingMode(opt)}
                   >
-                    <div className={`theme-preview ${opt === 'tuner' ? 'tuner-preview' : opt === 'slider' ? 'slider-preview' : 'buttons-preview'}`} />
-                    <span>{opt === 'tuner' ? '调音器' : opt === 'buttons' ? '按钮式' : '滑动式'}</span>
+                    <div className={`theme-preview ${opt === 'tuner' ? 'tuner-preview' : opt === 'slider' ? 'slider-preview' : opt === 'scale' ? 'balance-preview' : 'buttons-preview'}`} />
+                    <span>{opt === 'tuner' ? '调音器' : opt === 'buttons' ? '按钮式' : opt === 'slider' ? '滑动式' : '天平式'}</span>
                   </div>
                 ))}
               </div>

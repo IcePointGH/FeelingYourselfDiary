@@ -1,6 +1,6 @@
 export type FeelingValue = -3 | -2 | -1 | 0 | 1 | 2 | 3;
 
-export type FeelingSelectorMode = 'buttons' | 'slider' | 'tuner';
+export type FeelingSelectorMode = 'buttons' | 'slider' | 'tuner' | 'scale';
 
 export type ThemeType = 'morandi' | 'minimal' | 'dark';
 
