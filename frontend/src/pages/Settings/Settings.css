@@ -8,6 +8,10 @@
   width: 100%;
 }
 
+.settings-icp-footer {
+  margin-top: 24px;
+}
+
 /* Customization sub-navigation */
 .custom-nav {
   display: flex;

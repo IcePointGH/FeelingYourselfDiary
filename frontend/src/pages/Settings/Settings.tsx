@@ -7,6 +7,7 @@ import { useApi } from '../../hooks/useApi';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useTheme } from '../../contexts/ThemeContext';
 import CollapsiblePanel from '../../components/CollapsiblePanel/CollapsiblePanel';
+import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import { SETTINGS_API, AUTH_API } from '../../services/api';
 import type { FeelingSelectorMode } from '../../types';
 import './Settings.css';
@@ -365,6 +366,7 @@ export default function SettingsPage() {
           </button>
         </CollapsiblePanel>
       </div>
+      <IcpFooter className="settings-icp-footer" />
     </div>
   );
 }

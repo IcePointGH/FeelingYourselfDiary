@@ -14,11 +14,6 @@
   scrollbar-gutter: stable;
 }
 
-.layout-icp-footer {
-  margin-top: 32px;
-  padding-bottom: 4px;
-}
-
 /* ── Mobile layout ── */
 
 .mobile-layout {
@@ -41,10 +36,5 @@
 @media (max-width: 768px) {
   .main-content {
     padding: 20px;
-  }
-
-  .layout-icp-footer {
-    margin-top: 24px;
-    padding-bottom: 2px;
   }
 }
