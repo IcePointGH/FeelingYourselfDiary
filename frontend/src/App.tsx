@@ -16,6 +16,7 @@ import PageSkeleton from './components/PageSkeleton';
 import Welcome from './pages/Welcome/Welcome';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
+import OAuthCallback from './pages/OAuthCallback/OAuthCallback';
 import SchedulePage from './pages/Schedule/Schedule';
 import ThoughtsPage from './pages/Thoughts/Thoughts';
 
@@ -40,6 +41,7 @@ function App() {
                   <Route path="/" element={<Welcome />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/oauth/callback" element={<OAuthCallback />} />
                   <Route path="/balance-direction-lab" element={<Suspense fallback={<PageSkeleton />}><BalanceDirectionLabPage /></Suspense>} />
                   <Route element={<Layout />}>
                     <Route path="/schedule" element={<SchedulePage />} />

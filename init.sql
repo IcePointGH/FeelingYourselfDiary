@@ -67,7 +67,24 @@ CREATE TABLE IF NOT EXISTS user_settings (
     UNIQUE KEY UK4bos7satl9xeqd18frfeqg6tt (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ===== 5. AI 会话表 =====
+-- ===== 5. 第三方登录身份表 =====
+CREATE TABLE IF NOT EXISTS oauth_identities (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    avatar VARCHAR(500) DEFAULT NULL,
+    created_at DATETIME(6) DEFAULT NULL,
+    nickname VARCHAR(255) DEFAULT NULL,
+    provider VARCHAR(32) NOT NULL,
+    provider_user_id VARCHAR(128) NOT NULL,
+    union_id VARCHAR(128) DEFAULT NULL,
+    updated_at DATETIME(6) DEFAULT NULL,
+    user_id BIGINT NOT NULL,
+    version BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_oauth_provider_user (provider, provider_user_id),
+    KEY idx_oauth_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===== 6. AI 会话表 =====
 CREATE TABLE IF NOT EXISTS ai_sessions (
     id BIGINT NOT NULL AUTO_INCREMENT,
     created_at DATETIME(6) DEFAULT NULL,
@@ -84,7 +101,7 @@ CREATE TABLE IF NOT EXISTS ai_sessions (
     KEY idx_ai_sessions_user_status (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ===== 6. AI 消息表 =====
+-- ===== 7. AI 消息表 =====
 CREATE TABLE IF NOT EXISTS ai_messages (
     id BIGINT NOT NULL AUTO_INCREMENT,
     content TEXT NOT NULL,
@@ -97,7 +114,7 @@ CREATE TABLE IF NOT EXISTS ai_messages (
     KEY idx_ai_messages_session_seq (session_id, sequence_num)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ===== 7. AI 上下文关联表 =====
+-- ===== 8. AI 上下文关联表 =====
 CREATE TABLE IF NOT EXISTS ai_session_schedules (
     id BIGINT NOT NULL AUTO_INCREMENT,
     diary_id BIGINT DEFAULT NULL,
@@ -110,7 +127,7 @@ CREATE TABLE IF NOT EXISTS ai_session_schedules (
     KEY idx_ai_session_schedules_schedule_id (schedule_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ===== 8. 用户记忆画像表 =====
+-- ===== 9. 用户记忆画像表 =====
 CREATE TABLE IF NOT EXISTS user_memory (
     id BIGINT NOT NULL AUTO_INCREMENT,
     user_id BIGINT NOT NULL,

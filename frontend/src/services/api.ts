@@ -5,6 +5,9 @@ export const AUTH_API = {
   register: `${API_BASE_URL}/auth/register`,
   me: `${API_BASE_URL}/auth/me`,
   avatar: `${API_BASE_URL}/auth/avatar`,
+  oauthAuthorize: (provider: 'qq' | 'wechat', returnTo: string = '/schedule') =>
+    `${API_BASE_URL}/auth/oauth/${provider}/authorize?returnTo=${encodeURIComponent(returnTo)}`,
+  oauthComplete: `${API_BASE_URL}/auth/oauth/complete`,
 };
 
 export const SCHEDULE_API = {

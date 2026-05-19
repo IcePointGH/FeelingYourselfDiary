@@ -5,6 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import IcpFooter from '../../components/IcpFooter/IcpFooter';
+import { AUTH_API } from '../../services/api';
 import './Login.css';
 
 const EXPIRY_FLAG_KEY = 'session_expired';
@@ -53,6 +54,11 @@ export default function Login() {
     }
   };
 
+  const handleOAuthLogin = (provider: 'qq' | 'wechat') => {
+    const returnTo = sessionStorage.getItem(EXPIRY_RETURN_KEY) || '/schedule';
+    window.location.href = AUTH_API.oauthAuthorize(provider, returnTo);
+  };
+
   return (
     <div className="auth-page">
       <img         src={theme === 'dark' ? '/LOGO-v1/横版-暗-抠图后.png' : '/LOGO-v1/横版-白-抠图后.png'} alt="seven sense" className="auth-logo" />
@@ -85,6 +91,17 @@ export default function Login() {
             {loading ? '登录中...' : '登录'}
           </button>
         </form>
+        <div className="oauth-divider">
+          <span>或使用第三方登录</span>
+        </div>
+        <div className="oauth-actions">
+          <button type="button" className="oauth-btn oauth-btn-qq" onClick={() => handleOAuthLogin('qq')}>
+            QQ 登录
+          </button>
+          <button type="button" className="oauth-btn oauth-btn-wechat" onClick={() => handleOAuthLogin('wechat')}>
+            微信登录
+          </button>
+        </div>
         <p className="auth-link">
           还没有账号？ <Link to="/register">立即注册</Link>
         </p>

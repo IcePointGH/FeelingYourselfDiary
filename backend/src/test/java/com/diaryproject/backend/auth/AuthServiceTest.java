@@ -123,26 +123,4 @@ class AuthServiceTest {
         Cacheable ca = m.getAnnotation(Cacheable.class);
         assertNotNull(ca);
     }
-
-    @Test
-    void getUserInfo_rewritesLegacyInternalMinioAvatarUrl() {
-        UserRepository mockRepo = mock(UserRepository.class);
-        PasswordEncoder mockEncoder = mock(PasswordEncoder.class);
-        JwtUtil mockJwt = mock(JwtUtil.class);
-        AuthenticationManager mockAuthManager = mock(AuthenticationManager.class);
-        UserSettingsRepository mockSettingsRepo = mock(UserSettingsRepository.class);
-
-        User user = new User();
-        user.setId(1L);
-        user.setUsername("test");
-        user.setAvatar("http://minio:9000/avatars/avatar-1.png");
-        when(mockRepo.findById(1L)).thenReturn(Optional.of(user));
-        when(mockSettingsRepo.findByUserId(1L)).thenReturn(Optional.empty());
-
-        AuthService service = new AuthService(mockRepo, mockEncoder, mockJwt, mockAuthManager, mockSettingsRepo);
-
-        AuthDTO.UserInfo userInfo = service.getUserInfo(1L);
-
-        assertEquals("/api/auth/avatar/avatar-1.png", userInfo.getAvatar());
-    }
 }

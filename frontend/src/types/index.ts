@@ -98,6 +98,10 @@ export interface AuthResponse {
   user: User;
 }
 
+export interface OAuthCompleteRequest {
+  ticket: string;
+}
+
 export interface CalendarDay {
   date: number;
   fullDate: string;

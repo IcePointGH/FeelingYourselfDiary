@@ -6,9 +6,6 @@ import com.diaryproject.backend.common.service.MinioService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,13 +42,5 @@ public class AvatarController {
 
         log.info("头像上传处理完成，userId: {}, avatarUrl: {}", userId, avatarUrl);
         return ApiResponse.success(avatarUrl);
-    }
-
-    @GetMapping("/avatar/{objectName:.+}")
-    public ResponseEntity<InputStreamResource> getAvatar(@PathVariable String objectName) {
-        MinioService.GetAvatarResult avatar = minioService.getAvatar(objectName);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(avatar.contentType()))
-                .body(new InputStreamResource(avatar.inputStream()));
     }
 }

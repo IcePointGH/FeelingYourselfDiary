@@ -11,6 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
+  applyAuthResponse: (authData: AuthResponse) => void;
   logout: () => void;
   expireSession: (returnTo: string) => void;
   updateUser: (user: User) => void;
@@ -22,10 +23,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user');
-    return stored ? normalizeUser(JSON.parse(stored)) : null;
+    return stored ? JSON.parse(stored) : null;
   });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
+
+  const applyAuthResponse = useCallback((authData: AuthResponse) => {
+    localStorage.setItem('token', authData.token);
+    localStorage.setItem('user', JSON.stringify(authData.user));
+    setToken(authData.token);
+    setUser(authData.user);
+  }, []);
 
   const login = useCallback(async (data: LoginRequest) => {
     setLoading(true);
@@ -41,18 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // ===== 生产部署前注意 =====todo
         // Token 当前存储在 localStorage（XSS 可访问），生产环境建议改用 httpOnly Cookie
         // 同时需要后端配合：JWT 通过 Set-Cookie 返回，设置 httpOnly + Secure + SameSite=Strict
-        const normalizedUser = normalizeUser(authData.user);
-        localStorage.setItem('token', authData.token);
-        localStorage.setItem('user', JSON.stringify(normalizedUser));
-        setToken(authData.token);
-        setUser(normalizedUser);
+        applyAuthResponse(authData);
       } else {
         throw new Error(result.message || 'Login failed');
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyAuthResponse]);
 
   const register = useCallback(async (data: RegisterRequest) => {
     setLoading(true);
@@ -68,18 +72,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // ===== 生产部署前注意 =====todo
         // Token 当前存储在 localStorage（XSS 可访问），生产环境建议改用 httpOnly Cookie
         // 同时需要后端配合：JWT 通过 Set-Cookie 返回，设置 httpOnly + Secure + SameSite=Strict
-        const normalizedUser = normalizeUser(authData.user);
-        localStorage.setItem('token', authData.token);
-        localStorage.setItem('user', JSON.stringify(normalizedUser));
-        setToken(authData.token);
-        setUser(normalizedUser);
+        applyAuthResponse(authData);
       } else {
         throw new Error(result.message || 'Registration failed');
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [applyAuthResponse]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
@@ -98,9 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateUser = useCallback((updatedUser: User) => {
-    const normalizedUser = normalizeUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(normalizedUser));
-    setUser(normalizedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
   }, []);
 
   return (
@@ -110,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!token,
       login,
       register,
+      applyAuthResponse,
       logout,
       expireSession,
       updateUser,
@@ -125,21 +125,4 @@ export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
-}
-
-function normalizeUser(user: User): User {
-  return {
-    ...user,
-    avatar: normalizeAvatarUrl(user.avatar),
-  };
-}
-
-function normalizeAvatarUrl(avatar?: string) {
-  if (!avatar) return avatar;
-  const marker = '/avatars/';
-  const index = avatar.indexOf(marker);
-  if (index >= 0) {
-    return `/api/auth/avatar/${avatar.slice(index + marker.length)}`;
-  }
-  return avatar;
 }

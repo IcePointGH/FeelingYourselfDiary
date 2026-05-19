@@ -24,6 +24,19 @@ jwt.expiration=${JWT_EXPIRATION:86400000}
 # CORS Configuration (for local development)
 cors.allowed-origins=${CORS_ORIGINS:http://localhost:3000}
 
+# OAuth local mock mode.
+# QQ/WeChat website login cannot be completed from localhost without real platform callbacks.
+# Enable this to test the complete local flow without contacting QQ or WeChat:
+# /login -> /api/auth/oauth/{provider}/authorize -> backend callback -> /oauth/callback
+app.frontend-base-url=${FRONTEND_BASE_URL:http://localhost:3000}
+oauth.qq.client-id=${QQ_CLIENT_ID:local-qq}
+oauth.qq.client-secret=${QQ_CLIENT_SECRET:local-qq-secret}
+oauth.qq.redirect-uri=${QQ_REDIRECT_URI:http://localhost:8080/api/auth/oauth/qq/callback}
+oauth.wechat.client-id=${WECHAT_CLIENT_ID:local-wechat}
+oauth.wechat.client-secret=${WECHAT_CLIENT_SECRET:local-wechat-secret}
+oauth.wechat.redirect-uri=${WECHAT_REDIRECT_URI:http://localhost:8080/api/auth/oauth/wechat/callback}
+oauth.mock.enabled=${OAUTH_MOCK_ENABLED:true}
+
 # Redis Configuration (Redisson)
 redis.host=${REDIS_HOST:localhost}
 redis.port=${REDIS_PORT:6379}

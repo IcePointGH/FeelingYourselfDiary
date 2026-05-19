@@ -3,7 +3,6 @@ package com.diaryproject.backend.common.service;
 import com.diaryproject.backend.common.config.MinioConfig;
 import com.diaryproject.backend.common.exception.BadRequestException;
 import io.minio.BucketExistsArgs;
-import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -62,7 +60,7 @@ public class MinioService {
                             .build()
             );
 
-            String url = toPublicAvatarUrl(objectName);
+            String url = minioConfig.getEndpoint() + "/" + bucketName + "/" + objectName;
             log.info("头像上传成功，访问 URL: {}", url);
             return url;
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
@@ -71,57 +69,5 @@ public class MinioService {
             log.error("头像上传到 MinIO 失败，bucket: {}, objectName: {}", bucketName, objectName, e);
             throw new BadRequestException("头像上传失败: " + e.getMessage());
         }
-    }
-
-    public GetAvatarResult getAvatar(String objectName) {
-        try {
-            InputStream inputStream = minioClient.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(minioConfig.getBucketName())
-                            .object(objectName)
-                            .build()
-            );
-            return new GetAvatarResult(inputStream, contentTypeFromObjectName(objectName));
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
-            log.error("从 MinIO 读取头像失败，bucket: {}, objectName: {}", minioConfig.getBucketName(), objectName, e);
-            throw new BadRequestException("头像加载失败: " + e.getMessage());
-        }
-    }
-
-    public static String toPublicAvatarUrl(String avatarUrlOrObjectName) {
-        if (avatarUrlOrObjectName == null || avatarUrlOrObjectName.isBlank()) {
-            return avatarUrlOrObjectName;
-        }
-        String objectName = avatarUrlOrObjectName;
-        int marker = objectName.indexOf("/avatars/");
-        if (marker >= 0) {
-            objectName = objectName.substring(marker + "/avatars/".length());
-        }
-        if (objectName.startsWith("/api/auth/avatar/")) {
-            return objectName;
-        }
-        if (objectName.startsWith("http://") || objectName.startsWith("https://")) {
-            return objectName;
-        }
-        return "/api/auth/avatar/" + objectName;
-    }
-
-    private String contentTypeFromObjectName(String objectName) {
-        String lower = objectName.toLowerCase();
-        if (lower.endsWith(".png")) {
-            return "image/png";
-        }
-        if (lower.endsWith(".gif")) {
-            return "image/gif";
-        }
-        if (lower.endsWith(".webp")) {
-            return "image/webp";
-        }
-        return "image/jpeg";
-    }
-
-    public record GetAvatarResult(InputStream inputStream, String contentType) {
     }
 }

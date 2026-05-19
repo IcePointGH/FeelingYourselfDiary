@@ -138,9 +138,12 @@ oauth.wechat.client-secret=${WECHAT_CLIENT_SECRET:}
 oauth.wechat.redirect-uri=${WECHAT_REDIRECT_URI:https://www.sevensense.art/api/auth/oauth/wechat/callback}
 
 app.frontend-base-url=${FRONTEND_BASE_URL:https://www.sevensense.art}
+oauth.mock.enabled=${OAUTH_MOCK_ENABLED:false}
 ```
 
 Production `.env` must provide real app IDs and secrets from QQ Connect and WeChat Open Platform.
+
+For local development, QQ and WeChat cannot complete real website-login callbacks to `localhost`. Local testing should enable `OAUTH_MOCK_ENABLED=true`, set `FRONTEND_BASE_URL=http://localhost:3000`, and use localhost backend callback URLs. In mock mode the same frontend buttons and backend callback flow are exercised, but provider profile data is generated locally instead of fetched from QQ or WeChat.
 
 ## Frontend Changes
 
