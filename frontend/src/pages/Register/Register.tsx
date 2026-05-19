@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useFieldValidation, required, matchField } from '../../hooks/useFieldValidation';
 import IcpFooter from '../../components/IcpFooter/IcpFooter';
-import './Register.module.css';
+import './Register.css';
 
 export default function Register() {
   const [username, setUsername] = useState('');

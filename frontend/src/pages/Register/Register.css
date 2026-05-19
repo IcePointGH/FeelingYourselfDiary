@@ -1,4 +1,4 @@
-:global(.auth-page) {
+.auth-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   background: var(--surface-muted);
 }
 
-:global(.auth-container) {
+.auth-container {
   background: var(--surface-card);
   border: 1px solid var(--border-subtle);
   padding: 40px;
@@ -17,21 +17,21 @@
   max-width: 400px;
 }
 
-:global(.auth-logo) {
+.auth-logo {
   display: block;
   max-width: 280px;
   height: auto;
   margin-bottom: 28px;
 }
 
-:global(.auth-container h1) {
+.auth-container h1 {
   text-align: center;
   font-size: 28px;
   margin-bottom: 10px;
   color: var(--text-default);
 }
 
-:global(.auth-container h2) {
+.auth-container h2 {
   text-align: center;
   font-size: 18px;
   color: var(--text-muted);
@@ -39,18 +39,18 @@
   font-weight: 500;
 }
 
-:global(.form-group) {
+.form-group {
   margin-bottom: 20px;
 }
 
-:global(.form-group label) {
+.form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
   color: var(--text-default);
 }
 
-:global(.form-group input) {
+.form-group input {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid var(--border-default);
@@ -61,18 +61,17 @@
   transition: all var(--motion-base) var(--ease-standard);
 }
 
-:global(.form-group input:focus) {
+.form-group input:focus {
   outline: none;
   border-color: var(--accent-positive-3);
   box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
-/* Register submit button — full-width variant of ui-btn-primary */
-:global(.register-btn) {
+.register-btn {
   width: 100%;
 }
 
-:global(.error-message) {
+.error-message {
   background-color: #fef0f0;
   color: #c93c3c;
   padding: 10px;
@@ -85,7 +84,7 @@
   padding-left: 14px;
 }
 
-:global(.success-message) {
+.success-message {
   background-color: #e8f5e9;
   color: #2e7d32;
   padding: 10px;
@@ -101,23 +100,23 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-:global(.auth-link) {
+.auth-link {
   text-align: center;
   margin-top: 20px;
   color: var(--text-muted);
   font-size: 14px;
 }
 
-:global(.auth-link a) {
+.auth-link a {
   color: var(--accent-positive-3);
   text-decoration: none;
   font-weight: 500;
 }
 
-:global(.auth-link a:hover) {
+.auth-link a:hover {
   text-decoration: underline;
 }
 
-:global(.auth-icp-footer) {
+.auth-icp-footer {
   margin-top: 18px;
 }
