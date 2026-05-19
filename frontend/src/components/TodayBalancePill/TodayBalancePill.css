@@ -119,6 +119,18 @@
     inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
 
+[data-theme='dark'] .today-balance-liquid {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--today-balance-color) 18%, rgba(52, 45, 40, 0.72)),
+    color-mix(in srgb, var(--today-balance-color) 28%, rgba(32, 28, 25, 0.82))
+  );
+}
+
+[data-theme='dark'] .today-balance-liquid path {
+  fill: color-mix(in srgb, var(--today-balance-color) 20%, rgba(72, 61, 54, 0.9));
+}
+
 [data-theme='dark'] .today-balance-pill::after {
   opacity: 0.34;
 }

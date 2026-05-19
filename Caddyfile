@@ -1,6 +1,12 @@
 # Caddy reverse proxy for sevensense.art
 # Auto HTTPS via Let's Encrypt, HTTP→HTTPS redirect included by default
 
+{
+    servers {
+        protocols h1 h2
+    }
+}
+
 sevensense.art, www.sevensense.art {
     reverse_proxy frontend:80
 
