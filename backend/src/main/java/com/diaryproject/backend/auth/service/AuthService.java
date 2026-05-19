@@ -5,6 +5,7 @@ import com.diaryproject.backend.auth.entity.User;
 import com.diaryproject.backend.auth.repository.UserRepository;
 import com.diaryproject.backend.common.security.JwtUtil;
 import com.diaryproject.backend.common.exception.ResourceNotFoundException;
+import com.diaryproject.backend.common.service.MinioService;
 import com.diaryproject.backend.settings.entity.UserSettings;
 import com.diaryproject.backend.settings.repository.UserSettingsRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -142,7 +143,7 @@ public class AuthService {
         info.setId(user.getId());
         info.setUsername(user.getUsername());
         info.setNickname(user.getNickname());
-        info.setAvatar(user.getAvatar());
+        info.setAvatar(MinioService.toPublicAvatarUrl(user.getAvatar()));
         info.setSignature(user.getSignature());
         // Fetch theme from UserSettings instead of User entity
         String theme = userSettingsRepository.findByUserId(user.getId())
