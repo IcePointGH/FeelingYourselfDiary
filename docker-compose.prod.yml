@@ -8,9 +8,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # IP-only 部署：使用 Caddyfile.ip-only（无域名，HTTP only）
-      # 域名部署：改为 ./Caddyfile:/etc/caddy/Caddyfile
-      - ./Caddyfile.ip-only:/etc/caddy/Caddyfile
+      # Domain deployment: Caddy obtains and renews HTTPS certificates automatically.
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -85,11 +84,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
-      # ===== CORS 配置：必须设置为客户端实际访问的 origin（IP或域名）=====
-      # IP-only 示例：CORS_ORIGINS=http://123.456.789.0
-      # 域名示例：CORS_ORIGINS=https://yourdomain.com
-      # ⚠ 禁止用 * —— 与 allowCredentials=true 冲突，浏览器会直接拒绝
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      # CORS must match the public browser origins. Do not use "*" with credentials.
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://sevensense.art,https://www.sevensense.art}
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USERNAME}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}

@@ -117,3 +117,7 @@
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+.auth-icp-footer {
+  margin-top: 18px;
+}

@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
+import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import './Login.css';
 
 const EXPIRY_FLAG_KEY = 'session_expired';
@@ -88,6 +89,7 @@ export default function Login() {
           还没有账号？ <Link to="/register">立即注册</Link>
         </p>
       </div>
+      <IcpFooter className="auth-icp-footer" />
     </div>
   );
 }

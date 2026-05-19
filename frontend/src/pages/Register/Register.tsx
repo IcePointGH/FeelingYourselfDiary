@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useFieldValidation, required, matchField } from '../../hooks/useFieldValidation';
+import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import './Register.module.css';
 
 export default function Register() {
@@ -95,6 +96,7 @@ export default function Register() {
           已有账号？ <Link to="/login">立即登录</Link>
         </p>
       </div>
+      <IcpFooter className="auth-icp-footer" />
     </div>
   );
 }

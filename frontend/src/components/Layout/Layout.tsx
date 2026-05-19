@@ -8,6 +8,7 @@ import MobileMoreDrawer from '../../components/MobileMoreDrawer/MobileMoreDrawer
 import OnboardingProgress from '../../components/OnboardingProgress/OnboardingProgress';
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop';
 import TodayBalancePill from '../../components/TodayBalancePill/TodayBalancePill';
+import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import './Layout.css';
 
 const MOBILE_BREAKPOINT = 768;
@@ -52,6 +53,7 @@ export default function Layout() {
           <div className="page-enter" key={pageKey}>
             <Outlet />
           </div>
+          <IcpFooter className="layout-icp-footer" />
         </main>
         <MobileNav onMoreClick={() => setMoreDrawerOpen(true)} />
         <MobileMoreDrawer
@@ -72,6 +74,7 @@ export default function Layout() {
         <div className="page-enter" key={pageKey}>
           <Outlet />
         </div>
+        <IcpFooter className="layout-icp-footer" />
       </main>
       <ScrollToTop />
     </div>

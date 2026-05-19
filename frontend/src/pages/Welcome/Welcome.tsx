@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import { KAOMOJI } from '../../utils/feeling';
 import './Welcome.css';
 
@@ -235,6 +236,7 @@ export default function Welcome() {
 
       <footer className="welcome-footer">
         <p>已有账号？<a href="/login">立即登录</a></p>
+        <IcpFooter className="welcome-icp-footer" />
       </footer>
     </div>
   );

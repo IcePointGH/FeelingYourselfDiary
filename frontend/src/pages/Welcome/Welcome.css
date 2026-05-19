@@ -626,6 +626,10 @@
   font-weight: 700;
 }
 
+.welcome-icp-footer {
+  margin-top: 10px;
+}
+
 @keyframes riseIn {
   from {
     opacity: 0;
