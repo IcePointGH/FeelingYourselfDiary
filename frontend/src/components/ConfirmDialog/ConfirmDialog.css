@@ -37,10 +37,13 @@
 }
 
 .confirm-actions .btn {
+  flex: 1;
+  min-width: 0;
   padding: 8px 24px;
   font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn-danger-confirm {

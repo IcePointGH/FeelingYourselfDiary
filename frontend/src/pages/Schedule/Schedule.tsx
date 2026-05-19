@@ -151,69 +151,9 @@ export default function SchedulePage() {
     });
   };
 
-  // 批量操作
-  const [batchMode, setBatchMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [lastAnchor, setLastAnchor] = useState<number | null>(null);
   const [confirmState, setConfirmState] = useState<{
     message: string; danger?: boolean; onConfirm: () => void;
   } | null>(null);
-
-  const handleSelectItem = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const isShift = e.shiftKey;
-    const isCtrl = e.ctrlKey || e.metaKey;
-
-    // Shift+click: select range from lastAnchor to clicked item
-    if (isShift && lastAnchor !== null) {
-      const visibleIds = scheduleList.filter(it => !it.saving).map(it => it.id);
-      const anchorIdx = visibleIds.indexOf(lastAnchor);
-      const clickIdx = visibleIds.indexOf(id);
-      if (anchorIdx !== -1 && clickIdx !== -1) {
-        const start = Math.min(anchorIdx, clickIdx);
-        const end = Math.max(anchorIdx, clickIdx);
-        const range = new Set(visibleIds.slice(start, end + 1));
-        setSelectedIds(range);
-        return;
-      }
-    }
-
-    // Toggle single item
-    setSelectedIds(prev => {
-      const next = isCtrl ? new Set(prev) : new Set();
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-
-    setLastAnchor(id);
-  };
-
-  const selectAll = () => {
-    setSelectedIds(new Set(scheduleList.filter(it => !it.saving).map(it => it.id)));
-    setLastAnchor(null);
-  };
-  const deselectAll = () => {
-    setSelectedIds(new Set());
-    setLastAnchor(null);
-  };
-
-  const batchToggle = async (_completed: boolean) => {
-    const ids = Array.from(selectedIds);
-    for (const id of ids) {
-      try {
-        await apiFetch(SCHEDULE_API.toggleComplete(id), { method: 'PATCH' });
-      } catch { /* 继续下一个 */ }
-    }
-    setSelectedIds(new Set());
-    setBatchMode(false);
-    setLastAnchor(null);
-    refetch();
-    refreshTodayBalance();
-  };
   const [showFutureReminder, setShowFutureReminder] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
@@ -504,15 +444,7 @@ export default function SchedulePage() {
       <div className="card list-card">
         <div className="list-card-header">
           <h2>当日记录</h2>
-          {scheduleList.length > 0 && (
-            <button
-              className={`btn-batch-toggle ${batchMode ? 'active' : ''}`}
-              onClick={() => { setBatchMode(!batchMode); setSelectedIds(new Set()); }}
-            >
-              <i className="fas fa-check-double" />
-              {batchMode ? '退出批量' : '批量操作'}
-            </button>
-          )}
+
         </div>
         {error ? (
           <ErrorState
@@ -545,21 +477,14 @@ export default function SchedulePage() {
           <div className="schedule-list">
             {scheduleList.map(item => (
               <div key={item.id} ref={el => { rowRefs.current[item.id] = el; }} className="schedule-item-row">
-                {batchMode && !item.saving && (
-                  <div
-                    className={`batch-select-box ${selectedIds.has(item.id) ? 'selected' : ''}`}
-                    onClick={(e) => handleSelectItem(item.id, e)}
-                  >
-                    {selectedIds.has(item.id) ? <i className="fas fa-check" /> : null}
-                  </div>
-                )}
+
                 <ScheduleItemCard
                   item={item}
                   saving={item.saving}
                   justAdded={item.justAdded}
-                  onDelete={batchMode || item.saving ? undefined : handleDelete}
-                  onToggleComplete={batchMode || item.saving ? undefined : handleToggleComplete}
-                  onUpdate={batchMode || item.saving ? undefined : handleUpdate}
+                  onDelete={item.saving ? undefined : handleDelete}
+                  onToggleComplete={item.saving ? undefined : handleToggleComplete}
+                  onUpdate={item.saving ? undefined : handleUpdate}
                 />
               </div>
             ))}
@@ -567,32 +492,7 @@ export default function SchedulePage() {
         )}
 
         {/* 批量操作浮动栏 */}
-        {batchMode && selectedIds.size > 0 && (
-          <div className="batch-bar">
-            <button className="btn btn-text" onClick={selectAll}>全选</button>
-            <button className="btn btn-text" onClick={deselectAll}>取消选择</button>
-            <span className="batch-count">已选 {selectedIds.size} 项</span>
-            <button className="btn submit-btn" onClick={() => batchToggle(true)}>批量完成</button>
-            <button className="btn btn-cancel" onClick={() => batchToggle(false)}>批量取消</button>
-            <button className="btn btn-danger" onClick={() => {
-              setConfirmState({
-                message: `确定删除选中的 ${selectedIds.size} 条日程吗？此操作不可撤销。`,
-                danger: true,
-                onConfirm: async () => {
-                  setConfirmState(null);
-                  const ids = Array.from(selectedIds);
-                  for (const id of ids) {
-                    try { await apiFetch(`${SCHEDULE_API.base}/${id}`, { method: 'DELETE' }); } catch { /* continue */ }
-                  }
-                   setSelectedIds(new Set());
-                   setBatchMode(false);
-                   setLastAnchor(null);
-                   refetch();
-                },
-              });
-            }}>批量删除</button>
-          </div>
-        )}
+
       </div>
 
       {/* 未来日程提醒弹窗 */}

@@ -84,13 +84,13 @@
 .schedule-checkbox.checked .checkmark::after {
   content: '';
   position: absolute;
-  left: 5px;
-  top: 1px;
+  left: 50%;
+  top: 50%;
   width: 6px;
   height: 11px;
   border: solid var(--surface-card);
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+  transform: translate(-50%, -58%) rotate(45deg);
 }
 
 /* ── Future confirm overlay ── */

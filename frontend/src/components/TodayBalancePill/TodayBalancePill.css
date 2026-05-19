@@ -1,4 +1,5 @@
 .today-balance-pill {
+  --today-balance-color: #f6d85f;
   --today-balance-fill: 50%;
   position: absolute;
   top: 16px;

@@ -16,14 +16,13 @@ const orbitItems = [
 ] as const;
 
 const heroRecords = [
-  { time: '09:20', title: '晨间计划', mood: '+2', tone: 'positive' },
-  { time: '14:10', title: '项目会议', mood: '-1', tone: 'negative' },
-  { time: '22:40', title: '睡前日记', mood: '+1', tone: 'positive' },
+  { title: '和好朋友的聚餐', mood: '+2', tone: 'positive' },
+  { title: '终于完成今日工作', mood: '-3', tone: 'negative' },
+  { title: '睡前洗个热水澡', mood: '+1', tone: 'positive' },
 ] as const;
 
 const storySections = [
   {
-    kicker: '量化',
     title: '量化与分析',
     body: [
       '模糊的情绪转化为数值记录下来，这个过程，本身就有对自己当下情绪的确认与感知。',
@@ -33,7 +32,6 @@ const storySections = [
     kind: 'record',
   },
   {
-    kicker: '回顾',
     title: '记录与回顾',
     body: [
       '（以文字方式）输出是一种有效的、重要的疏解情绪的方法。我们把脑袋里的纷乱的想法转移到纸面上、电子数据里，在记录的同时，完成了一次整理，让想法更加有序。同时，为大脑腾出了思考的空间，让我们不再执着于某些问题，而是去专注于做好现实的事。',
@@ -43,7 +41,6 @@ const storySections = [
     kind: 'observe',
   },
   {
-    kicker: '规划',
     title: '审视与规划',
     body: [
       '最重要的问题是，我们对一日情绪的评价，常常被一天中感受最强烈的事、或最晚发生的事（峰终效应）干扰。',
@@ -78,6 +75,10 @@ export default function Welcome() {
 
   const handleStart = () => {
     navigate(isAuthenticated ? '/schedule' : '/login');
+  };
+
+  const handleScrollToStoryline = () => {
+    document.getElementById('welcome-storyline')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleLogout = () => {
@@ -133,54 +134,34 @@ export default function Welcome() {
               alt="seven sense"
               className="welcome-logo"
             />
-            <p className="welcome-eyebrow">Seven Sense</p>
-            <h1 id="welcome-title" className="welcome-title">七种颜色，记录一天的起伏</h1>
-            <p className="welcome-tagline">
-              把日程、情绪和复盘放在一起，让你慢慢看见自己是怎样度过每一天的。
-            </p>
-            <div className="welcome-spectrum" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
+            <h1 id="welcome-title" className="welcome-title">情绪平衡日记</h1>
+            <p className="welcome-tagline">是日记，更是规划。</p>
             <div className="welcome-actions">
               <button className="welcome-start-btn" onClick={handleStart}>
                 <i className="fas fa-arrow-right" aria-hidden="true" />
                 <span>{isAuthenticated ? '进入我的日记' : '开始使用'}</span>
               </button>
-              <a className="welcome-secondary-link" href="#welcome-storyline">功能介绍</a>
+              <button type="button" className="welcome-secondary-link" onClick={handleScrollToStoryline}>功能介绍</button>
             </div>
           </div>
 
           <div className="welcome-preview" aria-label="产品预览">
             <div className="preview-sheet">
               <div className="preview-sheet-head">
-                <span>今日记录</span>
-                <strong>+0.7</strong>
-              </div>
-              <div className="preview-trend" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
+                <span>今日日程</span>
+                <strong>+1</strong>
               </div>
               <div className="preview-records">
                 {heroRecords.map((record) => (
                   <div className="preview-record" key={record.title}>
-                    <span>{record.time}</span>
                     <strong>{record.title}</strong>
                     <b className={record.tone}>{record.mood}</b>
                   </div>
                 ))}
               </div>
               <div className="preview-insight">
-                <span>小七整理</span>
-                <p>下午略有下滑，晚间逐渐回稳。</p>
+                <span>小七提醒</span>
+                <p>今天还有些偏沉。睡前也可以给自己留一点恢复时间。</p>
               </div>
             </div>
           </div>
@@ -190,7 +171,6 @@ export default function Welcome() {
           {storySections.map((section) => (
             <article className={`story-step story-step--${section.kind}`} key={section.kind}>
               <div className="story-step-copy">
-                <span className="section-kicker">{section.kicker}</span>
                 <h2>{section.title}</h2>
                 <div className="story-step-body">
                   {section.body.map((paragraph) => (
@@ -202,28 +182,66 @@ export default function Welcome() {
               <div className="story-step-visual" aria-hidden="true">
                 {section.kind === 'record' && (
                   <div className="record-visual">
-                    <div><span>09:20</span><strong>晨间计划</strong><b>+2</b></div>
-                    <div><span>14:10</span><strong>项目会议</strong><b>-1</b></div>
-                    <div><span>22:40</span><strong>睡前日记</strong><b>+1</b></div>
+                    <svg viewBox="0 0 320 180" role="presentation">
+                      <g className="chart-grid">
+                        <line x1="42" y1="28" x2="292" y2="28" />
+                        <line x1="42" y1="60" x2="292" y2="60" />
+                        <line x1="42" y1="92" x2="292" y2="92" />
+                        <line x1="42" y1="124" x2="292" y2="124" />
+                        <line x1="42" y1="156" x2="292" y2="156" />
+                      </g>
+                      <g className="chart-axis">
+                        <line x1="42" y1="20" x2="42" y2="156" />
+                        <line x1="42" y1="156" x2="292" y2="156" />
+                        <text x="26" y="31">+3</text>
+                        <text x="26" y="63">+2</text>
+                        <text x="26" y="95">0</text>
+                        <text x="24" y="127">-1</text>
+                        <text x="24" y="159">-2</text>
+                        <text x="54" y="172">09:20</text>
+                        <text x="124" y="172">13:10</text>
+                        <text x="194" y="172">17:40</text>
+                        <text x="256" y="172">22:30</text>
+                      </g>
+                      <line className="chart-zero" x1="42" y1="92" x2="292" y2="92" />
+                      <path d="M58 124 C88 124 100 60 126 60 S156 28 182 28 S214 124 238 124 S264 60 280 60" />
+                      <circle className="neg-1" cx="58" cy="124" r="5" />
+                      <circle className="pos-2" cx="126" cy="60" r="5" />
+                      <circle className="pos-3" cx="182" cy="28" r="5" />
+                      <circle className="neg-1" cx="238" cy="124" r="5" />
+                      <circle className="pos-2" cx="280" cy="60" r="5" />
+                    </svg>
                   </div>
                 )}
 
                 {section.kind === 'observe' && (
                   <div className="observe-visual">
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                    <span />
+                    <div className="thought-form-visual">
+                      <label>标题</label>
+                      <div className="thought-input">
+                        <span className="thought-line medium" />
+                      </div>
+                      <label>日期</label>
+                      <div className="thought-input compact">
+                        <span className="thought-line short" />
+                        <i className="far fa-calendar-alt" aria-hidden="true" />
+                      </div>
+                      <label>内容</label>
+                      <div className="thought-textarea">
+                        <span className="thought-line long" />
+                        <span className="thought-line wide" />
+                        <span className="thought-line medium" />
+                        <button type="button" tabIndex={-1}>保存</button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {section.kind === 'reflect' && (
                   <div className="reflect-visual">
-                    <small>小七批注</small>
-                    <p>这周不是一直低落，而是在高压之后更需要恢复时间。</p>
+                    <div><strong>和好朋友的聚餐</strong><b>+2</b></div>
+                    <div><strong>终于完成今日工作</strong><b>-3</b></div>
+                    <div><strong>睡前洗个热水澡</strong><b>+1</b></div>
                   </div>
                 )}
               </div>
@@ -233,7 +251,7 @@ export default function Welcome() {
 
         <section className="welcome-final-cta" aria-label="开始使用">
           <span>Seven Sense</span>
-          <h2>从今天的一条记录开始，慢慢看懂自己的情绪变化。</h2>
+          <h2>找回情绪平衡，从记录你的第一条日程开始。</h2>
           <button className="welcome-start-btn" onClick={handleStart}>
             <i className="fas fa-arrow-right" aria-hidden="true" />
             <span>{isAuthenticated ? '进入记录' : '注册或登录'}</span>

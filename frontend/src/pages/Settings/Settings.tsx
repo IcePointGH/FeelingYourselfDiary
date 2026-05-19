@@ -7,7 +7,6 @@ import { useApi } from '../../hooks/useApi';
 import { useFeelingMode } from '../../hooks/useFeelingMode';
 import { useTheme } from '../../contexts/ThemeContext';
 import CollapsiblePanel from '../../components/CollapsiblePanel/CollapsiblePanel';
-import DataManagement from './DataManagement';
 import { SETTINGS_API, AUTH_API } from '../../services/api';
 import type { FeelingSelectorMode } from '../../types';
 import './Settings.css';
@@ -150,7 +149,7 @@ export default function SettingsPage() {
           updateUser({ ...user, avatar: result.data });
         }
       } else {
-        throw new Error(result.message || '上传失败');
+        addToast(result.message || '上传失败', 'error');
       }
     } catch (err) {
       addToast(err instanceof Error ? err.message : '头像上传失败，请检查网络或稍后重试', 'error');
@@ -299,7 +298,7 @@ export default function SettingsPage() {
           {customSection === 'mode' && (
             <div className="custom-sub">
               <div className="theme-options">
-                {(['tuner', 'buttons', 'slider', 'scale'] as FeelingSelectorMode[]).map(opt => (
+                {(['buttons', 'scale', 'slider', 'tuner'] as FeelingSelectorMode[]).map(opt => (
                   <div
                     key={opt}
                     className={`theme-option ${feelingMode === opt ? 'active' : ''}`}
@@ -352,27 +351,11 @@ export default function SettingsPage() {
           )}
         </CollapsiblePanel>
 
-        <CollapsiblePanel title="数据设置">
-          <DataManagement />
-        </CollapsiblePanel>
-
         <CollapsiblePanel title="导航">
           <button className="ui-btn ui-btn-secondary settings-btn-full" onClick={() => navigate('/')}>
             <i className="fas fa-home" />
             <span>返回欢迎页</span>
           </button>
-        </CollapsiblePanel>
-
-        <CollapsiblePanel title="使用手册">
-          <div className="help-content">
-            <p>使用手册内容将在此处显示。您可以在这里了解如何记录日程、书写日记、查看情绪分析等功能的使用方法。</p>
-          </div>
-        </CollapsiblePanel>
-
-        <CollapsiblePanel title="开发者的话">
-          <div className="about-content">
-            <p>开发者的话将在此处显示。感谢您使用seven sense，希望它能陪伴您记录生活中的每一个瞬间。</p>
-          </div>
         </CollapsiblePanel>
 
         <CollapsiblePanel title="账户操作">
