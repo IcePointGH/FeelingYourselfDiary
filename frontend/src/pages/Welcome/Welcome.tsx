@@ -15,11 +15,6 @@ const orbitItems = [
   { value: '+3', face: KAOMOJI['3'], tone: 'pos-3' },
 ] as const;
 
-const heroRecords = [
-  { title: '和好朋友的聚餐', mood: '+2', tone: 'positive' },
-  { title: '终于完成今日工作', mood: '-3', tone: 'negative' },
-  { title: '睡前洗个热水澡', mood: '+1', tone: 'positive' },
-] as const;
 
 const storySections = [
   {
@@ -142,27 +137,6 @@ export default function Welcome() {
                 <span>{isAuthenticated ? '进入我的日记' : '开始使用'}</span>
               </button>
               <button type="button" className="welcome-secondary-link" onClick={handleScrollToStoryline}>功能介绍</button>
-            </div>
-          </div>
-
-          <div className="welcome-preview" aria-label="产品预览">
-            <div className="preview-sheet">
-              <div className="preview-sheet-head">
-                <span>今日日程</span>
-                <strong>+1</strong>
-              </div>
-              <div className="preview-records">
-                {heroRecords.map((record) => (
-                  <div className="preview-record" key={record.title}>
-                    <strong>{record.title}</strong>
-                    <b className={record.tone}>{record.mood}</b>
-                  </div>
-                ))}
-              </div>
-              <div className="preview-insight">
-                <span>小七提醒</span>
-                <p>今天还有些偏沉。睡前也可以给自己留一点恢复时间。</p>
-              </div>
             </div>
           </div>
         </section>

@@ -157,24 +157,26 @@
 
 .welcome-hero {
   min-height: min(760px, calc(100vh - 140px));
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(380px, 1.1fr);
+  display: flex;
   align-items: center;
-  gap: 58px;
+  justify-content: center;
   padding: 78px 0 50px;
 }
 
 .hero-copy {
   display: flex;
+  width: min(760px, 100%);
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  text-align: center;
   animation: riseIn 520ms ease both;
 }
 
 .welcome-logo {
   display: block;
   width: min(280px, 70vw);
-  margin-bottom: 24px;
+  margin: 0 auto 24px;
 }
 
 .welcome-final-cta span {
@@ -216,6 +218,7 @@
   flex-wrap: wrap;
   gap: 18px;
   align-items: center;
+  justify-content: center;
   margin-top: 32px;
 }
 
@@ -693,7 +696,6 @@
 
   .welcome-hero {
     min-height: auto;
-    gap: 34px;
     padding-top: 92px;
   }
 }
@@ -723,11 +725,7 @@
 
   .welcome-actions {
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .welcome-preview {
-    display: block;
+    align-items: center;
   }
 
   .preview-sheet {
