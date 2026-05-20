@@ -1,3 +1,5 @@
+import type { OAuthProvider } from '../types';
+
 export const API_BASE_URL = '/api';
 
 export const AUTH_API = {
@@ -5,7 +7,7 @@ export const AUTH_API = {
   register: `${API_BASE_URL}/auth/register`,
   me: `${API_BASE_URL}/auth/me`,
   avatar: `${API_BASE_URL}/auth/avatar`,
-  oauthAuthorize: (provider: 'qq' | 'wechat', returnTo: string = '/schedule') =>
+  oauthAuthorize: (provider: OAuthProvider, returnTo: string = '/schedule') =>
     `${API_BASE_URL}/auth/oauth/${provider}/authorize?returnTo=${encodeURIComponent(returnTo)}`,
   oauthComplete: `${API_BASE_URL}/auth/oauth/complete`,
 };

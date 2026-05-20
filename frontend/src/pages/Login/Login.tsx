@@ -6,6 +6,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useFieldValidation, required } from '../../hooks/useFieldValidation';
 import IcpFooter from '../../components/IcpFooter/IcpFooter';
 import { AUTH_API } from '../../services/api';
+import type { OAuthProvider } from '../../types';
 import './Login.css';
 
 const EXPIRY_FLAG_KEY = 'session_expired';
@@ -21,7 +22,6 @@ export default function Login() {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  // ── Inline validation ──
   const { errors, touchField, validateAll } = useFieldValidation(
     { username, password },
     {
@@ -30,7 +30,6 @@ export default function Login() {
     },
   );
 
-  // Show expiry toast and redirect back after login
   useEffect(() => {
     if (sessionStorage.getItem(EXPIRY_FLAG_KEY)) {
       addToast('会话已过期，请重新登录', 'warning');
@@ -54,14 +53,18 @@ export default function Login() {
     }
   };
 
-  const handleOAuthLogin = (provider: 'qq' | 'wechat') => {
+  const handleOAuthLogin = (provider: OAuthProvider) => {
     const returnTo = sessionStorage.getItem(EXPIRY_RETURN_KEY) || '/schedule';
     window.location.href = AUTH_API.oauthAuthorize(provider, returnTo);
   };
 
   return (
     <div className="auth-page">
-      <img         src={theme === 'dark' ? '/LOGO-v1/横版-暗-抠图后.png' : '/LOGO-v1/横版-白-抠图后.png'} alt="seven sense" className="auth-logo" />
+      <img
+        src={theme === 'dark' ? '/LOGO-v1/横版-暗-抠图后.png' : '/LOGO-v1/横版-白-抠图后.png'}
+        alt="seven sense"
+        className="auth-logo"
+      />
       <div className="auth-container">
         <h2>登录</h2>
         {success && <div className="success-message">{success}</div>}
@@ -95,11 +98,8 @@ export default function Login() {
           <span>或使用第三方登录</span>
         </div>
         <div className="oauth-actions">
-          <button type="button" className="oauth-btn oauth-btn-qq" onClick={() => handleOAuthLogin('qq')}>
-            QQ 登录
-          </button>
-          <button type="button" className="oauth-btn oauth-btn-wechat" onClick={() => handleOAuthLogin('wechat')}>
-            微信登录
+          <button type="button" className="oauth-btn oauth-btn-github" onClick={() => handleOAuthLogin('github')}>
+            GitHub 登录
           </button>
         </div>
         <p className="auth-link">

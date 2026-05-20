@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 @Data
 public class OAuthProperties {
 
-    private Provider qq = new Provider();
-    private Provider wechat = new Provider();
+    private Provider github = new Provider();
     private Mock mock = new Mock();
 
     @Data

@@ -91,7 +91,7 @@
 
 .oauth-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -113,12 +113,8 @@
   transform: translateY(-1px);
 }
 
-.oauth-btn-qq:hover {
-  border-color: #2d8cf0;
-}
-
-.oauth-btn-wechat:hover {
-  border-color: #1aad19;
+.oauth-btn-github:hover {
+  border-color: #24292f;
 }
 
 .error-message {

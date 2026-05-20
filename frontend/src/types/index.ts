@@ -102,6 +102,8 @@ export interface OAuthCompleteRequest {
   ticket: string;
 }
 
+export type OAuthProvider = 'github';
+
 export interface CalendarDay {
   date: number;
   fullDate: string;

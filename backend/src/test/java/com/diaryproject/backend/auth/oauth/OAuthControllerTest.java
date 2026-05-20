@@ -18,22 +18,22 @@ class OAuthControllerTest {
     @Test
     void authorize_redirectsToProviderAuthorizationUri() {
         OAuthService service = mock(OAuthService.class);
-        when(service.startAuthorization("qq", "/schedule")).thenReturn("https://qq.example/auth");
+        when(service.startAuthorization("github", "/schedule")).thenReturn("https://github.com/login/oauth/authorize");
 
         OAuthController controller = new OAuthController(service);
-        ResponseEntity<Void> response = controller.authorize("qq", "/schedule");
+        ResponseEntity<Void> response = controller.authorize("github", "/schedule");
 
         assertEquals(302, response.getStatusCode().value());
-        assertEquals(URI.create("https://qq.example/auth"), response.getHeaders().getLocation());
+        assertEquals(URI.create("https://github.com/login/oauth/authorize"), response.getHeaders().getLocation());
     }
 
     @Test
     void callback_redirectsToFrontendCallbackUri() {
         OAuthService service = mock(OAuthService.class);
-        when(service.handleCallback("wechat", "code", "state")).thenReturn("https://www.sevensense.art/oauth/callback?ticket=t");
+        when(service.handleCallback("github", "code", "state")).thenReturn("https://www.sevensense.art/oauth/callback?ticket=t");
 
         OAuthController controller = new OAuthController(service);
-        ResponseEntity<Void> response = controller.callback("wechat", "code", "state");
+        ResponseEntity<Void> response = controller.callback("github", "code", "state");
 
         assertEquals(302, response.getStatusCode().value());
         assertEquals(URI.create("https://www.sevensense.art/oauth/callback?ticket=t"), response.getHeaders().getLocation());

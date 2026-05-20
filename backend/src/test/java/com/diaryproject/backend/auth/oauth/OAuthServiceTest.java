@@ -29,19 +29,19 @@ class OAuthServiceTest {
     @Test
     void handleCallback_returnsTicketForExistingIdentity() {
         Fixture fx = new Fixture();
-        User user = user(7L, "qq_existing", "Existing");
+        User user = user(7L, "github_existing", "Existing");
         OAuthIdentity identity = identity(12L, user);
 
         when(fx.cacheService.get(eq("oauth:state:state-1"), eq(OAuthDTO.OAuthState.class)))
-                .thenReturn(Optional.of(new OAuthDTO.OAuthState("qq", "/schedule")));
-        when(fx.qqClient.fetchUserProfile("code-1"))
-                .thenReturn(new OAuthDTO.ProviderProfile("qq-openid", "union-1", "QQ Name", "https://avatar"));
-        when(fx.identityRepository.findByProviderAndProviderUserId("qq", "qq-openid"))
+                .thenReturn(Optional.of(new OAuthDTO.OAuthState("github", "/schedule")));
+        when(fx.githubClient.fetchUserProfile("code-1"))
+                .thenReturn(new OAuthDTO.ProviderProfile("github-id", null, "GitHub Name", "https://avatar"));
+        when(fx.identityRepository.findByProviderAndProviderUserId("github", "github-id"))
                 .thenReturn(Optional.of(identity));
-        when(fx.jwtUtil.generateToken(7L, "qq_existing")).thenReturn("jwt-7");
+        when(fx.jwtUtil.generateToken(7L, "github_existing")).thenReturn("jwt-7");
         when(fx.settingsRepository.findByUserId(7L)).thenReturn(Optional.empty());
 
-        String redirect = fx.service.handleCallback("qq", "code-1", "state-1");
+        String redirect = fx.service.handleCallback("github", "code-1", "state-1");
 
         assertTrue(redirect.startsWith("https://www.sevensense.art/oauth/callback?ticket="));
         assertTrue(redirect.contains("returnTo=/schedule"));
@@ -53,25 +53,25 @@ class OAuthServiceTest {
     @Test
     void handleCallback_createsUserSettingsAndIdentityForNewProviderUser() {
         Fixture fx = new Fixture();
-        User saved = user(9L, "qq_generated", "QQ Name");
+        User saved = user(9L, "github_generated", "GitHub Name");
 
         when(fx.cacheService.get(eq("oauth:state:state-2"), eq(OAuthDTO.OAuthState.class)))
-                .thenReturn(Optional.of(new OAuthDTO.OAuthState("qq", "/analysis")));
-        when(fx.qqClient.fetchUserProfile("code-2"))
-                .thenReturn(new OAuthDTO.ProviderProfile("qq-openid-new", "union-2", "QQ Name", "https://avatar-new"));
-        when(fx.identityRepository.findByProviderAndProviderUserId("qq", "qq-openid-new"))
+                .thenReturn(Optional.of(new OAuthDTO.OAuthState("github", "/analysis")));
+        when(fx.githubClient.fetchUserProfile("code-2"))
+                .thenReturn(new OAuthDTO.ProviderProfile("github-id-new", null, "GitHub Name", "https://avatar-new"));
+        when(fx.identityRepository.findByProviderAndProviderUserId("github", "github-id-new"))
                 .thenReturn(Optional.empty());
         when(fx.passwordEncoder.encode(anyString())).thenReturn("encoded-placeholder");
         when(fx.userRepository.save(any(User.class))).thenReturn(saved);
-        when(fx.jwtUtil.generateToken(9L, "qq_generated")).thenReturn("jwt-9");
+        when(fx.jwtUtil.generateToken(9L, "github_generated")).thenReturn("jwt-9");
         when(fx.settingsRepository.findByUserId(9L)).thenReturn(Optional.empty());
 
-        fx.service.handleCallback("qq", "code-2", "state-2");
+        fx.service.handleCallback("github", "code-2", "state-2");
 
         verify(fx.userRepository).save(argThat(user ->
-                user.getUsername().startsWith("qq_")
+                user.getUsername().startsWith("github_")
                         && "encoded-placeholder".equals(user.getPassword())
-                        && "QQ Name".equals(user.getNickname())
+                        && "GitHub Name".equals(user.getNickname())
                         && "https://avatar-new".equals(user.getAvatar())
         ));
         verify(fx.settingsRepository).save(argThat(settings ->
@@ -81,9 +81,9 @@ class OAuthServiceTest {
         ));
         verify(fx.identityRepository).save(argThat(oauth ->
                 oauth.getUserId().equals(9L)
-                        && "qq".equals(oauth.getProvider())
-                        && "qq-openid-new".equals(oauth.getProviderUserId())
-                        && "union-2".equals(oauth.getUnionId())
+                        && "github".equals(oauth.getProvider())
+                        && "github-id-new".equals(oauth.getProviderUserId())
+                        && oauth.getUnionId() == null
         ));
     }
 
@@ -94,9 +94,17 @@ class OAuthServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(BadRequestException.class,
-                () -> fx.service.handleCallback("qq", "code", "missing"));
+                () -> fx.service.handleCallback("github", "code", "missing"));
 
-        verify(fx.qqClient, never()).fetchUserProfile(anyString());
+        verify(fx.githubClient, never()).fetchUserProfile(anyString());
+    }
+
+    @Test
+    void startAuthorization_rejectsQqProvider() {
+        Fixture fx = new Fixture();
+
+        assertThrows(BadRequestException.class,
+                () -> fx.service.startAuthorization("qq", "/schedule"));
     }
 
     @Test
@@ -124,8 +132,8 @@ class OAuthServiceTest {
         identity.setId(id);
         identity.setUserId(user.getId());
         identity.setUser(user);
-        identity.setProvider("qq");
-        identity.setProviderUserId("qq-openid");
+        identity.setProvider("github");
+        identity.setProviderUserId("github-id");
         return identity;
     }
 
@@ -136,14 +144,12 @@ class OAuthServiceTest {
         private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
         private final JwtUtil jwtUtil = mock(JwtUtil.class);
         private final CacheService cacheService = mock(CacheService.class);
-        private final OAuthProviderClient qqClient = mock(OAuthProviderClient.class);
-        private final OAuthProviderClient wechatClient = mock(OAuthProviderClient.class);
+        private final OAuthProviderClient githubClient = mock(OAuthProviderClient.class);
         private final OAuthService service;
 
         private Fixture() {
-            when(qqClient.getProvider()).thenReturn(OAuthProvider.QQ);
-            when(qqClient.buildAuthorizationUri(anyString(), anyString())).thenReturn("https://qq.example/auth");
-            when(wechatClient.getProvider()).thenReturn(OAuthProvider.WECHAT);
+            when(githubClient.getProvider()).thenReturn(OAuthProvider.GITHUB);
+            when(githubClient.buildAuthorizationUri(anyString(), anyString())).thenReturn("https://github.example/auth");
             service = new OAuthService(
                     identityRepository,
                     userRepository,
@@ -151,7 +157,7 @@ class OAuthServiceTest {
                     passwordEncoder,
                     jwtUtil,
                     cacheService,
-                    List.of(qqClient, wechatClient),
+                    List.of(githubClient),
                     "https://www.sevensense.art"
             );
         }

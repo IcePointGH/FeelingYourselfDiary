@@ -5,8 +5,7 @@ import com.diaryproject.backend.common.exception.BadRequestException;
 import java.util.Locale;
 
 public enum OAuthProvider {
-    QQ("qq"),
-    WECHAT("wechat");
+    GITHUB("github");
 
     private final String value;
 
