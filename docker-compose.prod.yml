@@ -86,6 +86,11 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       # CORS must match the public browser origins. Do not use "*" with credentials.
       CORS_ORIGINS: ${CORS_ORIGINS:-https://sevensense.art,https://www.sevensense.art}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-https://www.sevensense.art}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
+      GITHUB_REDIRECT_URI: ${GITHUB_REDIRECT_URI:-https://www.sevensense.art/api/auth/oauth/github/callback}
+      OAUTH_MOCK_ENABLED: ${OAUTH_MOCK_ENABLED:-false}
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USERNAME}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
