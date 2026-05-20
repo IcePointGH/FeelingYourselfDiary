@@ -19,6 +19,19 @@ public final class CorsOrigins {
         return origins.isEmpty() ? defaults() : origins;
     }
 
+    public static List<String> parsePatterns(String allowedOrigins) {
+        List<String> patterns = new java.util.ArrayList<>(parse(allowedOrigins));
+        addIfMissing(patterns, "http://localhost:*");
+        addIfMissing(patterns, "http://127.0.0.1:*");
+        return List.copyOf(patterns);
+    }
+
+    private static void addIfMissing(List<String> values, String value) {
+        if (!values.contains(value)) {
+            values.add(value);
+        }
+    }
+
     private static List<String> defaults() {
         return List.of("http://localhost:3000", "http://127.0.0.1:3000");
     }
