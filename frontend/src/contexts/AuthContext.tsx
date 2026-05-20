@@ -23,16 +23,17 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
+    return stored ? normalizeUser(JSON.parse(stored)) : null;
   });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
 
   const applyAuthResponse = useCallback((authData: AuthResponse) => {
+    const normalizedUser = normalizeUser(authData.user);
     localStorage.setItem('token', authData.token);
-    localStorage.setItem('user', JSON.stringify(authData.user));
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
     setToken(authData.token);
-    setUser(authData.user);
+    setUser(normalizedUser);
   }, []);
 
   const login = useCallback(async (data: LoginRequest) => {
@@ -98,8 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateUser = useCallback((updatedUser: User) => {
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+    const normalizedUser = normalizeUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    setUser(normalizedUser);
   }, []);
 
   return (
@@ -125,4 +127,21 @@ export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
+}
+
+function normalizeUser(user: User): User {
+  return {
+    ...user,
+    avatar: normalizeAvatarUrl(user.avatar),
+  };
+}
+
+function normalizeAvatarUrl(avatar?: string) {
+  if (!avatar) return avatar;
+  const marker = '/avatars/';
+  const index = avatar.indexOf(marker);
+  if (index >= 0) {
+    return `/api/auth/avatar/${avatar.slice(index + marker.length)}`;
+  }
+  return avatar;
 }
