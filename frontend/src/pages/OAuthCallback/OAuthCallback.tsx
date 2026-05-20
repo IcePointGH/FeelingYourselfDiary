@@ -31,7 +31,7 @@ export default function OAuthCallback() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ticket }),
         });
-        const result: ApiResponse<AuthResponse> = await response.json();
+        const result = await readApiResponse(response);
         if (result.code !== 200) {
           throw new Error(result.message || '第三方登录失败');
         }
@@ -73,6 +73,16 @@ export default function OAuthCallback() {
       </div>
     </div>
   );
+}
+
+async function readApiResponse(response: Response): Promise<ApiResponse<AuthResponse>> {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  throw new Error(text || `第三方登录失败，服务端返回 ${response.status}`);
 }
 
 function sanitizeReturnTo(value: string | null) {
