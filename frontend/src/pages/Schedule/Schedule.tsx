@@ -87,6 +87,7 @@ export default function SchedulePage() {
 
   // ── Draft persistence ──
   const { draft, hasDraft, save, clear, setCurrent, setDirty } = useDraft<ScheduleDraft>('schedule.create');
+  const [hadDraftOnMount] = useState(hasDraft);
   const [draftDismissed, setDraftDismissed] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -351,7 +352,7 @@ export default function SchedulePage() {
       <div className="daily-quote">{quote}</div>
       <div className="card form-card">
         {/* Draft restore banner */}
-        {hasDraft && !draftDismissed && draft && JSON.stringify(formDraft) !== JSON.stringify(draft) && (
+        {hadDraftOnMount && hasDraft && !draftDismissed && draft && JSON.stringify(formDraft) !== JSON.stringify(draft) && (
           <div className="draft-restore-banner">
             <i className="fas fa-pencil-alt" />
             <span>你有未提交的日程草稿，是否恢复？</span>
