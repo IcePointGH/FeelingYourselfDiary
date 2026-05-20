@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
@@ -76,34 +77,38 @@ public class GitHubOAuthProviderClient implements OAuthProviderClient {
         tokenRequest.add("client_secret", github.getClientSecret());
         tokenRequest.add("code", code);
         tokenRequest.add("redirect_uri", github.getRedirectUri());
-        String tokenBody = restClient.post()
-                .uri(TOKEN_URL)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .accept(MediaType.APPLICATION_JSON)
-                .body(tokenRequest)
-                .retrieve()
-                .body(String.class);
-        Map<String, Object> token = parseJson(tokenBody);
-        String accessToken = stringValue(token, "access_token");
-        if (isBlank(accessToken)) {
-            throw new BadRequestException("GitHub authorization failed");
-        }
+        try {
+            String tokenBody = restClient.post()
+                    .uri(TOKEN_URL)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(tokenRequest)
+                    .retrieve()
+                    .body(String.class);
+            Map<String, Object> token = parseJson(tokenBody);
+            String accessToken = stringValue(token, "access_token");
+            if (isBlank(accessToken)) {
+                throw new BadRequestException("GitHub authorization failed");
+            }
 
-        String userBody = restClient.get()
-                .uri(USER_URL)
-                .accept(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + accessToken)
-                .header("X-GitHub-Api-Version", "2022-11-28")
-                .retrieve()
-                .body(String.class);
-        Map<String, Object> user = parseJson(userBody);
-        String id = stringValue(user, "id");
-        String nickname = firstNonBlank(stringValue(user, "name"), stringValue(user, "login"));
-        String avatar = stringValue(user, "avatar_url");
-        if (isBlank(id)) {
-            throw new BadRequestException("GitHub identity lookup failed");
+            String userBody = restClient.get()
+                    .uri(USER_URL)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .retrieve()
+                    .body(String.class);
+            Map<String, Object> user = parseJson(userBody);
+            String id = stringValue(user, "id");
+            String nickname = firstNonBlank(stringValue(user, "name"), stringValue(user, "login"));
+            String avatar = stringValue(user, "avatar_url");
+            if (isBlank(id)) {
+                throw new BadRequestException("GitHub identity lookup failed");
+            }
+            return new OAuthDTO.ProviderProfile(id, null, nickname, avatar);
+        } catch (RestClientException e) {
+            throw new BadRequestException("GitHub 登录服务暂时不可用，请检查后端服务器到 github.com 的网络连接或启用本地 OAuth mock 模式");
         }
-        return new OAuthDTO.ProviderProfile(id, null, nickname, avatar);
     }
 
     private void ensureConfigured(OAuthProperties.Provider provider) {
