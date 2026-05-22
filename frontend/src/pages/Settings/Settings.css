@@ -12,6 +12,51 @@
   margin-top: 24px;
 }
 
+.account-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.account-delete-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.38);
+}
+
+.account-delete-dialog {
+  width: min(420px, 100%);
+  padding: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: var(--surface-card);
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.22);
+}
+
+.account-delete-dialog h3 {
+  margin: 0 0 10px;
+  color: var(--text-default);
+  font-size: 20px;
+}
+
+.account-delete-dialog p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.account-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
 /* Customization sub-navigation */
 .custom-nav {
   display: flex;
@@ -437,6 +482,14 @@
 
   .data-options {
     gap: 8px;
+  }
+
+  .account-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .account-delete-actions {
+    flex-direction: column-reverse;
   }
 }
 

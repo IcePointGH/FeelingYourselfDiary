@@ -19,6 +19,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByUserIdOrderByDateDescTimeDesc(Long userId);
     Page<Schedule> findByUserId(Long userId, Pageable pageable);
     void deleteByUserIdAndId(Long userId, Long id);
+    void deleteByUserId(Long userId);
 
     /**
      * Aggregate daily feeling totals for a user within a date range, grouped by date.

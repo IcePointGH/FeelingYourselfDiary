@@ -4,6 +4,7 @@ import com.diaryproject.backend.common.cache.CacheService;
 import com.diaryproject.backend.common.dto.ApiResponse;
 import com.diaryproject.backend.auth.dto.AuthDTO;
 import com.diaryproject.backend.common.security.JwtUtil;
+import com.diaryproject.backend.auth.service.AccountDeletionService;
 import com.diaryproject.backend.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,11 +22,16 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
+    private final AccountDeletionService accountDeletionService;
     private final JwtUtil jwtUtil;
     private final CacheService cacheService;
 
-    public AuthController(AuthService authService, JwtUtil jwtUtil, CacheService cacheService) {
+    public AuthController(AuthService authService,
+                          AccountDeletionService accountDeletionService,
+                          JwtUtil jwtUtil,
+                          CacheService cacheService) {
         this.authService = authService;
+        this.accountDeletionService = accountDeletionService;
         this.jwtUtil = jwtUtil;
         this.cacheService = cacheService;
     }
@@ -50,6 +56,20 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) {
+        blacklistCurrentToken(request);
+        return ApiResponse.success(null);
+    }
+
+    @DeleteMapping("/me")
+    public ApiResponse<Void> deleteCurrentAccount(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        accountDeletionService.deleteAccount(userId);
+        blacklistCurrentToken(request);
+        log.info("用户 {} 已注销账号", userId);
+        return ApiResponse.success(null);
+    }
+
+    private void blacklistCurrentToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -65,6 +85,5 @@ public class AuthController {
                 }
             }
         }
-        return ApiResponse.success(null);
     }
 }

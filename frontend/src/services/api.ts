@@ -6,6 +6,7 @@ export const AUTH_API = {
   login: `${API_BASE_URL}/auth/login`,
   register: `${API_BASE_URL}/auth/register`,
   me: `${API_BASE_URL}/auth/me`,
+  deleteMe: `${API_BASE_URL}/auth/me`,
   avatar: `${API_BASE_URL}/auth/avatar`,
   oauthAuthorize: (provider: OAuthProvider, returnTo: string = '/schedule') =>
     `${API_BASE_URL}/auth/oauth/${provider}/authorize?returnTo=${encodeURIComponent(returnTo)}`,

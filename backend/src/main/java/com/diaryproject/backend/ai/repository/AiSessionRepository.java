@@ -17,4 +17,6 @@ public interface AiSessionRepository extends JpaRepository<AiSession, Long> {
     Optional<AiSession> findByUserIdAndId(Long userId, Long id);
 
     void deleteByUserIdAndId(Long userId, Long id);
+
+    void deleteByUserId(Long userId);
 }

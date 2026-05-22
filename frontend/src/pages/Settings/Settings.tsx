@@ -62,6 +62,8 @@ export default function SettingsPage() {
   // 自定义子面板切换
   type CustomSection = 'emotion' | 'mode' | 'thoughts' | 'dark' | null;
   const [customSection, setCustomSection] = useState<CustomSection>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -194,6 +196,21 @@ export default function SettingsPage() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      await apiFetch(AUTH_API.deleteMe, { method: 'DELETE' });
+      logout();
+      addToast('账号已注销', 'success');
+      navigate('/');
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : '注销账号失败，请稍后再试', 'error');
+    } finally {
+      setDeletingAccount(false);
+      setDeleteConfirmOpen(false);
+    }
   };
 
   return (
@@ -360,13 +377,47 @@ export default function SettingsPage() {
         </CollapsiblePanel>
 
         <CollapsiblePanel title="账户操作">
-          <button className="ui-btn ui-btn-danger settings-btn-full" onClick={handleLogout}>
-            <i className="fas fa-sign-out-alt" />
-            <span>退出登录</span>
-          </button>
+          <div className="account-action-row">
+            <button className="ui-btn ui-btn-secondary settings-btn-full" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt" />
+              <span>退出登录</span>
+            </button>
+            <button className="ui-btn ui-btn-danger settings-btn-full" onClick={() => setDeleteConfirmOpen(true)}>
+              <i className="fas fa-user-slash" />
+              <span>注销账号</span>
+            </button>
+          </div>
         </CollapsiblePanel>
       </div>
       <IcpFooter className="settings-icp-footer" />
+      {deleteConfirmOpen && (
+        <div className="account-delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-account-title">
+          <div className="account-delete-dialog">
+            <h3 id="delete-account-title">确认注销账号？</h3>
+            <p>
+              注销后，你的账号、日程、日记、情绪记录、AI 会话和个性化设置将被删除。此操作无法撤销。
+            </p>
+            <div className="account-delete-actions">
+              <button
+                type="button"
+                className="ui-btn ui-btn-secondary"
+                onClick={() => setDeleteConfirmOpen(false)}
+                disabled={deletingAccount}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="ui-btn ui-btn-danger"
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+              >
+                {deletingAccount ? '正在注销...' : '确认注销'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

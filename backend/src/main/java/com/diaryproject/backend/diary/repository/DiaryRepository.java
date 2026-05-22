@@ -18,4 +18,5 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     Page<Diary> findByUserId(Long userId, Pageable pageable);
     Optional<Diary> findByUserIdAndId(Long userId, Long id);
     void deleteByUserIdAndId(Long userId, Long id);
+    void deleteByUserId(Long userId);
 }

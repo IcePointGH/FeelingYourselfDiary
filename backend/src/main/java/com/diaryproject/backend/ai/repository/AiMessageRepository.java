@@ -2,6 +2,7 @@ package com.diaryproject.backend.ai.repository;
 
 import com.diaryproject.backend.ai.entity.AiMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,13 @@ public interface AiMessageRepository extends JpaRepository<AiMessage, Long> {
             LIMIT :limit
             """, nativeQuery = true)
     List<AiMessage> findRecentByUserId(@Param("userId") Long userId, @Param("limit") int limit);
+
+    @Modifying
+    @Query("""
+            DELETE FROM AiMessage m
+            WHERE m.sessionId IN (
+                SELECT s.id FROM AiSession s WHERE s.userId = :userId
+            )
+            """)
+    void deleteByUserId(@Param("userId") Long userId);
 }

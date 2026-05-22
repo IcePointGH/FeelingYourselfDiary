@@ -13,6 +13,7 @@ export default function Register() {
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const { register, loading } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -32,6 +33,10 @@ export default function Register() {
     setError('');
     setSuccess('');
     if (validateAll()) return;
+    if (!privacyAccepted) {
+      setError('请先阅读并同意隐私政策');
+      return;
+    }
     try {
       await register({ username, password, nickname });
       setSuccess('注册成功，正在跳转...');
@@ -92,6 +97,16 @@ export default function Register() {
             {loading ? '注册中...' : '注册'}
           </button>
         </form>
+        <label className="privacy-consent">
+          <input
+            type="checkbox"
+            checked={privacyAccepted}
+            onChange={event => setPrivacyAccepted(event.target.checked)}
+          />
+          <span>
+            我已阅读并同意 <Link to="/privacy-policy">《隐私政策》</Link>
+          </span>
+        </label>
         <p className="auth-link">
           已有账号？ <Link to="/login">立即登录</Link>
         </p>

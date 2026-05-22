@@ -16,4 +16,6 @@ public interface UserMemoryRepository extends JpaRepository<UserMemory, Long> {
      * 根据用户 ID 查询记忆画像（每个用户至多一条记录）
      */
     Optional<UserMemory> findByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 }

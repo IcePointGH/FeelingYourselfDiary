@@ -71,6 +71,33 @@
   width: 100%;
 }
 
+.privacy-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.privacy-consent input {
+  width: 15px;
+  height: 15px;
+  margin-top: 3px;
+  accent-color: var(--accent-positive-3);
+}
+
+.privacy-consent a {
+  color: var(--accent-positive-3);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.privacy-consent a:hover {
+  text-decoration: underline;
+}
+
 .error-message {
   background-color: #fef0f0;
   color: #c93c3c;
