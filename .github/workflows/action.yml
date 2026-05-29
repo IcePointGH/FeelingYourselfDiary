@@ -1,4 +1,4 @@
-name: Sync GitHub main to Gitee
+name: Sync and Deploy main
 
 on:
   push:
@@ -34,3 +34,30 @@ jobs:
         run: |
           git remote add gitee "$GITEE_REPO"
           git push gitee HEAD:main
+
+  deploy-production:
+    name: Deploy production server
+    runs-on: ubuntu-latest
+    needs: sync-to-gitee
+
+    steps:
+      - name: Configure server SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/server_deploy_key
+          chmod 600 ~/.ssh/server_deploy_key
+          ssh-keyscan -p "${{ secrets.SERVER_PORT || '22' }}" "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Pull code and restart Docker stack
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
+        run: |
+          ssh -i ~/.ssh/server_deploy_key -o IdentitiesOnly=yes -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" <<'EOF'
+          set -e
+          cd /home/ubuntu/vibeCodingProject/FeelingYourSelfDiary
+          git pull
+          docker-compose -f docker-compose.prod.yml down
+          docker-compose -f docker-compose.prod.yml up -d --build
+          EOF
