@@ -54,10 +54,10 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PORT: ${{ secrets.SERVER_PORT || '22' }}
         run: |
-          ssh -i ~/.ssh/server_deploy_key -o IdentitiesOnly=yes -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" <<'EOF'
-          set -e
-          cd /home/ubuntu/vibeCodingProject/FeelingYourSelfDiary
-          git pull
-          docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up -d --build
-          EOF
+          ssh -i ~/.ssh/server_deploy_key -o BatchMode=yes -o IdentitiesOnly=yes -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "
+            set -e
+            cd /home/ubuntu/vibeCodingProject/FeelingYourSelfDiary
+            git pull
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d --build
+          "
